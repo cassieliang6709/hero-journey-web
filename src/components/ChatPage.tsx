@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -96,6 +97,10 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
     }
   };
 
+  const handleAvatarClick = () => {
+    onLogout();
+  };
+
   if (loading) {
     return (
       <div className="mobile-container bg-white flex items-center justify-center">
@@ -113,9 +118,12 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
       {/* 顶部导航 */}
       <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center">
+          <button
+            onClick={handleAvatarClick}
+            className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors"
+          >
             <span className="text-xl">{avatars[selectedAvatar]}</span>
-          </div>
+          </button>
           <div>
             <h1 className="text-gray-900 font-semibold">引导者</h1>
           </div>
