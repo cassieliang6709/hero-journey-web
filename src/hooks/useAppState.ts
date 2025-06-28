@@ -132,6 +132,38 @@ export const useAppState = () => {
     }
   };
 
+  const resetOnboarding = async () => {
+    if (!user || !state.profile) return;
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          completed_onboarding: false
+        })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('重置引导失败:', error);
+        return;
+      }
+
+      setState(prev => ({
+        ...prev,
+        currentStep: 'onboarding',
+        onboardingStep: 0,
+        selectedIdeas: [],
+        selectedAvatar: 0,
+        profile: prev.profile ? {
+          ...prev.profile,
+          completed_onboarding: false
+        } : null
+      }));
+    } catch (error) {
+      console.error('重置引导错误:', error);
+    }
+  };
+
   const logout = async () => {
     await signOut();
     setState({
@@ -151,6 +183,7 @@ export const useAppState = () => {
     selectIdea,
     changeAvatar,
     completeOnboarding,
+    resetOnboarding,
     logout
   };
 };

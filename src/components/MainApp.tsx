@@ -10,9 +10,10 @@ interface MainAppProps {
   user: { id: string; username: string; };
   selectedAvatar: number;
   onLogout: () => void;
+  onResetOnboarding: () => void;
 }
 
-const MainApp: React.FC<MainAppProps> = ({ user, selectedAvatar, onLogout }) => {
+const MainApp: React.FC<MainAppProps> = ({ user, selectedAvatar, onLogout, onResetOnboarding }) => {
   const [currentPage, setCurrentPage] = useState<'chat' | 'todo' | 'starmap' | 'physical-test' | 'talent-test'>('chat');
 
   const handleSwipeLeft = () => {
@@ -54,6 +55,7 @@ const MainApp: React.FC<MainAppProps> = ({ user, selectedAvatar, onLogout }) => 
           onSwipeLeft={handleSwipeLeft}
           onGoToStarMap={handleGoToStarMap}
           onLogout={onLogout}
+          onResetOnboarding={onResetOnboarding}
         />
       )}
       {currentPage === 'todo' && (

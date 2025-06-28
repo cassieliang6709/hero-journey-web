@@ -16,6 +16,7 @@ const Index = () => {
     selectIdea,
     changeAvatar,
     completeOnboarding,
+    resetOnboarding,
     logout
   } = useAppState();
 
@@ -76,6 +77,7 @@ const Index = () => {
         }}
         selectedAvatar={state.selectedAvatar}
         onLogout={logout}
+        onResetOnboarding={resetOnboarding}
       />
     );
   }
