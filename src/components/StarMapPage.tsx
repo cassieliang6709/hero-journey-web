@@ -2,7 +2,6 @@ import React, { useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Plus, Minus } from 'lucide-react';
-import TaskDrawer from './TaskDrawer';
 
 interface SkillNode {
   id: string;
@@ -334,6 +333,19 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
 
   const selectedNodeData = selectedNode ? skillNodes.find(n => n.id === selectedNode) : null;
 
+    const getUserConcerns = () => {
+    const concerns = [
+      "好害怕面试好焦虑",
+      "最近胖了10斤",
+      "心情低落",
+      "感觉身体好差，没有精力",
+      "最近找不到工作很烦"
+    ];
+    return concerns[Math.floor(Math.random() * concerns.length)];
+  };
+
+  const currentConcern = getUserConcerns();
+
   return (
     <div className="mobile-container min-h-screen bg-white">
       {/* 顶部导航 */}
@@ -365,7 +377,6 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
           >
             <Minus className="w-4 h-4" />
           </Button>
-
         </div>
       </div>
 
@@ -403,14 +414,6 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
             {renderNodes()}
           </div>
         </div>
-      </div>
-
-      {/* 抽屉式卡片 */}
-      <div className="px-4 mb-6">
-        <TaskDrawer 
-          onGoToPhysicalTest={onGoToPhysicalTest}
-          onGoToTalentTest={onGoToTalentTest}
-        />
       </div>
 
       {/* 节点详情面板 */}
