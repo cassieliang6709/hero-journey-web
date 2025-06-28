@@ -40,15 +40,21 @@ const OnboardingStep2: React.FC<OnboardingStep2Props> = ({
               key={index}
               className={`p-4 cursor-pointer transition-all duration-200 ${
                 selectedIdeas.includes(idea)
-                  ? 'bg-hero-500/20 border-hero-500 scale-105'
+                  ? 'bg-white border-hero-500 scale-105 shadow-lg'
                   : 'glass-effect hover:bg-white/15'
               }`}
               onClick={() => onSelectIdea(idea)}
             >
               <div className="flex items-center justify-between">
-                <span className="text-white">{idea}</span>
+                <span className={`${
+                  selectedIdeas.includes(idea) 
+                    ? 'text-gray-800 font-medium' 
+                    : 'text-white'
+                }`}>
+                  {idea}
+                </span>
                 {selectedIdeas.includes(idea) && (
-                  <span className="text-hero-400 text-xl">✓</span>
+                  <span className="text-hero-500 text-xl font-bold">✓</span>
                 )}
               </div>
             </Card>
