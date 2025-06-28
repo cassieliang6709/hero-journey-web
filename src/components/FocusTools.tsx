@@ -4,11 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, RotateCcw, Users, Timer } from 'lucide-react';
 
-interface FocusToolsProps {
-  concern: string;
-}
-
-const FocusTools: React.FC<FocusToolsProps> = ({ concern }) => {
+const FocusTools: React.FC = () => {
   const [breathingActive, setBreathingActive] = useState(false);
   const [breathingPhase, setBreathingPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
   const [breathingTimer, setBreathingTimer] = useState(0);
@@ -93,14 +89,6 @@ const FocusTools: React.FC<FocusToolsProps> = ({ concern }) => {
 
   return (
     <div className="space-y-3">
-      {/* 关注焦点卡片 */}
-      <Card className="bg-white border border-gray-200 p-4">
-        <h3 className="text-gray-900 font-medium mb-2">当前焦点</h3>
-        <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg border-l-4 border-gray-900">
-          {concern}
-        </p>
-      </Card>
-
       {/* 4-4-6 呼吸训练 */}
       <Card className="bg-white border border-gray-200 p-4">
         <div className="flex items-center justify-between mb-3">

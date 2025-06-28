@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';  
 import { ArrowLeft, Globe, Check, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
-import FocusTools from './FocusTools';
+import TaskDrawer from './TaskDrawer';
 
 interface TodoItem {
   id: number;
@@ -17,6 +17,8 @@ interface TodoPageProps {
   user: { username: string };
   onGoToStarMap: () => void;
   onBack: () => void;
+  onGoToPhysicalTest?: () => void;
+  onGoToTalentTest?: () => void;
 }
 
 const initialTodos: TodoItem[] = [
@@ -31,7 +33,7 @@ const initialTodos: TodoItem[] = [
   { id: 9, text: '练习编程', completed: false, category: '技能', date: '2024-01-16' },
 ];
 
-const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
+const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack, onGoToPhysicalTest, onGoToTalentTest }) => {
   const [todos, setTodos] = useState<TodoItem[]>(initialTodos);
   const [selectedDate, setSelectedDate] = useState('2024-01-15');
   const [showAllDates, setShowAllDates] = useState(false);
@@ -60,10 +62,10 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case '身体': return 'bg-green-500/20 text-green-700 border-green-300';
-      case '情绪': return 'bg-blue-500/20 text-blue-700 border-blue-300';
-      case '技能': return 'bg-purple-500/20 text-purple-700 border-purple-300';
-      default: return 'bg-gray-500/20 text-gray-700 border-gray-300';
+      case '身体': return 'bg-gray-100 text-gray-800 border-gray-300';
+      case '情绪': return 'bg-gray-100 text-gray-800 border-gray-300';
+      case '技能': return 'bg-gray-100 text-gray-800 border-gray-300';
+      default: return 'bg-gray-100 text-gray-800 border-gray-300';
     }
   };
 
@@ -224,9 +226,12 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
           )}
         </div>
 
-        {/* 右侧：专注工具 */}
+        {/* 右侧：任务管理和专注工具 */}
         <div className="w-80">
-          <FocusTools concern="最近胖了10斤" />
+          <TaskDrawer 
+            onGoToPhysicalTest={onGoToPhysicalTest}
+            onGoToTalentTest={onGoToTalentTest}
+          />
         </div>
       </div>
     </div>

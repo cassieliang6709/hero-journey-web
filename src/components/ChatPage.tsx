@@ -169,9 +169,6 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
               }`}
             >
               <p>{message.text}</p>
-              <p className="text-xs opacity-70 mt-1">
-                {message.timestamp.toLocaleTimeString()}
-              </p>
             </div>
           </div>
         ))}
