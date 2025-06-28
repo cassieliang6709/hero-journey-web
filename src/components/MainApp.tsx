@@ -5,7 +5,6 @@ import TodoPage from './TodoPage';
 import StarMapPage from './StarMapPage';
 import PhysicalTestPage from './PhysicalTestPage';
 import TalentTestPage from './TalentTestPage';
-import OnboardingManager from './OnboardingManager';
 
 interface MainAppProps {
   user: { id: string; username: string; };
@@ -14,7 +13,7 @@ interface MainAppProps {
 }
 
 const MainApp: React.FC<MainAppProps> = ({ user, selectedAvatar, onLogout }) => {
-  const [currentPage, setCurrentPage] = useState<'chat' | 'todo' | 'starmap' | 'physical-test' | 'talent-test' | 'onboarding-manager'>('chat');
+  const [currentPage, setCurrentPage] = useState<'chat' | 'todo' | 'starmap' | 'physical-test' | 'talent-test'>('chat');
 
   const handleSwipeLeft = () => {
     if (currentPage === 'chat') {
@@ -32,10 +31,6 @@ const MainApp: React.FC<MainAppProps> = ({ user, selectedAvatar, onLogout }) => 
 
   const handleGoToTalentTest = () => {
     setCurrentPage('talent-test');
-  };
-
-  const handleGoToOnboardingManager = () => {
-    setCurrentPage('onboarding-manager');
   };
 
   const handleBackToTodo = () => {
@@ -58,7 +53,6 @@ const MainApp: React.FC<MainAppProps> = ({ user, selectedAvatar, onLogout }) => 
           selectedAvatar={selectedAvatar}
           onSwipeLeft={handleSwipeLeft}
           onGoToStarMap={handleGoToStarMap}
-          onGoToOnboardingManager={handleGoToOnboardingManager}
           onLogout={onLogout}
         />
       )}
@@ -88,11 +82,6 @@ const MainApp: React.FC<MainAppProps> = ({ user, selectedAvatar, onLogout }) => 
         <TalentTestPage 
           user={user}
           onBack={handleBackToStarMap}
-        />
-      )}
-      {currentPage === 'onboarding-manager' && (
-        <OnboardingManager 
-          onBack={handleBackToChat}
         />
       )}
     </div>
