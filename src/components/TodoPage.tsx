@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';  
-import { ArrowLeft, Star, Check, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { ArrowLeft, Globe, Check, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import FocusTools from './FocusTools';
 
 interface TodoItem {
@@ -82,20 +83,20 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
   };
 
   return (
-    <div className="mobile-container gradient-bg min-h-screen">
+    <div className="mobile-container bg-white min-h-screen">
       {/* 顶部导航 */}
-      <div className="flex items-center justify-between p-4 glass-effect">
+      <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
         <div className="flex items-center space-x-3">
           <Button
             variant="ghost"
             size="sm"
             onClick={onBack}
-            className="text-gray-800 p-0"
+            className="text-gray-900 p-0 hover:bg-gray-100"
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-gray-800 font-semibold">待办事项</h1>
+            <h1 className="text-gray-900 font-semibold">待办事项</h1>
             <p className="text-gray-600 text-sm">完成率: {completionRate}%</p>
           </div>
         </div>
@@ -103,9 +104,9 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
           variant="ghost"
           size="sm"
           onClick={onGoToStarMap}
-          className="text-gray-800"
+          className="text-gray-900 hover:bg-gray-100"
         >
-          <Star className="w-5 h-5" />
+          <Globe className="w-5 h-5" />
         </Button>
       </div>
 
@@ -114,17 +115,17 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
         {/* 左侧：任务列表 */}
         <div className="flex-1 space-y-4">
           {/* 日期选择器 */}
-          <Card className="glass-effect p-4">
+          <Card className="bg-white border border-gray-200 p-4">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
                 <Calendar className="w-5 h-5 text-gray-600" />
-                <span className="text-gray-800 font-medium">日期选择</span>
+                <span className="text-gray-900 font-medium">日期选择</span>
               </div>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowAllDates(!showAllDates)}
-                className="text-xs"
+                className="text-xs border-gray-300 text-gray-700 hover:bg-gray-50"
               >
                 {showAllDates ? '显示当日' : '显示全部'}
               </Button>
@@ -137,11 +138,12 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
                   size="sm"
                   onClick={() => changeDate('prev')}
                   disabled={getDateOptions().indexOf(selectedDate) === 0}
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
                 
-                <span className="text-lg font-semibold text-gray-800">
+                <span className="text-lg font-semibold text-gray-900">
                   {formatDate(selectedDate)}
                 </span>
                 
@@ -150,6 +152,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
                   size="sm"
                   onClick={() => changeDate('next')}
                   disabled={getDateOptions().indexOf(selectedDate) === getDateOptions().length - 1}
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </Button>
@@ -158,16 +161,16 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
           </Card>
 
           {/* 进度条 */}
-          <Card className="glass-effect p-4">
+          <Card className="bg-white border border-gray-200 p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-800 font-medium">
+              <span className="text-gray-900 font-medium">
                 {showAllDates ? '总体进度' : '今日进度'}
               </span>
-              <span className="text-hero-500 font-bold">{completedCount}/{filteredTodos.length}</span>
+              <span className="text-gray-900 font-bold">{completedCount}/{filteredTodos.length}</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-3">
               <div 
-                className="hero-gradient h-3 rounded-full transition-all duration-500"
+                className="bg-gray-900 h-3 rounded-full transition-all duration-500"
                 style={{ width: `${completionRate}%` }}
               />
             </div>
@@ -178,24 +181,24 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
             {filteredTodos.map((todo) => (
               <Card 
                 key={todo.id}
-                className={`p-4 cursor-pointer transition-all duration-200 ${
+                className={`p-4 cursor-pointer transition-all duration-200 border ${
                   todo.completed 
-                    ? 'glass-effect opacity-60' 
-                    : 'glass-effect hover:shadow-md'
+                    ? 'bg-gray-50 border-gray-200 opacity-60' 
+                    : 'bg-white border-gray-200 hover:shadow-md hover:border-gray-300'
                 }`}
                 onClick={() => toggleTodo(todo.id)}
               >
                 <div className="flex items-center space-x-3">
                   <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                     todo.completed 
-                      ? 'bg-hero-500 border-hero-500' 
+                      ? 'bg-gray-900 border-gray-900' 
                       : 'border-gray-400'
                   }`}>
                     {todo.completed && <Check className="w-4 h-4 text-white" />}
                   </div>
                   
                   <div className="flex-1">
-                    <p className={`text-gray-800 ${todo.completed ? 'line-through' : ''}`}>
+                    <p className={`text-gray-900 ${todo.completed ? 'line-through' : ''}`}>
                       {todo.text}
                     </p>
                     {showAllDates && (
@@ -213,9 +216,9 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
 
           {/* 励志消息 */}
           {completionRate > 50 && (
-            <Card className="glass-effect p-4 text-center animate-fade-in">
+            <Card className="bg-white border border-gray-200 p-4 text-center animate-fade-in">
               <span className="text-2xl mb-2 block">🎉</span>
-              <p className="text-gray-800 font-medium">做得很棒！</p>
+              <p className="text-gray-900 font-medium">做得很棒！</p>
               <p className="text-gray-600 text-sm">你已经完成了一半以上的任务</p>
             </Card>
           )}

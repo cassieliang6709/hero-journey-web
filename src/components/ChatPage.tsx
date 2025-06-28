@@ -1,8 +1,9 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Send, Menu, ListTodo, Star } from 'lucide-react';
+import { Send, Menu, ListTodo, Globe } from 'lucide-react';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -111,13 +112,16 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
       onTouchEnd={handleTouchEnd}
     >
       {/* 顶部导航 */}
-      <div className="flex items-center justify-between p-4 glass-effect">
+      <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 hero-gradient rounded-full flex items-center justify-center">
+          <button
+            onClick={onLogout}
+            className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
+          >
             <span className="text-xl">{avatars[selectedAvatar]}</span>
-          </div>
+          </button>
           <div>
-            <h1 className="text-gray-800 font-semibold">英雄对话</h1>
+            <h1 className="text-gray-900 font-semibold">英雄对话</h1>
             <p className="text-gray-600 text-sm">与你的导师交流</p>
           </div>
         </div>
@@ -126,15 +130,15 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
             variant="ghost"
             size="sm"
             onClick={onGoToStarMap}
-            className="text-gray-800 p-2"
+            className="text-gray-900 p-2 hover:bg-gray-100"
           >
-            <Star className="w-5 h-5" />
+            <Globe className="w-5 h-5" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setShowMenu(!showMenu)}
-            className="text-gray-800"
+            className="text-gray-900 hover:bg-gray-100"
           >
             <Menu className="w-5 h-5" />
           </Button>
@@ -143,14 +147,10 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
 
       {/* 菜单 */}
       {showMenu && (
-        <Card className="mx-4 mb-2 glass-effect p-2 animate-fade-in">
-          <Button
-            variant="ghost"
-            onClick={onLogout}
-            className="w-full text-left text-gray-800 hover:bg-gray-100"
-          >
-            退出登录
-          </Button>
+        <Card className="mx-4 mb-2 bg-white border border-gray-200 p-2 animate-fade-in">
+          <div className="text-gray-600 text-sm p-2">
+            点击头像可以退出登录
+          </div>
         </Card>
       )}
 
@@ -164,8 +164,8 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
             <div
               className={`max-w-[80%] p-3 rounded-2xl ${
                 message.isUser
-                  ? 'bg-orange-500 text-white'
-                  : 'glass-effect text-gray-800'
+                  ? 'bg-gray-900 text-white'
+                  : 'bg-gray-100 text-gray-900 border border-gray-200'
               }`}
             >
               <p>{message.text}</p>
@@ -178,7 +178,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
         
         {aiTyping && (
           <div className="flex justify-start">
-            <div className="glass-effect text-gray-800 p-3 rounded-2xl">
+            <div className="bg-gray-100 text-gray-900 border border-gray-200 p-3 rounded-2xl">
               <div className="flex space-x-1">
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
@@ -204,18 +204,18 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
       </div>
 
       {/* 输入框 */}
-      <form onSubmit={handleSend} className="p-4 glass-effect">
+      <form onSubmit={handleSend} className="p-4 bg-white border-t border-gray-200">
         <div className="flex space-x-2">
           <Input
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="输入你的想法..."
-            className="flex-1 bg-white border-gray-300 text-gray-800 placeholder:text-gray-500"
+            className="flex-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
             disabled={aiTyping}
           />
           <Button 
             type="submit" 
-            className="hero-gradient px-3"
+            className="bg-gray-900 hover:bg-gray-800 text-white px-3"
             disabled={aiTyping || !inputText.trim()}
           >
             <Send className="w-5 h-5" />

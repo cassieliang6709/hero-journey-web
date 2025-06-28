@@ -11,20 +11,20 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 20.5 90.2% 48.2%;
-    --primary-foreground: 60 9.1% 97.8%;
-    --secondary: 210 40% 96%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96%;
     --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
+    --muted: 0 0% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
+    --accent: 0 0% 96%;
     --accent-foreground: 222.2 84% 4.9%;
     --destructive: 0 72.2% 50.6%;
     --destructive-foreground: 60 9.1% 97.8%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 20.5 90.2% 48.2%;
-    --radius: 0.75rem;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 0 0% 9%;
+    --radius: 0.5rem;
   }
 }
 
@@ -44,20 +44,14 @@
   }
   
   .gradient-bg {
-    background: linear-gradient(135deg, 
-      #ffffff 0%, 
-      #f8fafc 50%, 
-      #f1f5f9 100%);
+    @apply bg-white;
   }
   
   .hero-gradient {
-    background: linear-gradient(135deg, 
-      #ee720d 0%, 
-      #f28d34 50%, 
-      #f7b56e 100%);
+    @apply bg-gray-900;
   }
   
   .glass-effect {
-    @apply bg-white/80 backdrop-blur-md border border-gray-200 shadow-lg;
+    @apply bg-white border border-gray-200 shadow-sm;
   }
 }
