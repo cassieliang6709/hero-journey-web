@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Send, Menu, ListTodo, Globe } from 'lucide-react';
+import { Send, ListTodo, Globe } from 'lucide-react';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -19,7 +19,6 @@ const avatars = ['🦸‍♂️', '🦸‍♀️', '🧙‍♂️', '🧙‍♀�
 
 const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, onGoToStarMap, onLogout }) => {
   const [inputText, setInputText] = useState('');
-  const [showMenu, setShowMenu] = useState(false);
   const [aiTyping, setAiTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number>(0);
@@ -114,12 +113,9 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
       {/* 顶部导航 */}
       <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
         <div className="flex items-center space-x-3">
-          <button
-            onClick={onLogout}
-            className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
-          >
+          <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center">
             <span className="text-xl">{avatars[selectedAvatar]}</span>
-          </button>
+          </div>
           <div>
             <h1 className="text-gray-900 font-semibold">引导者</h1>
           </div>
@@ -133,25 +129,8 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
           >
             <Globe className="w-5 h-5" />
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowMenu(!showMenu)}
-            className="text-gray-900 hover:bg-gray-100"
-          >
-            <Menu className="w-5 h-5" />
-          </Button>
         </div>
       </div>
-
-      {/* 菜单 */}
-      {showMenu && (
-        <Card className="mx-4 mb-2 bg-white border border-gray-200 p-2 animate-fade-in">
-          <div className="text-gray-600 text-sm p-2">
-            点击头像可以退出登录
-          </div>
-        </Card>
-      )}
 
       {/* 消息列表 */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
