@@ -121,8 +121,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
             <span className="text-xl">{avatars[selectedAvatar]}</span>
           </button>
           <div>
-            <h1 className="text-gray-900 font-semibold">英雄对话</h1>
-            <p className="text-gray-600 text-sm">与你的导师交流</p>
+            <h1 className="text-gray-900 font-semibold">引导者</h1>
           </div>
         </div>
         <div className="flex items-center space-x-2">
