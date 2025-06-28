@@ -348,7 +348,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex items-center space-x-2">
-            <h1 className="text-gray-900 font-bold text-lg">成长星图</h1>
+            <h1 className="text-gray-900 font-bold text-lg">星图</h1>
             <Badge variant="secondary" className="text-xs px-2 py-1 bg-gray-100 text-gray-700 border-gray-200">
               lv1
             </Badge>
@@ -365,22 +365,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
           >
             <Minus className="w-4 h-4" />
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={resetView}
-            className="text-xs text-gray-600 min-w-[3rem] text-center px-3 border-gray-200 hover:bg-gray-50"
-          >
-            全景
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleZoomIn}
-            className="text-gray-700 p-2 border-gray-200 hover:bg-gray-50"
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
+
         </div>
       </div>
 
