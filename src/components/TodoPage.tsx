@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';  
-import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, Globe, Check, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 
 interface TodoItem {
@@ -11,14 +10,10 @@ interface TodoItem {
   completed: boolean;
   category: string;
   date: string;
-}
-
-interface TaskItem {
-  id: string;
-  title: string;
-  completed: number;
-  total: number;
-  unit: string;
+  progress?: {
+    completed: number;
+    total: number;
+  };
 }
 
 interface TodoPageProps {
@@ -30,21 +25,54 @@ interface TodoPageProps {
 }
 
 const initialTodos: TodoItem[] = [
-  { id: 1, text: '早上运动30分钟', completed: false, category: '身体', date: '2024-01-15' },
-  { id: 2, text: '冥想15分钟', completed: false, category: '情绪', date: '2024-01-15' },
-  { id: 3, text: '学习新技能1小时', completed: false, category: '技能', date: '2024-01-15' },
-  { id: 4, text: '健康饮食记录', completed: false, category: '身体', date: '2024-01-15' },
-  { id: 5, text: '感恩日记', completed: false, category: '情绪', date: '2024-01-15' },
-  { id: 6, text: '阅读专业书籍', completed: false, category: '技能', date: '2024-01-15' },
-  { id: 7, text: '跑步5公里', completed: true, category: '身体', date: '2024-01-14' },
-  { id: 8, text: '写日记', completed: true, category: '情绪', date: '2024-01-14' },
-  { id: 9, text: '练习编程', completed: false, category: '技能', date: '2024-01-16' },
-];
-
-const taskItems: TaskItem[] = [
-  { id: 'water', title: '喝水', completed: 4, total: 8, unit: '杯' },
-  { id: 'exercise', title: '体能训练', completed: 3, total: 5, unit: '次' },
-  { id: 'sleep', title: '睡眠质量', completed: 7, total: 8, unit: '小时' },
+  { 
+    id: 1, 
+    text: '早上运动', 
+    completed: false, 
+    category: '身体', 
+    date: '2024-01-15',
+    progress: { completed: 2, total: 5 }
+  },
+  { 
+    id: 2, 
+    text: '冥想练习', 
+    completed: false, 
+    category: '情绪', 
+    date: '2024-01-15',
+    progress: { completed: 1, total: 3 }
+  },
+  { 
+    id: 3, 
+    text: '学习新技能', 
+    completed: false, 
+    category: '技能', 
+    date: '2024-01-15',
+    progress: { completed: 4, total: 6 }
+  },
+  { 
+    id: 7, 
+    text: '跑步锻炼', 
+    completed: true, 
+    category: '身体', 
+    date: '2024-01-14',
+    progress: { completed: 5, total: 5 }
+  },
+  { 
+    id: 8, 
+    text: '写日记', 
+    completed: true, 
+    category: '情绪', 
+    date: '2024-01-14',
+    progress: { completed: 3, total: 3 }
+  },
+  { 
+    id: 9, 
+    text: '练习编程', 
+    completed: false, 
+    category: '技能', 
+    date: '2024-01-16',
+    progress: { completed: 2, total: 4 }
+  },
 ];
 
 const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack, onGoToPhysicalTest, onGoToTalentTest }) => {
@@ -233,66 +261,59 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack, onGoTo
           </div>
         </Card>
 
-        {/* 任务管理 */}
-        <Card className="bg-white border border-gray-200 p-4">
-          <h3 className="text-gray-900 font-medium mb-4">任务管理</h3>
-          <div className="space-y-4">
-            {taskItems.map((task) => {
-              const percentage = (task.completed / task.total) * 100;
-              const remaining = task.total - task.completed;
-              
-              return (
-                <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex-1">
-                    <h4 className="font-medium text-gray-900 text-sm mb-1">{task.title}</h4>
-                    <div className="text-sm text-gray-600">
-                      <span className="font-medium">{task.completed}/{task.total}</span>
-                      <span className="ml-2">还剩{remaining}{task.unit}</span>
-                    </div>
-                  </div>
-                  <CircularProgress percentage={percentage} />
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-
         {/* 任务列表 */}
         <div className="space-y-3">
-          {filteredTodos.map((todo) => (
-            <Card 
-              key={todo.id}
-              className={`p-4 cursor-pointer transition-all duration-200 border ${
-                todo.completed 
-                  ? 'bg-gray-50 border-gray-200 opacity-60' 
-                  : 'bg-white border-gray-200 hover:shadow-md hover:border-gray-300'
-              }`}
-              onClick={() => toggleTodo(todo.id)}
-            >
-              <div className="flex items-center space-x-3">
-                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+          {filteredTodos.map((todo) => {
+            const progressPercentage = todo.progress ? (todo.progress.completed / todo.progress.total) * 100 : 0;
+            
+            return (
+              <Card 
+                key={todo.id}
+                className={`p-4 cursor-pointer transition-all duration-200 border ${
                   todo.completed 
-                    ? 'bg-gray-900 border-gray-900' 
-                    : 'border-gray-400'
-                }`}>
-                  {todo.completed && <Check className="w-4 h-4 text-white" />}
-                </div>
-                
-                <div className="flex-1">
-                  <p className={`text-gray-900 ${todo.completed ? 'line-through' : ''}`}>
-                    {todo.text}
-                  </p>
-                  {showAllDates && (
-                    <p className="text-xs text-gray-500 mt-1">{formatDate(todo.date)}</p>
+                    ? 'bg-gray-50 border-gray-200 opacity-60' 
+                    : 'bg-white border-gray-200 hover:shadow-md hover:border-gray-300'
+                }`}
+                onClick={() => toggleTodo(todo.id)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3 flex-1">
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                      todo.completed 
+                        ? 'bg-gray-900 border-gray-900' 
+                        : 'border-gray-400'
+                    }`}>
+                      {todo.completed && <Check className="w-4 h-4 text-white" />}
+                    </div>
+                    
+                    <div className="flex-1">
+                      <p className={`text-gray-900 ${todo.completed ? 'line-through' : ''}`}>
+                        {todo.text}
+                      </p>
+                      {todo.progress && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {todo.progress.completed}/{todo.progress.total}
+                        </p>
+                      )}
+                      {showAllDates && (
+                        <p className="text-xs text-gray-500 mt-1">{formatDate(todo.date)}</p>
+                      )}
+                    </div>
+                    
+                    <span className={`px-2 py-1 rounded-full text-xs border ${getCategoryColor(todo.category)}`}>
+                      {todo.category}
+                    </span>
+                  </div>
+                  
+                  {todo.progress && (
+                    <div className="ml-3">
+                      <CircularProgress percentage={progressPercentage} size={36} />
+                    </div>
                   )}
                 </div>
-                
-                <span className={`px-2 py-1 rounded-full text-xs border ${getCategoryColor(todo.category)}`}>
-                  {todo.category}
-                </span>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
         </div>
 
         {/* 励志消息 */}
