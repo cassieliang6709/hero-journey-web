@@ -1,7 +1,7 @@
-
 import React, { useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Plus, Minus, Target, Calendar, Activity, Brain, Droplets, Moon, Dumbbell } from 'lucide-react';
 
 interface SkillNode {
@@ -399,8 +399,11 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <div>
+          <div className="flex items-center space-x-2">
             <h1 className="text-slate-800 font-bold text-lg">成长星图</h1>
+            <Badge variant="secondary" className="text-xs px-2 py-1 bg-blue-100 text-blue-700 border-blue-200">
+              lv1
+            </Badge>
             <p className="text-slate-600 text-sm">针对: {currentConcern}</p>
           </div>
         </div>
@@ -446,7 +449,9 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
           className="absolute inset-0 w-full h-full pointer-events-none"
           style={{
             transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`,
-            transformOrigin: 'center'
+            transformOrigin: 'center',
+            width: '1200px',
+            height: '800px'
           }}
         >
           {renderConnections()}
@@ -456,7 +461,9 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
           className="relative w-full h-full pointer-events-none"
           style={{
             transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`,
-            transformOrigin: 'center'
+            transformOrigin: 'center',
+            width: '1200px',
+            height: '800px'
           }}
         >
           <div className="pointer-events-auto">
@@ -467,28 +474,28 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
 
       {/* 任务管理数据 */}
       <div className="px-4 mb-4">
-        <h3 className="text-slate-800 font-semibold mb-3">任务管理</h3>
+        <h3 className="text-slate-800 font-medium text-sm mb-3">任务管理</h3>
         <div className="space-y-3">
           {taskData.map((task, index) => (
             <Card key={index} className={`${task.bgColor} ${task.borderColor} border-2 shadow-sm`}>
-              <CardContent className="p-4">
+              <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className={`p-3 rounded-full ${task.bgColor}`}>
-                      <task.icon className={`w-6 h-6 ${task.color}`} />
+                    <div className={`p-2 rounded-full ${task.bgColor}`}>
+                      <task.icon className={`w-4 h-4 ${task.color}`} />
                     </div>
                     <div>
-                      <h4 className="font-bold text-slate-800 text-lg">{task.title}</h4>
-                      <p className="text-slate-600 text-sm">{task.subtitle}</p>
+                      <h4 className="font-medium text-slate-800 text-sm">{task.title}</h4>
+                      <p className="text-slate-600 text-xs">{task.subtitle}</p>
                       <p className="text-slate-500 text-xs">{task.date}</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="flex items-baseline space-x-1 mb-1">
-                      <span className="text-2xl font-bold text-slate-800">{task.progress}</span>
-                      <span className={`text-lg font-semibold ${task.color}`}>{task.percentage}</span>
+                      <span className="text-lg font-bold text-slate-800">{task.progress}</span>
+                      <span className={`text-sm font-semibold ${task.color}`}>{task.percentage}</span>
                     </div>
-                    <p className="text-slate-500 text-sm">{task.time}</p>
+                    <p className="text-slate-500 text-xs">{task.time}</p>
                   </div>
                 </div>
               </CardContent>
@@ -499,33 +506,33 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
 
       {/* 测试入口 */}
       <div className="px-4 mb-6">
-        <h3 className="text-slate-800 font-semibold mb-3">能力评估</h3>
+        <h3 className="text-slate-800 font-medium text-sm mb-3">能力评估</h3>
         <div className="space-y-3">
           <Button 
-            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-medium py-6 rounded-xl shadow-lg border-0"
+            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-medium py-4 rounded-xl shadow-lg border-0"
             onClick={() => {
               console.log('体能测试入口');
               onGoToPhysicalTest?.();
             }}
           >
-            <Activity className="w-6 h-6 mr-4" />
+            <Activity className="w-5 h-5 mr-3" />
             <div className="text-left">
-              <div className="font-semibold text-lg">体能测试</div>
-              <div className="text-sm opacity-90">评估身体素质，制定运动计划</div>
+              <div className="font-medium text-base">体能测试</div>
+              <div className="text-xs opacity-90">评估身体素质，制定运动计划</div>
             </div>
           </Button>
           
           <Button 
-            className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-medium py-6 rounded-xl shadow-lg border-0"
+            className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-medium py-4 rounded-xl shadow-lg border-0"
             onClick={() => {
               console.log('优势天赋测试入口');
               onGoToTalentTest?.();
             }}
           >
-            <Brain className="w-6 h-6 mr-4" />
+            <Brain className="w-5 h-5 mr-3" />
             <div className="text-left">
-              <div className="font-semibold text-lg">优势天赋测试</div>
-              <div className="text-sm opacity-90">发现个人天赋优势，制定成长路径</div>
+              <div className="font-medium text-base">优势天赋测试</div>
+              <div className="text-xs opacity-90">发现个人天赋优势，制定成长路径</div>
             </div>
           </Button>
         </div>
