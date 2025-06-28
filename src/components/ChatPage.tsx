@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,11 +12,12 @@ interface ChatPageProps {
   onSwipeLeft: () => void;
   onGoToStarMap: () => void;
   onLogout: () => void;
+  onResetOnboarding: () => void;
 }
 
 const avatars = ['🦸‍♂️', '🦸‍♀️', '🧙‍♂️', '🧙‍♀️', '👑', '⚡', '🔥', '🌟'];
 
-const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, onGoToStarMap, onLogout }) => {
+const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, onGoToStarMap, onLogout, onResetOnboarding }) => {
   const [inputText, setInputText] = useState('');
   const [aiTyping, setAiTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
