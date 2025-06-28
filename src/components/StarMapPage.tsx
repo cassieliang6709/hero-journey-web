@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Plus, Minus, Target, Calendar, Activity, Brain } from 'lucide-react';
+import { ArrowLeft, Plus, Minus, Target, Calendar, Activity, Brain, Droplets, Moon, Dumbbell } from 'lucide-react';
 
 interface SkillNode {
   id: string;
@@ -31,9 +31,12 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   onGoToPhysicalTest, 
   onGoToTalentTest 
 }) => {
-  const [zoomLevel, setZoomLevel] = useState(0.5);
-  const [panOffset, setPanOffset] = useState({ x: -30, y: -10 });
+  const [zoomLevel, setZoomLevel] = useState(0.8);
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // 根据用户苦恼生成的任务完成数据
   const getUserConcerns = () => {
@@ -49,7 +52,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
 
   const currentConcern = getUserConcerns();
 
-  // 技能树节点数据
+  // 扩大星图范围，确保所有节点都可见
   const skillNodes: SkillNode[] = [
     // 中心节点
     {
@@ -57,7 +60,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: user.username,
       description: '你的成长中心',
       category: 'psychology',
-      position: { x: 400, y: 300 },
+      position: { x: 500, y: 400 },
       status: 'active',
       connections: ['psychology-root', 'health-root', 'skill-root'],
       icon: '🌟'
@@ -69,7 +72,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '心理优势',
       description: '基于心理学的优势发展',
       category: 'psychology',
-      position: { x: 200, y: 200 },
+      position: { x: 250, y: 250 },
       status: 'active',
       connections: ['psychology-1', 'psychology-2'],
       icon: '🧠'
@@ -89,7 +92,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '思维模式',
       description: '培养积极思维和成长心态',
       category: 'psychology',
-      position: { x: 150, y: 100 },
+      position: { x: 200, y: 100 },
       status: 'active',
       connections: ['psychology-3'],
       requirements: ['psychology-root']
@@ -111,7 +114,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '身体健康',
       description: '全面的身体健康管理',
       category: 'health',
-      position: { x: 400, y: 150 },
+      position: { x: 500, y: 200 },
       status: 'active',
       connections: ['health-1', 'health-2', 'health-3'],
       icon: '💪'
@@ -121,7 +124,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '运动锻炼',
       description: '制定并执行运动计划',
       category: 'health',
-      position: { x: 350, y: 80 },
+      position: { x: 400, y: 80 },
       status: 'active',
       connections: ['health-4'],
       requirements: ['health-root']
@@ -131,7 +134,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '饮食管理',
       description: '建立健康的饮食习惯',
       category: 'health',
-      position: { x: 450, y: 80 },
+      position: { x: 550, y: 80 },
       status: 'mastered',
       connections: ['health-4'],
       requirements: ['health-root']
@@ -141,7 +144,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '睡眠优化',
       description: '优化睡眠质量和作息规律',
       category: 'health',
-      position: { x: 500, y: 120 },
+      position: { x: 650, y: 150 },
       status: 'available',
       connections: ['health-4'],
       requirements: ['health-root']
@@ -151,19 +154,19 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '体重管理',
       description: '科学的体重控制方法',
       category: 'health',
-      position: { x: 450, y: 30 },
+      position: { x: 500, y: 30 },
       status: 'available',
       connections: [],
       requirements: ['health-1', 'health-2']
     },
 
-    // 技能发展分支 - 现在会正确显示
+    // 技能发展分支
     {
       id: 'skill-root',
       name: '技能发展',
       description: '职场与生活技能全面提升',
       category: 'skill',
-      position: { x: 600, y: 200 },
+      position: { x: 750, y: 250 },
       status: 'active',
       connections: ['skill-1', 'skill-2', 'skill-3'],
       icon: '🎯'
@@ -173,7 +176,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '面试技巧',
       description: '掌握面试表达和技巧',
       category: 'skill',
-      position: { x: 700, y: 150 },
+      position: { x: 850, y: 150 },
       status: 'active',
       connections: ['skill-4'],
       requirements: ['skill-root']
@@ -183,7 +186,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '沟通能力',
       description: '提升人际沟通技能',
       category: 'skill',
-      position: { x: 650, y: 120 },
+      position: { x: 800, y: 120 },
       status: 'available',
       connections: ['skill-4'],
       requirements: ['skill-root']
@@ -193,7 +196,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '职业规划',
       description: '制定清晰的职业发展路径',
       category: 'skill',
-      position: { x: 720, y: 100 },
+      position: { x: 900, y: 100 },
       status: 'available',
       connections: ['skill-5'],
       requirements: ['skill-root']
@@ -203,7 +206,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '简历优化',
       description: '制作吸引人的简历',
       category: 'skill',
-      position: { x: 750, y: 60 },
+      position: { x: 920, y: 60 },
       status: 'available',
       connections: [],
       requirements: ['skill-1', 'skill-2']
@@ -213,70 +216,76 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '职场礼仪',
       description: '掌握职场基本礼仪',
       category: 'skill',
-      position: { x: 680, y: 50 },
+      position: { x: 850, y: 50 },
       status: 'locked',
       connections: [],
       requirements: ['skill-3']
     }
   ];
 
-  // 根据苦恼生成打卡数据
-  const getCheckInData = () => {
-    const concernMappings = {
-      "好害怕面试好焦虑": {
-        thisWeek: "8",
-        streak: "5",
-        tasks: "面试练习、自信训练"
-      },
-      "最近胖了10斤": {
-        thisWeek: "12",
-        streak: "7",
-        tasks: "运动打卡、饮食记录"
-      },
-      "心情低落": {
-        thisWeek: "6",
-        streak: "4",
-        tasks: "情绪日记、冥想练习"
-      },
-      "感觉身体好差，没有精力": {
-        thisWeek: "10",
-        streak: "6",
-        tasks: "睡眠管理、体能训练"
-      },
-      "最近找不到工作很烦": {
-        thisWeek: "9",
-        streak: "3",
-        tasks: "技能提升、求职准备"
-      }
-    };
-
-    const data = concernMappings[currentConcern as keyof typeof concernMappings] || concernMappings["心情低落"];
-    
+  // 详细的任务管理数据
+  const getTaskManagementData = () => {
     return [
       {
-        title: '本周完成',
-        value: data.thisWeek,
-        unit: '项任务',
-        trend: `+${Math.floor(Math.random() * 20 + 10)}%`,
-        icon: Target,
-        color: 'text-emerald-600',
-        bgColor: 'bg-emerald-50',
-        tasks: data.tasks
-      },
-      {
-        title: '连续打卡',
-        value: data.streak,
-        unit: '天',
-        trend: '持续中',
-        icon: Calendar,
+        title: '喝水',
+        subtitle: '水是生命之源',
+        date: '2025/04/25',
+        progress: '4.16升',
+        percentage: '66%',
+        time: '17:59',
+        icon: Droplets,
         color: 'text-blue-600',
         bgColor: 'bg-blue-50',
-        tasks: data.tasks
+        borderColor: 'border-blue-200'
+      },
+      {
+        title: '体能训练',
+        subtitle: '强健体魄每一天',
+        date: '2025/04/25',
+        progress: '3/5组',
+        percentage: '60%',
+        time: '16:30',
+        icon: Dumbbell,
+        color: 'text-orange-600',
+        bgColor: 'bg-orange-50',
+        borderColor: 'border-orange-200'
+      },
+      {
+        title: '睡眠质量',
+        subtitle: '优质睡眠助成长',
+        date: '2025/04/25',
+        progress: '7.5小时',
+        percentage: '85%',
+        time: '06:30',
+        icon: Moon,
+        color: 'text-purple-600',
+        bgColor: 'bg-purple-50',
+        borderColor: 'border-purple-200'
       }
     ];
   };
 
-  const checkInData = getCheckInData();
+  const taskData = getTaskManagementData();
+
+  // 鼠标拖动处理
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
+  }, [panOffset]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging) return;
+    
+    const newOffset = {
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y
+    };
+    setPanOffset(newOffset);
+  }, [isDragging, dragStart]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
 
   const getNodeColor = (node: SkillNode) => {
     switch (node.status) {
@@ -340,8 +349,6 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
           style={{
             left: node.position.x,
             top: node.position.y,
-            transform: `scale(${zoomLevel})`,
-            transformOrigin: 'center'
           }}
           onClick={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
         >
@@ -356,8 +363,6 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
             left: node.position.x - 20,
             top: node.position.y + (node.id === 'center' ? 100 : node.id.includes('root') ? 85 : 70),
             width: node.id === 'center' ? 120 : node.id.includes('root') ? 100 : 90,
-            transform: `scale(${zoomLevel})`,
-            transformOrigin: 'center'
           }}
         >
           {node.name}
@@ -367,7 +372,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   };
 
   const handleZoomIn = () => {
-    setZoomLevel(prev => Math.min(prev + 0.1, 1.2));
+    setZoomLevel(prev => Math.min(prev + 0.1, 1.5));
   };
 
   const handleZoomOut = () => {
@@ -375,8 +380,8 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   };
 
   const resetView = () => {
-    setZoomLevel(0.5);
-    setPanOffset({ x: -30, y: -10 });
+    setZoomLevel(0.8);
+    setPanOffset({ x: -100, y: -50 });
   };
 
   const selectedNodeData = selectedNode ? skillNodes.find(n => n.id === selectedNode) : null;
@@ -428,52 +433,62 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
         </div>
       </div>
 
-      {/* 星图容器 */}
-      <div className="relative h-96 overflow-hidden bg-gradient-to-br from-indigo-100/30 via-purple-100/30 to-pink-100/30 mb-4">
+      {/* 星图容器 - 可拖动 */}
+      <div 
+        ref={containerRef}
+        className="relative h-96 overflow-hidden bg-gradient-to-br from-indigo-100/30 via-purple-100/30 to-pink-100/30 mb-4 cursor-move"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
         <svg
-          className="absolute inset-0 w-full h-full"
+          className="absolute inset-0 w-full h-full pointer-events-none"
           style={{
-            transform: `translate(${panOffset.x}px, ${panOffset.y}px)`
+            transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`,
+            transformOrigin: 'center'
           }}
         >
           {renderConnections()}
         </svg>
         
         <div
-          className="relative w-full h-full"
+          className="relative w-full h-full pointer-events-none"
           style={{
-            transform: `translate(${panOffset.x}px, ${panOffset.y}px)`
+            transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`,
+            transformOrigin: 'center'
           }}
         >
-          {renderNodes()}
+          <div className="pointer-events-auto">
+            {renderNodes()}
+          </div>
         </div>
       </div>
 
-      {/* 打卡数据卡片 */}
+      {/* 任务管理数据 */}
       <div className="px-4 mb-4">
-        <h3 className="text-slate-800 font-semibold mb-3">成长进度</h3>
-        <div className="grid grid-cols-2 gap-4">
-          {checkInData.map((item, index) => (
-            <Card key={index} className="bg-white/80 backdrop-blur-sm border-white/20 shadow-lg">
-              <CardHeader className="pb-2">
+        <h3 className="text-slate-800 font-semibold mb-3">任务管理</h3>
+        <div className="space-y-3">
+          {taskData.map((task, index) => (
+            <Card key={index} className={`${task.bgColor} ${task.borderColor} border-2 shadow-sm`}>
+              <CardContent className="p-4">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm text-slate-600">{item.title}</CardTitle>
-                  <div className={`p-2 rounded-full ${item.bgColor}`}>
-                    <item.icon className={`w-4 h-4 ${item.color}`} />
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-3 rounded-full ${task.bgColor}`}>
+                      <task.icon className={`w-6 h-6 ${task.color}`} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-800 text-lg">{task.title}</h4>
+                      <p className="text-slate-600 text-sm">{task.subtitle}</p>
+                      <p className="text-slate-500 text-xs">{task.date}</p>
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="space-y-2">
-                  <div className="flex items-baseline space-x-1">
-                    <span className="text-2xl font-bold text-slate-800">{item.value}</span>
-                    <span className="text-sm text-slate-600">{item.unit}</span>
-                  </div>
-                  <div className={`text-xs ${item.color} font-medium`}>
-                    {item.trend}
-                  </div>
-                  <div className="text-xs text-slate-500">
-                    主要任务: {item.tasks}
+                  <div className="text-right">
+                    <div className="flex items-baseline space-x-1 mb-1">
+                      <span className="text-2xl font-bold text-slate-800">{task.progress}</span>
+                      <span className={`text-lg font-semibold ${task.color}`}>{task.percentage}</span>
+                    </div>
+                    <p className="text-slate-500 text-sm">{task.time}</p>
                   </div>
                 </div>
               </CardContent>
