@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,8 +23,8 @@ interface StarMapPageProps {
 }
 
 const StarMapPage: React.FC<StarMapPageProps> = ({ user, selectedAvatar, onBack }) => {
-  const [zoomLevel, setZoomLevel] = useState(0.8);
-  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+  const [zoomLevel, setZoomLevel] = useState(0.6); // 降低初始缩放以显示更多内容
+  const [panOffset, setPanOffset] = useState({ x: -50, y: -20 }); // 调整初始位置
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
   // 技能树节点数据
@@ -325,11 +326,16 @@ const StarMapPage: React.FC<StarMapPageProps> = ({ user, selectedAvatar, onBack 
   };
 
   const handleZoomIn = () => {
-    setZoomLevel(prev => Math.min(prev + 0.1, 1.5));
+    setZoomLevel(prev => Math.min(prev + 0.1, 1.2));
   };
 
   const handleZoomOut = () => {
-    setZoomLevel(prev => Math.max(prev - 0.1, 0.4));
+    setZoomLevel(prev => Math.max(prev - 0.1, 0.3));
+  };
+
+  const resetView = () => {
+    setZoomLevel(0.6);
+    setPanOffset({ x: -50, y: -20 });
   };
 
   const selectedNodeData = selectedNode ? skillNodes.find(n => n.id === selectedNode) : null;
@@ -362,9 +368,14 @@ const StarMapPage: React.FC<StarMapPageProps> = ({ user, selectedAvatar, onBack 
           >
             <Minus className="w-4 h-4" />
           </Button>
-          <span className="text-xs text-gray-600 min-w-[3rem] text-center">
-            {Math.round(zoomLevel * 100)}%
-          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={resetView}
+            className="text-xs text-gray-600 min-w-[3rem] text-center px-2"
+          >
+            全景
+          </Button>
           <Button
             variant="outline"
             size="sm"

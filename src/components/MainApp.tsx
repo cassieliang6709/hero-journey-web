@@ -38,6 +38,7 @@ const MainApp: React.FC<MainAppProps> = ({ user, selectedAvatar, onLogout }) => 
           user={user}
           selectedAvatar={selectedAvatar}
           onSwipeLeft={handleSwipeLeft}
+          onGoToStarMap={handleGoToStarMap}
           onLogout={onLogout}
         />
       )}
@@ -52,7 +53,7 @@ const MainApp: React.FC<MainAppProps> = ({ user, selectedAvatar, onLogout }) => 
         <StarMapPage 
           user={user}
           selectedAvatar={selectedAvatar}
-          onBack={handleBackToTodo}
+          onBack={handleBackToChat}
         />
       )}
     </div>

@@ -1,9 +1,8 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Send, Menu, ListTodo } from 'lucide-react';
+import { Send, Menu, ListTodo, Star } from 'lucide-react';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -11,12 +10,13 @@ interface ChatPageProps {
   user: { id: string; username?: string };
   selectedAvatar: number;
   onSwipeLeft: () => void;
+  onGoToStarMap: () => void;
   onLogout: () => void;
 }
 
 const avatars = ['🦸‍♂️', '🦸‍♀️', '🧙‍♂️', '🧙‍♀️', '👑', '⚡', '🔥', '🌟'];
 
-const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, onLogout }) => {
+const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, onGoToStarMap, onLogout }) => {
   const [inputText, setInputText] = useState('');
   const [showMenu, setShowMenu] = useState(false);
   const [aiTyping, setAiTyping] = useState(false);
@@ -121,14 +121,24 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
             <p className="text-gray-600 text-sm">与你的导师交流</p>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowMenu(!showMenu)}
-          className="text-gray-800"
-        >
-          <Menu className="w-5 h-5" />
-        </Button>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onGoToStarMap}
+            className="text-gray-800 p-2"
+          >
+            <Star className="w-5 h-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowMenu(!showMenu)}
+            className="text-gray-800"
+          >
+            <Menu className="w-5 h-5" />
+          </Button>
+        </div>
       </div>
 
       {/* 菜单 */}
