@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { ArrowLeft, Plus, Minus, Home, Settings } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowLeft, Plus, Minus, Home, Settings, Target, Calendar, Activity, Brain } from 'lucide-react';
 
 interface SkillNode {
   id: string;
@@ -208,6 +207,26 @@ const StarMapPage: React.FC<StarMapPageProps> = ({ user, selectedAvatar, onBack 
     }
   ];
 
+  // 模拟打卡数据
+  const checkInData = [
+    {
+      title: '本周完成',
+      value: '15',
+      unit: '项目标',
+      trend: '+12%',
+      icon: Target,
+      color: 'text-green-600'
+    },
+    {
+      title: '连续打卡',
+      value: '7',
+      unit: '天',
+      trend: '新纪录',
+      icon: Calendar,
+      color: 'text-blue-600'
+    }
+  ];
+
   const getNodeColor = (node: SkillNode) => {
     switch (node.status) {
       case 'locked': return 'bg-gray-300 border-gray-400';
@@ -330,10 +349,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({ user, selectedAvatar, onBack 
           </Button>
           <div className="flex items-center space-x-2">
             <Home className="w-5 h-5 text-gray-800" />
-            <div>
-              <h1 className="text-gray-800 font-semibold">优势星图</h1>
-              <p className="text-gray-600 text-sm">Home Page</p>
-            </div>
+            <h1 className="text-gray-800 font-semibold">星图</h1>
           </div>
         </div>
         
@@ -361,7 +377,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({ user, selectedAvatar, onBack 
       </div>
 
       {/* 星图容器 */}
-      <div className="relative h-full overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      <div className="relative h-96 overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 mb-4">
         <svg
           className="absolute inset-0 w-full h-full"
           style={{
@@ -378,6 +394,60 @@ const StarMapPage: React.FC<StarMapPageProps> = ({ user, selectedAvatar, onBack 
           }}
         >
           {renderNodes()}
+        </div>
+      </div>
+
+      {/* 打卡数据卡片 */}
+      <div className="px-4 mb-4">
+        <div className="grid grid-cols-2 gap-4">
+          {checkInData.map((item, index) => (
+            <Card key={index} className="glass-effect">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm text-gray-600">{item.title}</CardTitle>
+                  <item.icon className={`w-4 h-4 ${item.color}`} />
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="space-y-1">
+                  <div className="flex items-baseline space-x-1">
+                    <span className="text-2xl font-bold text-gray-800">{item.value}</span>
+                    <span className="text-sm text-gray-600">{item.unit}</span>
+                  </div>
+                  <div className={`text-xs ${item.color} font-medium`}>
+                    {item.trend}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* 测试入口 */}
+      <div className="px-4 mb-6">
+        <div className="space-y-3">
+          <Button 
+            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium py-6 rounded-xl shadow-lg"
+            onClick={() => console.log('体能测试入口')}
+          >
+            <Activity className="w-5 h-5 mr-3" />
+            <div className="text-left">
+              <div className="font-semibold">体能测试</div>
+              <div className="text-sm opacity-90">评估身体素质指标</div>
+            </div>
+          </Button>
+          
+          <Button 
+            className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium py-6 rounded-xl shadow-lg"
+            onClick={() => console.log('Gallup测试入口')}
+          >
+            <Brain className="w-5 h-5 mr-3" />
+            <div className="text-left">
+              <div className="font-semibold">优势测试</div>
+              <div className="text-sm opacity-90">发现个人天赋优势</div>
+            </div>
+          </Button>
         </div>
       </div>
 
