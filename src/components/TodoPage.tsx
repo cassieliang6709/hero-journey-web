@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';  
-import { ArrowLeft, Star, ChevronLeft, ChevronRight, Calendar, Focus, Users, Timer } from 'lucide-react';
-import TodoCard from './TodoCard';
+import { ArrowLeft, Star, Check, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import FocusTools from './FocusTools';
 
 interface TodoItem {
   id: number;
@@ -35,7 +34,6 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
   const [todos, setTodos] = useState<TodoItem[]>(initialTodos);
   const [selectedDate, setSelectedDate] = useState('2024-01-15');
   const [showAllDates, setShowAllDates] = useState(false);
-  const [showFocusTools, setShowFocusTools] = useState(false);
 
   const toggleTodo = (id: number) => {
     setTodos(prev => prev.map(todo => 
@@ -61,10 +59,10 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case '身体': return 'bg-green-100 text-green-700 border-green-200';
-      case '情绪': return 'bg-blue-100 text-blue-700 border-blue-200';
-      case '技能': return 'bg-purple-100 text-purple-700 border-purple-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+      case '身体': return 'bg-green-500/20 text-green-700 border-green-300';
+      case '情绪': return 'bg-blue-500/20 text-blue-700 border-blue-300';
+      case '技能': return 'bg-purple-500/20 text-purple-700 border-purple-300';
+      default: return 'bg-gray-500/20 text-gray-700 border-gray-300';
     }
   };
 
@@ -86,7 +84,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
   return (
     <div className="mobile-container gradient-bg min-h-screen">
       {/* 顶部导航 */}
-      <div className="flex items-center justify-between p-4 glass-effect sticky top-0 z-10">
+      <div className="flex items-center justify-between p-4 glass-effect">
         <div className="flex items-center space-x-3">
           <Button
             variant="ghost"
@@ -111,153 +109,123 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
         </Button>
       </div>
 
-      {/* 苦恼卡片 */}
-      <div className="p-4">
-        <Card className="glass-effect p-4 bg-gradient-to-r from-orange-50 to-red-50 border-orange-200">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-              <span className="text-orange-600 text-sm">😰</span>
-            </div>
-            <div>
-              <p className="text-orange-800 font-medium text-sm">当前困扰</p>
-              <p className="text-orange-700 text-xs">最近胖了10斤</p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* 专注工具 */}
-      <div className="px-4 mb-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-gray-800 font-medium text-sm">专注工具</h3>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowFocusTools(!showFocusTools)}
-            className="text-xs text-gray-600"
-          >
-            {showFocusTools ? '收起' : '展开'}
-          </Button>
-        </div>
-        
-        <div className={`transition-all duration-500 ease-in-out overflow-hidden ${
-          showFocusTools 
-            ? 'max-h-96 opacity-100 transform translate-y-0' 
-            : 'max-h-0 opacity-0 transform -translate-y-4'
-        }`}>
-          <div className="grid grid-cols-3 gap-3 pb-4">
-            <Card className="glass-effect p-3 text-center hover:shadow-md transition-all duration-200 cursor-pointer">
-              <Focus className="w-5 h-5 text-blue-600 mx-auto mb-1" />
-              <p className="text-xs text-gray-700 font-medium">4-4-6呼吸</p>
-            </Card>
-            <Card className="glass-effect p-3 text-center hover:shadow-md transition-all duration-200 cursor-pointer">
-              <Timer className="w-5 h-5 text-green-600 mx-auto mb-1" />
-              <p className="text-xs text-gray-700 font-medium">番茄时钟</p>
-            </Card>
-            <Card className="glass-effect p-3 text-center hover:shadow-md transition-all duration-200 cursor-pointer">
-              <Users className="w-5 h-5 text-purple-600 mx-auto mb-1" />
-              <p className="text-xs text-gray-700 font-medium">好友监督</p>
-            </Card>
-          </div>
-        </div>
-      </div>
-
-      {/* 日期选择器 */}
-      <div className="p-4">
-        <Card className="glass-effect p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-2">
-              <Calendar className="w-5 h-5 text-gray-600" />
-              <span className="text-gray-800 font-medium">日期选择</span>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowAllDates(!showAllDates)}
-              className="text-xs"
-            >
-              {showAllDates ? '显示当日' : '显示全部'}
-            </Button>
-          </div>
-          
-          {!showAllDates && (
-            <div className="flex items-center justify-between">
+      {/* 主要内容区域 */}
+      <div className="flex gap-4 p-4">
+        {/* 左侧：任务列表 */}
+        <div className="flex-1 space-y-4">
+          {/* 日期选择器 */}
+          <Card className="glass-effect p-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <Calendar className="w-5 h-5 text-gray-600" />
+                <span className="text-gray-800 font-medium">日期选择</span>
+              </div>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => changeDate('prev')}
-                disabled={getDateOptions().indexOf(selectedDate) === 0}
+                onClick={() => setShowAllDates(!showAllDates)}
+                className="text-xs"
               >
-                <ChevronLeft className="w-4 h-4" />
+                {showAllDates ? '显示当日' : '显示全部'}
               </Button>
-              
-              <span className="text-lg font-semibold text-gray-800">
-                {formatDate(selectedDate)}
+            </div>
+            
+            {!showAllDates && (
+              <div className="flex items-center justify-between">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => changeDate('prev')}
+                  disabled={getDateOptions().indexOf(selectedDate) === 0}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                
+                <span className="text-lg font-semibold text-gray-800">
+                  {formatDate(selectedDate)}
+                </span>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => changeDate('next')}
+                  disabled={getDateOptions().indexOf(selectedDate) === getDateOptions().length - 1}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+          </Card>
+
+          {/* 进度条 */}
+          <Card className="glass-effect p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-gray-800 font-medium">
+                {showAllDates ? '总体进度' : '今日进度'}
               </span>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => changeDate('next')}
-                disabled={getDateOptions().indexOf(selectedDate) === getDateOptions().length - 1}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
+              <span className="text-hero-500 font-bold">{completedCount}/{filteredTodos.length}</span>
             </div>
-          )}
-        </Card>
-      </div>
-
-      {/* 进度条 */}
-      <div className="p-4">
-        <Card className="glass-effect p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-800 font-medium">
-              {showAllDates ? '总体进度' : '今日进度'}
-            </span>
-            <span className="text-hero-500 font-bold">{completedCount}/{filteredTodos.length}</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-3">
-            <div 
-              className="hero-gradient h-3 rounded-full transition-all duration-500"
-              style={{ width: `${completionRate}%` }}
-            />
-          </div>
-        </Card>
-      </div>
-
-      {/* 任务信息流 */}
-      <div className="p-4">
-        <h3 className="text-gray-800 font-medium text-sm mb-3">今日任务</h3>
-        <div className="space-y-2">
-          {filteredTodos.map((todo, index) => (
-            <div 
-              key={todo.id}
-              className={`animate-fade-in transition-all duration-300`}
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <TodoCard 
-                todo={todo}
-                onToggle={toggleTodo}
-                getCategoryColor={getCategoryColor}
-                formatDate={formatDate}
-                showDate={showAllDates}
+            <div className="w-full bg-gray-200 rounded-full h-3">
+              <div 
+                className="hero-gradient h-3 rounded-full transition-all duration-500"
+                style={{ width: `${completionRate}%` }}
               />
             </div>
-          ))}
+          </Card>
+
+          {/* 任务列表 */}
+          <div className="space-y-3">
+            {filteredTodos.map((todo) => (
+              <Card 
+                key={todo.id}
+                className={`p-4 cursor-pointer transition-all duration-200 ${
+                  todo.completed 
+                    ? 'glass-effect opacity-60' 
+                    : 'glass-effect hover:shadow-md'
+                }`}
+                onClick={() => toggleTodo(todo.id)}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                    todo.completed 
+                      ? 'bg-hero-500 border-hero-500' 
+                      : 'border-gray-400'
+                  }`}>
+                    {todo.completed && <Check className="w-4 h-4 text-white" />}
+                  </div>
+                  
+                  <div className="flex-1">
+                    <p className={`text-gray-800 ${todo.completed ? 'line-through' : ''}`}>
+                      {todo.text}
+                    </p>
+                    {showAllDates && (
+                      <p className="text-xs text-gray-500 mt-1">{formatDate(todo.date)}</p>
+                    )}
+                  </div>
+                  
+                  <span className={`px-2 py-1 rounded-full text-xs border ${getCategoryColor(todo.category)}`}>
+                    {todo.category}
+                  </span>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          {/* 励志消息 */}
+          {completionRate > 50 && (
+            <Card className="glass-effect p-4 text-center animate-fade-in">
+              <span className="text-2xl mb-2 block">🎉</span>
+              <p className="text-gray-800 font-medium">做得很棒！</p>
+              <p className="text-gray-600 text-sm">你已经完成了一半以上的任务</p>
+            </Card>
+          )}
+        </div>
+
+        {/* 右侧：专注工具 */}
+        <div className="w-80">
+          <FocusTools concern="最近胖了10斤" />
         </div>
       </div>
-
-      {/* 励志消息 */}
-      {completionRate > 50 && (
-        <div className="p-4">
-          <Card className="glass-effect p-4 text-center animate-fade-in bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
-            <span className="text-2xl mb-2 block">🎉</span>
-            <p className="text-gray-800 font-medium">做得很棒！</p>
-            <p className="text-gray-600 text-sm">你已经完成了一半以上的任务</p>
-          </Card>
-        </div>
-      )}
     </div>
   );
 };
