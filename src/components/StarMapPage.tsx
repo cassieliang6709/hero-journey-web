@@ -30,32 +30,32 @@ const StarMapPage: React.FC<StarMapPageProps> = ({ user, selectedAvatar, onBack 
     id: 'user',
     name: user.username,
     type: 'user',
-    position: { x: 200, y: 150 },
+    position: { x: 180, y: 100 },
     children: [
       {
         id: 'body',
         name: '身体',
         type: 'domain',
-        position: { x: 100, y: 280 },
+        position: { x: 80, y: 200 },
         children: [
           {
             id: 'exercise',
             name: '运动',
             type: 'method',
-            position: { x: 50, y: 380 },
+            position: { x: 40, y: 300 },
             children: [
-              { id: 'morning-run', name: '晨跑', type: 'task', position: { x: 20, y: 450 }, completed: true },
-              { id: 'yoga', name: '瑜伽', type: 'task', position: { x: 80, y: 450 }, completed: false }
+              { id: 'morning-run', name: '晨跑', type: 'task', position: { x: 20, y: 380 }, completed: true },
+              { id: 'yoga', name: '瑜伽', type: 'task', position: { x: 60, y: 380 }, completed: false }
             ]
           },
           {
             id: 'nutrition',
             name: '营养',
             type: 'method',
-            position: { x: 150, y: 380 },
+            position: { x: 120, y: 300 },
             children: [
-              { id: 'healthy-diet', name: '健康饮食', type: 'task', position: { x: 120, y: 450 }, completed: false },
-              { id: 'water-intake', name: '充足饮水', type: 'task', position: { x: 180, y: 450 }, completed: true }
+              { id: 'healthy-diet', name: '健康饮食', type: 'task', position: { x: 100, y: 380 }, completed: false },
+              { id: 'water-intake', name: '充足饮水', type: 'task', position: { x: 140, y: 380 }, completed: true }
             ]
           }
         ]
@@ -64,26 +64,26 @@ const StarMapPage: React.FC<StarMapPageProps> = ({ user, selectedAvatar, onBack 
         id: 'emotion',
         name: '情绪',
         type: 'domain',
-        position: { x: 200, y: 280 },
+        position: { x: 180, y: 200 },
         children: [
           {
             id: 'mindfulness',
             name: '正念',
             type: 'method',
-            position: { x: 170, y: 380 },
+            position: { x: 160, y: 300 },
             children: [
-              { id: 'meditation', name: '冥想', type: 'task', position: { x: 140, y: 450 }, completed: false },
-              { id: 'gratitude', name: '感恩练习', type: 'task', position: { x: 200, y: 450 }, completed: true }
+              { id: 'meditation', name: '冥想', type: 'task', position: { x: 140, y: 380 }, completed: false },
+              { id: 'gratitude', name: '感恩练习', type: 'task', position: { x: 180, y: 380 }, completed: true }
             ]
           },
           {
             id: 'social',
             name: '社交',
             type: 'method',
-            position: { x: 230, y: 380 },
+            position: { x: 200, y: 300 },
             children: [
-              { id: 'family-time', name: '家庭时光', type: 'task', position: { x: 210, y: 450 }, completed: false },
-              { id: 'friend-chat', name: '朋友聊天', type: 'task', position: { x: 250, y: 450 }, completed: false }
+              { id: 'family-time', name: '家庭时光', type: 'task', position: { x: 180, y: 380 }, completed: false },
+              { id: 'friend-chat', name: '朋友聊天', type: 'task', position: { x: 220, y: 380 }, completed: false }
             ]
           }
         ]
@@ -92,26 +92,26 @@ const StarMapPage: React.FC<StarMapPageProps> = ({ user, selectedAvatar, onBack 
         id: 'skill',
         name: '技能',
         type: 'domain',
-        position: { x: 300, y: 280 },
+        position: { x: 280, y: 200 },
         children: [
           {
             id: 'learning',
             name: '学习',
             type: 'method',
-            position: { x: 280, y: 380 },
+            position: { x: 260, y: 300 },
             children: [
-              { id: 'reading', name: '阅读', type: 'task', position: { x: 260, y: 450 }, completed: true },
-              { id: 'online-course', name: '在线课程', type: 'task', position: { x: 300, y: 450 }, completed: false }
+              { id: 'reading', name: '阅读', type: 'task', position: { x: 240, y: 380 }, completed: true },
+              { id: 'online-course', name: '在线课程', type: 'task', position: { x: 280, y: 380 }, completed: false }
             ]
           },
           {
             id: 'practice',
             name: '实践',
             type: 'method',
-            position: { x: 320, y: 380 },
+            position: { x: 300, y: 300 },
             children: [
-              { id: 'coding', name: '编程练习', type: 'task', position: { x: 300, y: 450 }, completed: false },
-              { id: 'writing', name: '写作练习', type: 'task', position: { x: 340, y: 450 }, completed: true }
+              { id: 'coding', name: '编程练习', type: 'task', position: { x: 280, y: 380 }, completed: false },
+              { id: 'writing', name: '写作练习', type: 'task', position: { x: 320, y: 380 }, completed: true }
             ]
           }
         ]
@@ -124,8 +124,8 @@ const StarMapPage: React.FC<StarMapPageProps> = ({ user, selectedAvatar, onBack 
       case 'user': return 'bg-hero-500';
       case 'domain': return 'bg-blue-500';
       case 'method': return 'bg-green-500';
-      case 'task': return node.completed ? 'bg-purple-500' : 'bg-gray-500';
-      default: return 'bg-gray-500';
+      case 'task': return node.completed ? 'bg-purple-500' : 'bg-gray-400';
+      default: return 'bg-gray-400';
     }
   };
 
@@ -143,7 +143,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({ user, selectedAvatar, onBack 
     const connections: JSX.Element[] = [];
     
     if (node.children) {
-      node.children.forEach((child, index) => {
+      node.children.forEach((child) => {
         const startX = node.position.x + 32; // 节点中心
         const startY = node.position.y + 32;
         const endX = child.position.x + 32;
@@ -156,7 +156,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({ user, selectedAvatar, onBack 
             y1={startY}
             x2={endX}
             y2={endY}
-            stroke="rgba(255,255,255,0.3)"
+            stroke="#94a3b8"
             strokeWidth="2"
           />
         );
@@ -175,7 +175,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({ user, selectedAvatar, onBack 
     nodes.push(
       <div
         key={node.id}
-        className={`absolute ${getNodeSize(node)} ${getNodeColor(node)} rounded-full flex items-center justify-center text-white font-semibold shadow-lg`}
+        className={`absolute ${getNodeSize(node)} ${getNodeColor(node)} rounded-full flex items-center justify-center text-white font-semibold shadow-lg border-2 border-white`}
         style={{
           left: node.position.x,
           top: node.position.y,
@@ -195,7 +195,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({ user, selectedAvatar, onBack 
     nodes.push(
       <div
         key={`${node.id}-label`}
-        className="absolute text-white text-xs text-center font-medium"
+        className="absolute text-gray-800 text-xs text-center font-medium bg-white/80 px-2 py-1 rounded shadow"
         style={{
           left: node.position.x - 10,
           top: node.position.y + (node.type === 'user' ? 70 : node.type === 'domain' ? 60 : 50),
@@ -235,31 +235,31 @@ const StarMapPage: React.FC<StarMapPageProps> = ({ user, selectedAvatar, onBack 
             variant="ghost"
             size="sm"
             onClick={onBack}
-            className="text-white p-0"
+            className="text-gray-800 p-0"
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-white font-semibold">英雄星图</h1>
-            <p className="text-gray-400 text-sm">你的成长路径</p>
+            <h1 className="text-gray-800 font-semibold">英雄星图</h1>
+            <p className="text-gray-600 text-sm">你的成长路径</p>
           </div>
         </div>
         
         {/* 缩放控件 */}
         <div className="flex space-x-2">
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={handleZoomOut}
-            className="text-white p-1"
+            className="text-gray-800 p-1"
           >
             <Minus className="w-4 h-4" />
           </Button>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={handleZoomIn}
-            className="text-white p-1"
+            className="text-gray-800 p-1"
           >
             <Plus className="w-4 h-4" />
           </Button>
@@ -267,7 +267,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({ user, selectedAvatar, onBack 
       </div>
 
       {/* 星图容器 */}
-      <div className="relative h-full overflow-hidden">
+      <div className="relative h-full overflow-hidden bg-gradient-to-br from-blue-50 to-purple-50">
         <svg
           className="absolute inset-0 w-full h-full"
           style={{
@@ -292,19 +292,19 @@ const StarMapPage: React.FC<StarMapPageProps> = ({ user, selectedAvatar, onBack 
         <div className="grid grid-cols-2 gap-2 text-xs">
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-hero-500 rounded-full"></div>
-            <span className="text-white">用户</span>
+            <span className="text-gray-800">用户</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
-            <span className="text-white">领域</span>
+            <span className="text-gray-800">领域</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-            <span className="text-white">方法</span>
+            <span className="text-gray-800">方法</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="w-4 h-4 bg-purple-500 rounded-full"></div>
-            <span className="text-white">已完成</span>
+            <span className="text-gray-800">已完成</span>
           </div>
         </div>
       </Card>

@@ -25,8 +25,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           <div className="w-20 h-20 mx-auto mb-4 hero-gradient rounded-full flex items-center justify-center animate-pulse-glow">
             <span className="text-3xl">🦸</span>
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">英雄之旅</h1>
-          <p className="text-gray-300 text-sm">开始你的成长之旅</p>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">英雄之旅</h1>
+          <p className="text-gray-600 text-sm">开始你的成长之旅</p>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -36,7 +36,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               placeholder="请输入用户名"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="bg-white/10 border-white/30 text-white placeholder:text-gray-400 text-center text-lg h-12"
+              className="bg-white border-gray-300 text-gray-800 placeholder:text-gray-500 text-center text-lg h-12"
               required
             />
           </div>

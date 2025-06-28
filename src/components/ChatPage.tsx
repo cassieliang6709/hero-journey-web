@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Send, Menu, ArrowLeft } from 'lucide-react';
+import { Send, Menu, ChevronRight } from 'lucide-react';
 
 interface Message {
   id: number;
@@ -104,15 +104,15 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
             <span className="text-xl">{avatars[selectedAvatar]}</span>
           </div>
           <div>
-            <h1 className="text-white font-semibold">英雄对话</h1>
-            <p className="text-gray-400 text-sm">与你的导师交流</p>
+            <h1 className="text-gray-800 font-semibold">英雄对话</h1>
+            <p className="text-gray-600 text-sm">与你的导师交流</p>
           </div>
         </div>
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setShowMenu(!showMenu)}
-          className="text-white"
+          className="text-gray-800"
         >
           <Menu className="w-5 h-5" />
         </Button>
@@ -124,7 +124,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
           <Button
             variant="ghost"
             onClick={onLogout}
-            className="w-full text-left text-white hover:bg-white/10"
+            className="w-full text-left text-gray-800 hover:bg-gray-100"
           >
             退出登录
           </Button>
@@ -142,7 +142,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
               className={`max-w-[80%] p-3 rounded-2xl ${
                 message.isUser
                   ? 'bg-hero-500 text-white'
-                  : 'glass-effect text-white'
+                  : 'glass-effect text-gray-800'
               }`}
             >
               <p>{message.text}</p>
@@ -162,7 +162,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="输入你的想法..."
-            className="flex-1 bg-white/10 border-white/30 text-white placeholder:text-gray-400"
+            className="flex-1 bg-white border-gray-300 text-gray-800 placeholder:text-gray-500"
           />
           <Button type="submit" className="hero-gradient px-3">
             <Send className="w-5 h-5" />
@@ -170,10 +170,13 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
         </div>
       </form>
 
-      {/* 左滑提示 */}
-      <div className="absolute bottom-20 left-4 text-gray-500 text-sm animate-pulse">
-        ← 左滑查看待办事项
-      </div>
+      {/* 左侧待办事项按钮 */}
+      <Button
+        onClick={onSwipeLeft}
+        className="fixed left-4 bottom-32 hero-gradient rounded-full w-12 h-12 p-0 shadow-lg animate-pulse"
+      >
+        <ChevronRight className="w-6 h-6" />
+      </Button>
     </div>
   );
 };
