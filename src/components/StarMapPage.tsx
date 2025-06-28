@@ -37,7 +37,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // 技能节点数据
+  // 重新设计的技能节点数据 - 上面1个分支，下面2个分支
   const skillNodes: SkillNode[] = [
     // 中心节点
     {
@@ -50,13 +50,13 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       connections: ['psychology-root', 'health-root', 'skill-root']
     },
 
-    // 心理优势分支
+    // 心理优势分支 - 上方
     {
       id: 'psychology-root',
       name: '心理优势',
       description: '基于心理学的优势发展',
       category: 'psychology',
-      position: { x: 250, y: 250 },
+      position: { x: 500, y: 200 },
       status: 'active',
       connections: ['psychology-1', 'psychology-2']
     },
@@ -65,7 +65,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '情绪管理',
       description: '提升情绪识别和调节能力',
       category: 'psychology',
-      position: { x: 100, y: 150 },
+      position: { x: 350, y: 100 },
       status: 'mastered',
       connections: ['psychology-3'],
       requirements: ['psychology-root']
@@ -75,9 +75,9 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '思维模式',
       description: '培养积极思维和成长心态',
       category: 'psychology',
-      position: { x: 200, y: 100 },
+      position: { x: 650, y: 100 },
       status: 'active',
-      connections: ['psychology-3'],
+      connections: ['psychology-4'],
       requirements: ['psychology-root']
     },
     {
@@ -85,19 +85,29 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '自信建立',
       description: '增强自信心和自我价值感',
       category: 'psychology',
-      position: { x: 80, y: 50 },
+      position: { x: 280, y: 50 },
       status: 'available',
       connections: [],
-      requirements: ['psychology-1', 'psychology-2']
+      requirements: ['psychology-1']
+    },
+    {
+      id: 'psychology-4',
+      name: '压力管理',
+      description: '有效应对和管理压力',
+      category: 'psychology',
+      position: { x: 720, y: 50 },
+      status: 'available',
+      connections: [],
+      requirements: ['psychology-2']
     },
 
-    // 身体健康分支
+    // 身体健康分支 - 左下方
     {
       id: 'health-root',
       name: '身体健康',
       description: '全面的身体健康管理',
       category: 'health',
-      position: { x: 500, y: 200 },
+      position: { x: 250, y: 600 },
       status: 'active',
       connections: ['health-1', 'health-2', 'health-3']
     },
@@ -106,7 +116,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '运动锻炼',
       description: '制定并执行运动计划',
       category: 'health',
-      position: { x: 400, y: 80 },
+      position: { x: 100, y: 700 },
       status: 'active',
       connections: ['health-4'],
       requirements: ['health-root']
@@ -116,7 +126,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '饮食管理',
       description: '建立健康的饮食习惯',
       category: 'health',
-      position: { x: 550, y: 80 },
+      position: { x: 250, y: 750 },
       status: 'mastered',
       connections: ['health-4'],
       requirements: ['health-root']
@@ -126,9 +136,9 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '睡眠优化',
       description: '优化睡眠质量和作息规律',
       category: 'health',
-      position: { x: 650, y: 150 },
+      position: { x: 400, y: 700 },
       status: 'available',
-      connections: ['health-4'],
+      connections: ['health-5'],
       requirements: ['health-root']
     },
     {
@@ -136,19 +146,29 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '体重管理',
       description: '科学的体重控制方法',
       category: 'health',
-      position: { x: 500, y: 30 },
+      position: { x: 150, y: 800 },
       status: 'available',
       connections: [],
       requirements: ['health-1', 'health-2']
     },
+    {
+      id: 'health-5',
+      name: '体能提升',
+      description: '全面提升身体素质',
+      category: 'health',
+      position: { x: 350, y: 800 },
+      status: 'locked',
+      connections: [],
+      requirements: ['health-3']
+    },
 
-    // 技能发展分支
+    // 技能发展分支 - 右下方
     {
       id: 'skill-root',
       name: '技能发展',
       description: '职场与生活技能全面提升',
       category: 'skill',
-      position: { x: 750, y: 250 },
+      position: { x: 750, y: 600 },
       status: 'active',
       connections: ['skill-1', 'skill-2', 'skill-3']
     },
@@ -157,7 +177,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '面试技巧',
       description: '掌握面试表达和技巧',
       category: 'skill',
-      position: { x: 850, y: 150 },
+      position: { x: 600, y: 700 },
       status: 'active',
       connections: ['skill-4'],
       requirements: ['skill-root']
@@ -167,7 +187,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '沟通能力',
       description: '提升人际沟通技能',
       category: 'skill',
-      position: { x: 800, y: 120 },
+      position: { x: 750, y: 750 },
       status: 'available',
       connections: ['skill-4'],
       requirements: ['skill-root']
@@ -177,7 +197,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '职业规划',
       description: '制定清晰的职业发展路径',
       category: 'skill',
-      position: { x: 900, y: 100 },
+      position: { x: 900, y: 700 },
       status: 'available',
       connections: ['skill-5'],
       requirements: ['skill-root']
@@ -187,7 +207,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '简历优化',
       description: '制作吸引人的简历',
       category: 'skill',
-      position: { x: 920, y: 60 },
+      position: { x: 650, y: 800 },
       status: 'available',
       connections: [],
       requirements: ['skill-1', 'skill-2']
@@ -197,7 +217,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       name: '职场礼仪',
       description: '掌握职场基本礼仪',
       category: 'skill',
-      position: { x: 850, y: 50 },
+      position: { x: 850, y: 800 },
       status: 'locked',
       connections: [],
       requirements: ['skill-3']
@@ -368,7 +388,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
             transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`,
             transformOrigin: 'center',
             width: '1200px',
-            height: '800px'
+            height: '900px'
           }}
         >
           {renderConnections()}
@@ -380,7 +400,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
             transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`,
             transformOrigin: 'center',
             width: '1200px',
-            height: '800px'
+            height: '900px'
           }}
         >
           <div className="pointer-events-auto">
