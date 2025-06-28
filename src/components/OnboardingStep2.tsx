@@ -41,16 +41,12 @@ const OnboardingStep2: React.FC<OnboardingStep2Props> = ({
               className={`p-4 cursor-pointer transition-all duration-200 ${
                 selectedIdeas.includes(idea)
                   ? 'bg-white border-hero-500 scale-105 shadow-lg'
-                  : 'glass-effect hover:bg-white/15'
+                  : 'glass-effect hover:bg-white/15 border-white/20'
               }`}
               onClick={() => onSelectIdea(idea)}
             >
               <div className="flex items-center justify-between">
-                <span className={`${
-                  selectedIdeas.includes(idea) 
-                    ? 'text-gray-800 font-medium' 
-                    : 'text-white'
-                }`}>
+                <span className="text-gray-800 font-medium">
                   {idea}
                 </span>
                 {selectedIdeas.includes(idea) && (
