@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -203,20 +204,6 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
     }
   ];
 
-  // 扩大星图范围，确保所有节点都可见
-  const getUserConcerns = () => {
-    const concerns = [
-      "好害怕面试好焦虑",
-      "最近胖了10斤",
-      "心情低落",
-      "感觉身体好差，没有精力",
-      "最近找不到工作很烦"
-    ];
-    return concerns[Math.floor(Math.random() * concerns.length)];
-  };
-
-  const currentConcern = getUserConcerns();
-
   // 鼠标拖动处理
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     setIsDragging(true);
@@ -333,19 +320,6 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
 
   const selectedNodeData = selectedNode ? skillNodes.find(n => n.id === selectedNode) : null;
 
-    const getUserConcerns = () => {
-    const concerns = [
-      "好害怕面试好焦虑",
-      "最近胖了10斤",
-      "心情低落",
-      "感觉身体好差，没有精力",
-      "最近找不到工作很烦"
-    ];
-    return concerns[Math.floor(Math.random() * concerns.length)];
-  };
-
-  const currentConcern = getUserConcerns();
-
   return (
     <div className="mobile-container min-h-screen bg-white">
       {/* 顶部导航 */}
@@ -364,7 +338,6 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
             <Badge variant="secondary" className="text-xs px-2 py-1 bg-gray-100 text-gray-700 border-gray-200">
               lv1
             </Badge>
-            <p className="text-gray-600 text-sm">针对: {currentConcern}</p>
           </div>
         </div>
         
@@ -412,6 +385,54 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
         >
           <div className="pointer-events-auto">
             {renderNodes()}
+          </div>
+        </div>
+      </div>
+
+      {/* 能力评估 */}
+      <div className="px-4 mb-4">
+        <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <h3 className="text-gray-900 font-semibold mb-3">能力评估</h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                  <div className="w-4 h-4 bg-white rounded-full"></div>
+                </div>
+                <div>
+                  <div className="text-gray-900 font-medium">体能测试</div>
+                  <div className="text-gray-600 text-sm">评估身体素质</div>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onGoToPhysicalTest}
+                className="text-gray-700 border-gray-300 hover:bg-gray-50"
+              >
+                开始测试
+              </Button>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                  <div className="w-4 h-4 bg-white rounded-sm"></div>
+                </div>
+                <div>
+                  <div className="text-gray-900 font-medium">优势天赋测试</div>
+                  <div className="text-gray-600 text-sm">发现个人天赋优势</div>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onGoToTalentTest}
+                className="text-gray-700 border-gray-300 hover:bg-gray-50"
+              >
+                开始测试
+              </Button>
+            </div>
           </div>
         </div>
       </div>
