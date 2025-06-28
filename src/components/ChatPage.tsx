@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Send, Menu, ChevronRight } from 'lucide-react';
+import { Send, Menu, ListTodo } from 'lucide-react';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -181,6 +181,18 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Todo List 按钮 */}
+      <div className="px-4 pb-2">
+        <Button
+          onClick={onSwipeLeft}
+          variant="outline"
+          className="flex items-center space-x-2 text-gray-700 border-gray-300 hover:bg-gray-50"
+        >
+          <ListTodo className="w-4 h-4" />
+          <span>待办事项</span>
+        </Button>
+      </div>
+
       {/* 输入框 */}
       <form onSubmit={handleSend} className="p-4 glass-effect">
         <div className="flex space-x-2">
@@ -200,14 +212,6 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
           </Button>
         </div>
       </form>
-
-      {/* 左侧待办事项按钮 */}
-      <Button
-        onClick={onSwipeLeft}
-        className="fixed left-4 bottom-32 hero-gradient rounded-full w-12 h-12 p-0 shadow-lg animate-pulse"
-      >
-        <ChevronRight className="w-6 h-6" />
-      </Button>
     </div>
   );
 };
