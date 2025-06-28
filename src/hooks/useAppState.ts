@@ -1,14 +1,18 @@
 
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './useAuth';
 
-interface User {
+interface Profile {
+  id: string;
   username: string;
-  isFirstLogin: boolean;
-  completedOnboarding: boolean;
+  selected_avatar: number;
+  selected_ideas: string[];
+  completed_onboarding: boolean;
 }
 
 interface AppState {
-  user: User | null;
+  profile: Profile | null;
   currentStep: 'login' | 'onboarding' | 'main';
   onboardingStep: number;
   selectedIdeas: string[];
@@ -16,40 +20,60 @@ interface AppState {
 }
 
 export const useAppState = () => {
+  const { user, loading: authLoading, signOut } = useAuth();
   const [state, setState] = useState<AppState>({
-    user: null,
+    profile: null,
     currentStep: 'login',
     onboardingStep: 0,
     selectedIdeas: [],
     selectedAvatar: 0
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 检查localStorage中的用户信息
-    const savedUser = localStorage.getItem('heroUser');
-    if (savedUser) {
-      const user = JSON.parse(savedUser);
+    if (authLoading) return;
+    
+    if (user) {
+      loadUserProfile();
+    } else {
       setState(prev => ({
         ...prev,
-        user,
-        currentStep: user.completedOnboarding ? 'main' : 'onboarding'
+        profile: null,
+        currentStep: 'login'
       }));
+      setLoading(false);
     }
-  }, []);
+  }, [user, authLoading]);
 
-  const login = (username: string) => {
-    const user = {
-      username,
-      isFirstLogin: true,
-      completedOnboarding: false
-    };
-    localStorage.setItem('heroUser', JSON.stringify(user));
-    setState(prev => ({
-      ...prev,
-      user,
-      currentStep: 'onboarding',
-      onboardingStep: 0
-    }));
+  const loadUserProfile = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.error('加载用户资料失败:', error);
+        return;
+      }
+
+      if (data) {
+        setState(prev => ({
+          ...prev,
+          profile: data,
+          currentStep: data.completed_onboarding ? 'main' : 'onboarding',
+          selectedAvatar: data.selected_avatar,
+          selectedIdeas: data.selected_ideas || []
+        }));
+      }
+    } catch (error) {
+      console.error('加载用户资料错误:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const nextOnboardingStep = () => {
@@ -75,22 +99,43 @@ export const useAppState = () => {
     }));
   };
 
-  const completeOnboarding = () => {
-    if (state.user) {
-      const updatedUser = { ...state.user, completedOnboarding: true };
-      localStorage.setItem('heroUser', JSON.stringify(updatedUser));
+  const completeOnboarding = async () => {
+    if (!user || !state.profile) return;
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          selected_avatar: state.selectedAvatar,
+          selected_ideas: state.selectedIdeas,
+          completed_onboarding: true
+        })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('完成引导失败:', error);
+        return;
+      }
+
       setState(prev => ({
         ...prev,
-        user: updatedUser,
-        currentStep: 'main'
+        currentStep: 'main',
+        profile: prev.profile ? {
+          ...prev.profile,
+          selected_avatar: prev.selectedAvatar,
+          selected_ideas: prev.selectedIdeas,
+          completed_onboarding: true
+        } : null
       }));
+    } catch (error) {
+      console.error('完成引导错误:', error);
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('heroUser');
+  const logout = async () => {
+    await signOut();
     setState({
-      user: null,
+      profile: null,
       currentStep: 'login',
       onboardingStep: 0,
       selectedIdeas: [],
@@ -100,11 +145,12 @@ export const useAppState = () => {
 
   return {
     state,
-    login,
-    logout,
+    loading: loading || authLoading,
+    user,
     nextOnboardingStep,
     selectIdea,
     changeAvatar,
-    completeOnboarding
+    completeOnboarding,
+    logout
   };
 };

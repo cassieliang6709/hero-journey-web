@@ -5,7 +5,7 @@ import TodoPage from './TodoPage';
 import StarMapPage from './StarMapPage';
 
 interface MainAppProps {
-  user: { username: string; };
+  user: { id: string; username: string; };
   selectedAvatar: number;
   onLogout: () => void;
 }

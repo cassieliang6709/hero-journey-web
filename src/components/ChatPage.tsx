@@ -4,16 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Send, Menu, ChevronRight } from 'lucide-react';
-
-interface Message {
-  id: number;
-  text: string;
-  isUser: boolean;
-  timestamp: Date;
-}
+import { useChatMessages } from '@/hooks/useChatMessages';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ChatPageProps {
-  user: { username: string };
+  user: { id: string; username?: string };
   selectedAvatar: number;
   onSwipeLeft: () => void;
   onLogout: () => void;
@@ -22,18 +17,13 @@ interface ChatPageProps {
 const avatars = ['🦸‍♂️', '🦸‍♀️', '🧙‍♂️', '🧙‍♀️', '👑', '⚡', '🔥', '🌟'];
 
 const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, onLogout }) => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 1,
-      text: `你好 ${user.username}！我是你的英雄导师。今天想聊什么呢？`,
-      isUser: false,
-      timestamp: new Date()
-    }
-  ]);
   const [inputText, setInputText] = useState('');
   const [showMenu, setShowMenu] = useState(false);
+  const [aiTyping, setAiTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number>(0);
+  
+  const { messages, loading, addMessage } = useChatMessages(user.id);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -43,22 +33,41 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
     scrollToBottom();
   }, [messages]);
 
-  const handleSend = (e: React.FormEvent) => {
+  // Add welcome message if no messages exist
+  useEffect(() => {
+    if (!loading && messages.length === 0) {
+      addMessage(`你好 ${user.username || '用户'}！我是你的英雄导师。今天想聊什么呢？`, false);
+    }
+  }, [loading, messages.length, user.username, addMessage]);
+
+  const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputText.trim()) return;
+    if (!inputText.trim() || aiTyping) return;
 
-    const userMessage: Message = {
-      id: Date.now(),
-      text: inputText,
-      isUser: true,
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
+    const userMessage = inputText.trim();
     setInputText('');
-
-    // 模拟AI回复
-    setTimeout(() => {
+    
+    // Add user message
+    await addMessage(userMessage, true);
+    
+    // Show AI typing indicator
+    setAiTyping(true);
+    
+    try {
+      // Call AI API through Supabase Edge Function
+      const { data, error } = await supabase.functions.invoke('chat-ai', {
+        body: { message: userMessage }
+      });
+      
+      if (error) {
+        console.error('AI调用失败:', error);
+        await addMessage('抱歉，我现在无法回复。请稍后再试。', false);
+      } else {
+        await addMessage(data.response || '我理解你的想法，让我们继续探讨吧。', false);
+      }
+    } catch (error) {
+      console.error('AI调用错误:', error);
+      // Fallback response
       const responses = [
         "这是一个很好的想法！让我们深入探讨一下。",
         "我理解你的感受。这种情况下，你觉得什么行动最有帮助？",
@@ -67,15 +76,11 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
         "你的成长意识很强！这正是英雄品质的体现。"
       ];
       
-      const aiMessage: Message = {
-        id: Date.now() + 1,
-        text: responses[Math.floor(Math.random() * responses.length)],
-        isUser: false,
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, aiMessage]);
-    }, 1000);
+      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+      await addMessage(randomResponse, false);
+    } finally {
+      setAiTyping(false);
+    }
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -91,9 +96,17 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
     }
   };
 
+  if (loading) {
+    return (
+      <div className="mobile-container bg-white flex items-center justify-center">
+        <div className="text-gray-600">加载聊天记录中...</div>
+      </div>
+    );
+  }
+
   return (
     <div 
-      className="mobile-container gradient-bg flex flex-col h-screen"
+      className="mobile-container bg-white flex flex-col h-screen"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
@@ -141,7 +154,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
             <div
               className={`max-w-[80%] p-3 rounded-2xl ${
                 message.isUser
-                  ? 'bg-hero-500 text-white'
+                  ? 'bg-orange-500 text-white'
                   : 'glass-effect text-gray-800'
               }`}
             >
@@ -152,6 +165,19 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
             </div>
           </div>
         ))}
+        
+        {aiTyping && (
+          <div className="flex justify-start">
+            <div className="glass-effect text-gray-800 p-3 rounded-2xl">
+              <div className="flex space-x-1">
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div ref={messagesEndRef} />
       </div>
 
@@ -163,8 +189,13 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
             onChange={(e) => setInputText(e.target.value)}
             placeholder="输入你的想法..."
             className="flex-1 bg-white border-gray-300 text-gray-800 placeholder:text-gray-500"
+            disabled={aiTyping}
           />
-          <Button type="submit" className="hero-gradient px-3">
+          <Button 
+            type="submit" 
+            className="hero-gradient px-3"
+            disabled={aiTyping || !inputText.trim()}
+          >
             <Send className="w-5 h-5" />
           </Button>
         </div>

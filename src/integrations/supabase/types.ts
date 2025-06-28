@@ -9,7 +9,60 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      chat_messages: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_user_message: boolean
+          message_text: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_user_message: boolean
+          message_text: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_user_message?: boolean
+          message_text?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          completed_onboarding: boolean | null
+          created_at: string | null
+          id: string
+          selected_avatar: number | null
+          selected_ideas: string[] | null
+          updated_at: string | null
+          username: string
+        }
+        Insert: {
+          completed_onboarding?: boolean | null
+          created_at?: string | null
+          id: string
+          selected_avatar?: number | null
+          selected_ideas?: string[] | null
+          updated_at?: string | null
+          username: string
+        }
+        Update: {
+          completed_onboarding?: boolean | null
+          created_at?: string | null
+          id?: string
+          selected_avatar?: number | null
+          selected_ideas?: string[] | null
+          updated_at?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
