@@ -33,6 +33,57 @@ export type Database = {
         }
         Relationships: []
       }
+      physical_test_results: {
+        Row: {
+          age: number
+          created_at: string
+          flexibility_score: number | null
+          height: number
+          id: string
+          level: string
+          overall_score: number
+          pushups: number
+          recommendations: string[] | null
+          running_time: number
+          situps: number
+          updated_at: string
+          user_id: string
+          weight: number
+        }
+        Insert: {
+          age: number
+          created_at?: string
+          flexibility_score?: number | null
+          height: number
+          id?: string
+          level: string
+          overall_score: number
+          pushups: number
+          recommendations?: string[] | null
+          running_time: number
+          situps: number
+          updated_at?: string
+          user_id: string
+          weight: number
+        }
+        Update: {
+          age?: number
+          created_at?: string
+          flexibility_score?: number | null
+          height?: number
+          id?: string
+          level?: string
+          overall_score?: number
+          pushups?: number
+          recommendations?: string[] | null
+          running_time?: number
+          situps?: number
+          updated_at?: string
+          user_id?: string
+          weight?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           completed_onboarding: boolean | null
@@ -60,6 +111,90 @@ export type Database = {
           selected_ideas?: string[] | null
           updated_at?: string | null
           username?: string
+        }
+        Relationships: []
+      }
+      star_map_progress: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          mastered_at: string | null
+          node_id: string
+          progress_score: number
+          status: string
+          unlocked_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          mastered_at?: string | null
+          node_id: string
+          progress_score?: number
+          status?: string
+          unlocked_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          mastered_at?: string | null
+          node_id?: string
+          progress_score?: number
+          status?: string
+          unlocked_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      talent_test_results: {
+        Row: {
+          created_at: string
+          execution_score: number
+          harmony_score: number
+          id: string
+          innovation_score: number
+          leadership_score: number
+          primary_talent: string
+          recommendations: string[] | null
+          strengths: string[] | null
+          talent_description: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          execution_score?: number
+          harmony_score?: number
+          id?: string
+          innovation_score?: number
+          leadership_score?: number
+          primary_talent: string
+          recommendations?: string[] | null
+          strengths?: string[] | null
+          talent_description?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          execution_score?: number
+          harmony_score?: number
+          id?: string
+          innovation_score?: number
+          leadership_score?: number
+          primary_talent?: string
+          recommendations?: string[] | null
+          strengths?: string[] | null
+          talent_description?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

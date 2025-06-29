@@ -25,14 +25,24 @@ const TodoCard: React.FC<TodoCardProps> = ({ onClose, onGoToTodoList }) => {
     // 显示AI分类提示
     toast.info('🧠 AI正在智能分类任务...', { duration: 2000 });
     
+    console.log('准备添加任务:', newTodoText);
     const result = await addTodo(newTodoText, '新增');
     if (result) {
+      console.log('任务添加成功:', result);
       setNewTodoText('');
+      // 显示分类结果
+      if (result.starMapNodeId) {
+        toast.success(`✨ 任务已分类到: ${result.category}`);
+      }
+    } else {
+      console.log('任务添加失败');
     }
     setIsAdding(false);
   };
 
   const handleToggle = async (id: string) => {
+    const todo = todos.find(t => t.id === id);
+    console.log('切换任务状态:', { id, todo });
     await toggleTodo(id);
   };
 
@@ -88,9 +98,16 @@ const TodoCard: React.FC<TodoCardProps> = ({ onClose, onGoToTodoList }) => {
               }`}>
                 {todo.text}
               </span>
-              <span className="text-xs text-gray-500 px-2 py-1 bg-white rounded">
-                {todo.category}
-              </span>
+              <div className="flex flex-col items-end">
+                <span className="text-xs text-gray-500 px-2 py-1 bg-white rounded">
+                  {todo.category}
+                </span>
+                {todo.starMapNodeId && (
+                  <span className="text-xs text-purple-500 mt-1">
+                    🎯 {todo.starMapNodeId}
+                  </span>
+                )}
+              </div>
             </div>
           ))}
           {todos.length === 0 && (
