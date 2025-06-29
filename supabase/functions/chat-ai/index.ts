@@ -8,71 +8,31 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { message } = await req.json();
+    const { message, user_id } = await req.json();
     
-    console.log('Received message:', message);
+    console.log('Received message:', message, 'from user:', user_id);
     
-    // Get the API key from Supabase secrets
-    const apiKey = Deno.env.get('api-key');
-    
-    if (!apiKey) {
-      console.error('API key not found');
-      return new Response(
-        JSON.stringify({ error: 'API configuration error' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
-
-    // Call OpenAI API or your preferred AI service
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Call your external API
+    const response = await fetch('http://47.96.231.221:5001/AgentChat', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          {
-            role: 'system',
-            content: '通过微小的行动，一起「解码」这个世界，我会陪着你'
-          },
-          {
-            role: 'user',
-            content: message
-          }
-        ],
-        max_tokens: 150,
-        temperature: 0.7
+        user_id: user_id,
+        send_message: message
       })
     });
 
     if (!response.ok) {
-      console.error('OpenAI API error:', response.status, response.statusText);
-      
-      // Fallback response if API fails
-      const fallbackResponses = [
-        "你的成长意识很强！这正是英雄品质的体现。"
-        
-      ];
-      
-      const randomResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
-      
-      return new Response(
-        JSON.stringify({ response: randomResponse }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
+      console.error('External API error:', response.status, response.statusText);
+      throw new Error(`External API error: ${response.status}`);
     }
 
     const data = await response.json();
-    const aiResponse = data.choices[0]?.message?.content || '我理解你的想法，让我们继续探讨吧。';
+    const aiResponse = data.text || '我理解你的想法，让我们继续探讨吧。';
 
-    console.log('AI response:', aiResponse);
+    console.log('External API response:', aiResponse);
 
     return new Response(
       JSON.stringify({ response: aiResponse }),
@@ -84,10 +44,20 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error('Error in chat-ai function:', error);
     
+    // Fallback response
+    const fallbackResponses = [
+      "这是一个很好的想法！让我们深入探讨一下。",
+      "我理解你的感受。这种情况下，你觉得什么行动最有帮助？",
+      "很棒！你已经迈出了重要的一步。继续保持这种积极的态度。",
+      "让我们一起制定一个可行的计划来解决这个问题。",
+      "你的成长意识很强！这正是英雄品质的体现。"
+    ];
+    
+    const randomResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+    
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ response: randomResponse }),
       { 
-        status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     );
