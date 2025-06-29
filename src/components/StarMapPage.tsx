@@ -2,6 +2,8 @@ import React, { useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Plus, Minus } from 'lucide-react';
+import { useTodos } from '@/hooks/useTodos';
+import NodeCompletionHistory from '@/components/todo/NodeCompletionHistory';
 
 interface SkillNode {
   id: string;
@@ -32,9 +34,12 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   const [zoomLevel, setZoomLevel] = useState(0.8);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const [showNodeHistory, setShowNodeHistory] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  const { getNodeCompletionStats, getCategoryCompletionStats } = useTodos();
 
   // 重新设计的技能节点数据 - 上面1个分支，下面2个分支
   const skillNodes: SkillNode[] = [
@@ -243,6 +248,22 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
     setIsDragging(false);
   }, []);
 
+  // 处理节点双击事件
+  const handleNodeDoubleClick = (nodeId: string) => {
+    setShowNodeHistory(nodeId);
+  };
+
+  // 根据任务完成情况动态更新节点状态
+  const getNodeStatusWithTodos = (node: SkillNode) => {
+    const stats = getNodeCompletionStats(node.id);
+    if (stats.completed > 0 && stats.completed >= stats.total * 0.8) {
+      return 'mastered';
+    } else if (stats.completed > 0) {
+      return 'active';
+    }
+    return node.status;
+  };
+
   const getNodeGradient = (node: SkillNode) => {
     const baseGradients = {
       psychology: 'from-purple-400 via-pink-400 to-purple-500',
@@ -250,6 +271,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       skill: 'from-blue-400 via-cyan-400 to-blue-500'
     };
     
+    const actualStatus = getNodeStatusWithTodos(node);
     const statusOpacity = {
       locked: 'opacity-30',
       available: 'opacity-60',
@@ -257,7 +279,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       mastered: 'opacity-100'
     };
 
-    return `bg-gradient-to-br ${baseGradients[node.category]} ${statusOpacity[node.status]}`;
+    return `bg-gradient-to-br ${baseGradients[node.category]} ${statusOpacity[actualStatus]}`;
   };
 
   const getNodeSize = (node: SkillNode) => {
@@ -330,34 +352,45 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   };
 
   const renderNodes = (): JSX.Element[] => {
-    return skillNodes.map((node) => (
-      <div key={node.id}>
-        <div
-          className={`absolute ${getNodeSize(node)} ${getNodeGradient(node)} rounded-full flex items-center justify-center border-2 border-white shadow-lg cursor-pointer transition-all duration-300 hover:scale-110 hover:shadow-xl ${
-            selectedNode === node.id ? 'ring-4 ring-white scale-110 shadow-2xl' : ''
-          }`}
-          style={{
-            left: node.position.x,
-            top: node.position.y,
-            boxShadow: node.status === 'mastered' ? '0 0 20px rgba(255,255,255,0.6)' : undefined
-          }}
-          onClick={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
-        />
-        
-        <div
-          className={`absolute text-white text-xs text-center font-medium bg-black/80 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg transition-all duration-300 ${
-            selectedNode === node.id ? 'bg-black/90 scale-105' : ''
-          }`}
-          style={{
-            left: node.position.x - 15,
-            top: node.position.y + (node.id === 'center' ? 70 : node.id.includes('root') ? 55 : 45),
-            width: node.id === 'center' ? 90 : node.id.includes('root') ? 80 : 70,
-          }}
-        >
-          {node.name}
+    return skillNodes.map((node) => {
+      const stats = getNodeCompletionStats(node.id);
+      return (
+        <div key={node.id}>
+          <div
+            className={`absolute ${getNodeSize(node)} ${getNodeGradient(node)} rounded-full flex items-center justify-center border-2 border-white shadow-lg cursor-pointer transition-all duration-300 hover:scale-110 hover:shadow-xl ${
+              selectedNode === node.id ? 'ring-4 ring-white scale-110 shadow-2xl' : ''
+            }`}
+            style={{
+              left: node.position.x,
+              top: node.position.y,
+              boxShadow: getNodeStatusWithTodos(node) === 'mastered' ? '0 0 20px rgba(255,255,255,0.6)' : undefined
+            }}
+            onClick={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
+            onDoubleClick={() => handleNodeDoubleClick(node.id)}
+          >
+            {/* 显示完成数量的小徽章 */}
+            {stats.completed > 0 && (
+              <div className="absolute -top-2 -right-2 bg-yellow-400 text-yellow-900 text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg">
+                {stats.completed}
+              </div>
+            )}
+          </div>
+          
+          <div
+            className={`absolute text-white text-xs text-center font-medium bg-black/80 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg transition-all duration-300 ${
+              selectedNode === node.id ? 'bg-black/90 scale-105' : ''
+            }`}
+            style={{
+              left: node.position.x - 15,
+              top: node.position.y + (node.id === 'center' ? 70 : node.id.includes('root') ? 55 : 45),
+              width: node.id === 'center' ? 90 : node.id.includes('root') ? 80 : 70,
+            }}
+          >
+            {node.name}
+          </div>
         </div>
-      </div>
-    ));
+      );
+    });
   };
 
   const handleZoomIn = () => {
@@ -408,7 +441,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
             variant="outline"
             size="sm"
             onClick={handleZoomOut}
-            className="text-white border-white/30 hover:bg-white/10"
+            className="text-white border-white/30 hover:bg-white/10 bg-white/10"
           >
             <Minus className="w-4 h-4" />
           </Button>
@@ -416,7 +449,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
             variant="outline"
             size="sm"
             onClick={handleZoomIn}
-            className="text-white border-white/30 hover:bg-white/10"
+            className="text-white border-white/30 hover:bg-white/10 bg-white/10"
           >
             <Plus className="w-4 h-4" />
           </Button>
@@ -478,7 +511,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={onGoToPhysicalTest}
-                className="text-white border-white/30 hover:bg-white/10"
+                className="text-white border-white/30 hover:bg-white/10 bg-white/10"
               >
                 开始测试
               </Button>
@@ -498,7 +531,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={onGoToTalentTest}
-                className="text-white border-white/30 hover:bg-white/10"
+                className="text-white border-white/30 hover:bg-white/10 bg-white/10"
               >
                 开始测试
               </Button>
@@ -517,17 +550,20 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
               <div className="flex items-center space-x-2 mb-2">
                 <h3 className="text-white font-bold text-lg">{selectedNodeData.name}</h3>
                 <span className={`px-3 py-1 text-xs rounded-full font-medium border ${
-                  selectedNodeData.status === 'mastered' ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-yellow-300' :
-                  selectedNodeData.status === 'active' ? 'bg-gradient-to-r from-blue-400 to-purple-500 text-white border-blue-300' :
+                  getNodeStatusWithTodos(selectedNodeData) === 'mastered' ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-yellow-300' :
+                  getNodeStatusWithTodos(selectedNodeData) === 'active' ? 'bg-gradient-to-r from-blue-400 to-purple-500 text-white border-blue-300' :
                   selectedNodeData.status === 'available' ? 'bg-white/20 text-white border-white/30' :
                   'bg-gray-500/20 text-gray-300 border-gray-400/30'
                 }`}>
-                  {selectedNodeData.status === 'mastered' ? '已掌握' :
-                   selectedNodeData.status === 'active' ? '进行中' :
+                  {getNodeStatusWithTodos(selectedNodeData) === 'mastered' ? '已掌握' :
+                   getNodeStatusWithTodos(selectedNodeData) === 'active' ? '进行中' :
                    selectedNodeData.status === 'available' ? '可开始' : '未解锁'}
                 </span>
               </div>
               <p className="text-white/80 text-sm mb-3">{selectedNodeData.description}</p>
+              <div className="text-xs text-white/60 bg-white/10 p-2 rounded-lg border border-white/20 mb-2">
+                完成任务: {getNodeCompletionStats(selectedNodeData.id).completed}/{getNodeCompletionStats(selectedNodeData.id).total}
+              </div>
               {selectedNodeData.requirements && selectedNodeData.requirements.length > 0 && (
                 <div className="text-xs text-white/60 bg-white/10 p-2 rounded-lg border border-white/20">
                   前置条件: {selectedNodeData.requirements.map(req => 
@@ -535,9 +571,22 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
                   ).join(', ')}
                 </div>
               )}
+              <div className="mt-2 text-xs text-white/60">
+                💡 双击节点查看完成历史
+              </div>
             </div>
           </div>
         </div>
+      )}
+
+      {/* 节点完成历史弹窗 */}
+      {showNodeHistory && (
+        <NodeCompletionHistory
+          nodeId={showNodeHistory}
+          nodeName={skillNodes.find(n => n.id === showNodeHistory)?.name || ''}
+          completionStats={getNodeCompletionStats(showNodeHistory)}
+          onClose={() => setShowNodeHistory(null)}
+        />
       )}
     </div>
   );
