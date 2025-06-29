@@ -556,7 +556,51 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
         </div>
       </div>
 
-      {/* 能力评估 */}
+      {/* 节点详情面板 */}
+      {selectedNodeData && !selectedNodeData.id.includes('root') && (
+        <div className="absolute bottom-32 left-4 right-4 bg-black/40 backdrop-blur-lg border border-white/20 shadow-2xl p-4 rounded-lg animate-fade-in z-20">
+          <div className="flex items-start space-x-4">
+            <div className={`w-12 h-12 ${getNodeGradient(selectedNodeData)} rounded-full border-2 border-white shadow-lg`}>
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center space-x-2 mb-2">
+                <h3 className="text-white font-bold text-lg">{selectedNodeData.name}</h3>
+                <span className={`px-3 py-1 text-xs rounded-full font-medium border ${
+                  getNodeStatusWithTodos(selectedNodeData) === 'mastered' ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-yellow-300' :
+                  getNodeStatusWithTodos(selectedNodeData) === 'active' ? 'bg-gradient-to-r from-blue-400 to-purple-500 text-white border-blue-300' :
+                  selectedNodeData.status === 'available' ? 'bg-white/20 text-white border-white/30' :
+                  'bg-gray-500/20 text-gray-300 border-gray-400/30'
+                }`}>
+                  {getNodeStatusWithTodos(selectedNodeData) === 'mastered' ? '已掌握' :
+                   getNodeStatusWithTodos(selectedNodeData) === 'active' ? '进行中' :
+                   selectedNodeData.status === 'available' ? '可开始' : '未解锁'}
+                </span>
+              </div>
+              <p className="text-white/80 text-sm mb-3">{selectedNodeData.description}</p>
+              <div className="text-xs text-white/60 bg-white/10 p-2 rounded-lg border border-white/20 mb-2">
+                完成任务: {getNodeCompletionStats(selectedNodeData.id).completed}/{getNodeCompletionStats(selectedNodeData.id).total}
+                {getNodeCompletionStats(selectedNodeData.id).total > 0 && (
+                  <span className="ml-2">
+                    ({Math.round((getNodeCompletionStats(selectedNodeData.id).completed / getNodeCompletionStats(selectedNodeData.id).total) * 100)}%)
+                  </span>
+                )}
+              </div>
+              {selectedNodeData.requirements && selectedNodeData.requirements.length > 0 && (
+                <div className="text-xs text-white/60 bg-white/10 p-2 rounded-lg border border-white/20">
+                  前置条件: {selectedNodeData.requirements.map(req => 
+                    skillNodes.find(n => n.id === req)?.name || req
+                  ).join(', ')}
+                </div>
+              )}
+              <div className="mt-2 text-xs text-white/60">
+                💡 双击节点查看完成历史
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 能力评估 - 移动到页面底部 */}
       <div className="relative z-10 px-4 mb-4">
         <div className="bg-black/20 backdrop-blur-sm border border-white/20 rounded-lg p-4">
           <h3 className="text-white font-semibold mb-3">能力评估</h3>
@@ -603,50 +647,6 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
           </div>
         </div>
       </div>
-
-      {/* 节点详情面板 */}
-      {selectedNodeData && !selectedNodeData.id.includes('root') && (
-        <div className="absolute bottom-4 left-4 right-4 bg-black/40 backdrop-blur-lg border border-white/20 shadow-2xl p-4 rounded-lg animate-fade-in z-20">
-          <div className="flex items-start space-x-4">
-            <div className={`w-12 h-12 ${getNodeGradient(selectedNodeData)} rounded-full border-2 border-white shadow-lg`}>
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center space-x-2 mb-2">
-                <h3 className="text-white font-bold text-lg">{selectedNodeData.name}</h3>
-                <span className={`px-3 py-1 text-xs rounded-full font-medium border ${
-                  getNodeStatusWithTodos(selectedNodeData) === 'mastered' ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-yellow-300' :
-                  getNodeStatusWithTodos(selectedNodeData) === 'active' ? 'bg-gradient-to-r from-blue-400 to-purple-500 text-white border-blue-300' :
-                  selectedNodeData.status === 'available' ? 'bg-white/20 text-white border-white/30' :
-                  'bg-gray-500/20 text-gray-300 border-gray-400/30'
-                }`}>
-                  {getNodeStatusWithTodos(selectedNodeData) === 'mastered' ? '已掌握' :
-                   getNodeStatusWithTodos(selectedNodeData) === 'active' ? '进行中' :
-                   selectedNodeData.status === 'available' ? '可开始' : '未解锁'}
-                </span>
-              </div>
-              <p className="text-white/80 text-sm mb-3">{selectedNodeData.description}</p>
-              <div className="text-xs text-white/60 bg-white/10 p-2 rounded-lg border border-white/20 mb-2">
-                完成任务: {getNodeCompletionStats(selectedNodeData.id).completed}/{getNodeCompletionStats(selectedNodeData.id).total}
-                {getNodeCompletionStats(selectedNodeData.id).total > 0 && (
-                  <span className="ml-2">
-                    ({Math.round((getNodeCompletionStats(selectedNodeData.id).completed / getNodeCompletionStats(selectedNodeData.id).total) * 100)}%)
-                  </span>
-                )}
-              </div>
-              {selectedNodeData.requirements && selectedNodeData.requirements.length > 0 && (
-                <div className="text-xs text-white/60 bg-white/10 p-2 rounded-lg border border-white/20">
-                  前置条件: {selectedNodeData.requirements.map(req => 
-                    skillNodes.find(n => n.id === req)?.name || req
-                  ).join(', ')}
-                </div>
-              )}
-              <div className="mt-2 text-xs text-white/60">
-                💡 双击节点查看完成历史
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 节点完成历史弹窗 */}
       {showNodeHistory && (
