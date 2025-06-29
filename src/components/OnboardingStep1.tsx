@@ -30,24 +30,16 @@ const OnboardingStep1: React.FC<OnboardingStep1Props> = ({ onNext, username }) =
           <h1 className="text-3xl font-bold text-white mb-4">
             欢迎，{username}！
           </h1>
-          <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-            每个人心中都住着一个英雄
-            <br />
-            现在是时候唤醒你的英雄之魂了
-          </p>
-          <div className="space-y-4 text-gray-400">
-            <div className="flex items-center justify-center space-x-2">
-              <span className="text-2xl">🎯</span>
-              <span>发现内在动力</span>
-            </div>
-            <div className="flex items-center justify-center space-x-2">
-              <span className="text-2xl">🚀</span>
-              <span>制定行动计划</span>
-            </div>
-            <div className="flex items-center justify-center space-x-2">
-              <span className="text-2xl">⭐</span>
-              <span>成就更好的自己</span>
-            </div>
+          <div className="space-y-4 text-gray-300 leading-relaxed">
+            <p className="text-lg">
+              我们如同散落的星尘，漂浮在数据的海洋。
+            </p>
+            <p className="text-lg">
+              每个人内心都潜藏着英雄，但现实让我们迷失方向。
+            </p>
+            <p className="text-xl font-semibold text-hero-400 mt-6">
+              Becoming——成长，值得重新想象
+            </p>
           </div>
           <Button 
             onClick={onNext}

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { ShoppingCart } from 'lucide-react';
+import { Heart } from 'lucide-react';
 
 interface OnboardingStep2Props {
   selectedIdeas: string[];
@@ -11,12 +11,10 @@ interface OnboardingStep2Props {
 }
 
 const ideas = [
-  "裤子又穿不上了",
-  "最近又胖了", 
-  "最近找不到工作很烦！！",
-  "我有一些健康上的困恼",
-  "感觉身体好差，没有精力",
-  "心情低落"
+  "我想变得更有活力",
+  "我想找到符合心意的工作", 
+  "我想存下许多钱",
+  "我想让身体更健康"
 ];
 
 const OnboardingStep2: React.FC<OnboardingStep2Props> = ({ 
@@ -28,10 +26,10 @@ const OnboardingStep2: React.FC<OnboardingStep2Props> = ({
     <div className="mobile-container gradient-bg p-6">
       <div className="animate-slide-in-right">
         <h1 className="text-2xl font-bold text-white text-center mb-2">
-          说说你最近的想法
+          那么，无名的英雄
         </h1>
         <p className="text-gray-300 text-center mb-8">
-          选择那些让你有共鸣的想法
+          此刻的你拥有哪些想象？
         </p>
         
         <div className="space-y-3 mb-24">
@@ -57,16 +55,16 @@ const OnboardingStep2: React.FC<OnboardingStep2Props> = ({
           ))}
         </div>
         
-        {/* 购物车 */}
-        <div className="fixed bottom-20 left-6 right-6">
+        {/* 选择计数和鼓励文字 */}
+        <div className="fixed bottom-32 left-6 right-6">
           <div className="relative">
             <div className="absolute left-4 top-4 bg-hero-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold z-10 animate-bounce-in">
               {selectedIdeas.length}
             </div>
             <Card className="glass-effect p-4 pl-16">
               <div className="flex items-center text-white">
-                <ShoppingCart className="w-6 h-6 mr-3" />
-                <span>已选择 {selectedIdeas.length} 个想法</span>
+                <Heart className="w-6 h-6 mr-3" />
+                <span>每次微小期许，请相信，这会成为我们向前的力量</span>
               </div>
             </Card>
           </div>
@@ -79,7 +77,7 @@ const OnboardingStep2: React.FC<OnboardingStep2Props> = ({
             disabled={selectedIdeas.length === 0}
             className="w-full hero-gradient text-white font-semibold h-12 text-lg hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            我选好了！
+            我已准备好！
           </Button>
         </div>
       </div>

@@ -22,12 +22,16 @@ const OnboardingStep3: React.FC<OnboardingStep3Props> = ({
   return (
     <div className="mobile-container gradient-bg flex flex-col items-center justify-center p-8 text-center">
       <div className="animate-slide-in-left">
-        <h1 className="text-2xl font-bold text-white mb-4">
-          你的英雄形象
-        </h1>
-        <p className="text-gray-300 mb-8">
-          {username}，这就是你的英雄化身
-        </p>
+        <div className="space-y-4 mb-8">
+          <h1 className="text-2xl font-bold text-white">
+            你听说过"星图"吗？
+          </h1>
+          <p className="text-gray-300 text-lg leading-relaxed">
+            它将是你的英雄之路
+            <br />
+            从这里开始，我将与你一起找到答案
+          </p>
+        </div>
         
         <div className="relative mb-8">
           <div className="w-48 h-48 mx-auto hero-gradient rounded-full flex items-center justify-center animate-pulse-glow mb-4">
@@ -46,9 +50,12 @@ const OnboardingStep3: React.FC<OnboardingStep3Props> = ({
         <h2 className="text-xl font-semibold text-hero-400 mb-2">
           {avatarNames[selectedAvatar]}
         </h2>
-        <p className="text-gray-400 mb-12">
-          准备好开始你的英雄之旅了吗？
-        </p>
+        <div className="space-y-2 text-gray-400 mb-8">
+          <p>我是谁？</p>
+          <p>我不记得了</p>
+          <p>但是我相信随着星图的点亮</p>
+          <p>我们都能找回自己</p>
+        </div>
         
         <Button 
           onClick={onComplete}
