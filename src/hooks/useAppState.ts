@@ -1,7 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
 
 export interface Profile {
   id: string;
@@ -20,7 +18,6 @@ export interface AppState {
 }
 
 export const useAppState = () => {
-  const { user, loading } = useAuth();
   const [state, setState] = useState<AppState>({
     currentStep: 'login',
     onboardingStep: 0,
@@ -29,7 +26,7 @@ export const useAppState = () => {
     profile: null,
   });
 
-  // 简单的登录处理函数
+  // 简单的登录处理函数，完全使用本地状态
   const handleLogin = async (username: string) => {
     try {
       console.log('Logging in user:', username);
@@ -37,42 +34,27 @@ export const useAppState = () => {
       // 创建一个模拟用户ID
       const mockUserId = `user_${username}_${Date.now()}`;
       
-      // 检查是否已有该用户的profile
-      let { data: existingProfile, error: fetchError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('username', username)
-        .single();
-
+      // 检查本地存储是否有该用户的数据
+      const storedProfileKey = `profile_${username}`;
+      const storedProfile = localStorage.getItem(storedProfileKey);
+      
       let profile: Profile;
 
-      if (fetchError && fetchError.code === 'PGRST116') {
-        // 用户不存在，创建新profile
-        const newProfile = {
+      if (storedProfile) {
+        // 用户存在，加载存储的数据
+        profile = JSON.parse(storedProfile);
+      } else {
+        // 新用户，创建新的profile
+        profile = {
           id: mockUserId,
           username,
           completed_onboarding: false,
           selected_ideas: [],
           selected_avatar: 0,
         };
-
-        const { data: createdProfile, error: createError } = await supabase
-          .from('profiles')
-          .insert([newProfile])
-          .select()
-          .single();
-
-        if (createError) {
-          console.error('创建用户profile失败:', createError);
-          return;
-        }
-
-        profile = createdProfile;
-      } else if (existingProfile) {
-        profile = existingProfile;
-      } else {
-        console.error('获取用户profile失败:', fetchError);
-        return;
+        
+        // 保存到本地存储
+        localStorage.setItem(storedProfileKey, JSON.stringify(profile));
       }
 
       // 更新状态
@@ -122,30 +104,22 @@ export const useAppState = () => {
     if (!state.profile) return;
 
     try {
-      // 更新数据库中的用户profile
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          completed_onboarding: true,
-          selected_ideas: state.selectedIdeas,
-          selected_avatar: state.selectedAvatar,
-        })
-        .eq('id', state.profile.id);
+      // 更新profile数据
+      const updatedProfile = {
+        ...state.profile,
+        completed_onboarding: true,
+        selected_ideas: state.selectedIdeas,
+        selected_avatar: state.selectedAvatar,
+      };
 
-      if (error) {
-        console.error('更新用户profile失败:', error);
-        return;
-      }
+      // 保存到本地存储
+      const storedProfileKey = `profile_${state.profile.username}`;
+      localStorage.setItem(storedProfileKey, JSON.stringify(updatedProfile));
 
       setState(prevState => ({
         ...prevState,
         currentStep: 'main',
-        profile: prevState.profile ? {
-          ...prevState.profile,
-          completed_onboarding: true,
-          selected_ideas: prevState.selectedIdeas,
-          selected_avatar: prevState.selectedAvatar,
-        } : null,
+        profile: updatedProfile,
       }));
     } catch (error) {
       console.error('完成引导流程时发生错误:', error);
@@ -156,19 +130,17 @@ export const useAppState = () => {
     if (!state.profile) return;
 
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          completed_onboarding: false,
-          selected_ideas: [],
-          selected_avatar: 0,
-        })
-        .eq('id', state.profile.id);
+      // 重置profile数据
+      const resetProfile = {
+        ...state.profile,
+        completed_onboarding: false,
+        selected_ideas: [],
+        selected_avatar: 0,
+      };
 
-      if (error) {
-        console.error('重置引导流程失败:', error);
-        return;
-      }
+      // 保存到本地存储
+      const storedProfileKey = `profile_${state.profile.username}`;
+      localStorage.setItem(storedProfileKey, JSON.stringify(resetProfile));
 
       setState(prevState => ({
         ...prevState,
@@ -176,12 +148,7 @@ export const useAppState = () => {
         onboardingStep: 0,
         selectedIdeas: [],
         selectedAvatar: 0,
-        profile: prevState.profile ? {
-          ...prevState.profile,
-          completed_onboarding: false,
-          selected_ideas: [],
-          selected_avatar: 0,
-        } : null,
+        profile: resetProfile,
       }));
     } catch (error) {
       console.error('重置引导流程时发生错误:', error);
@@ -200,7 +167,7 @@ export const useAppState = () => {
 
   return {
     state,
-    loading: false, // 简化后不需要复杂的loading状态
+    loading: false,
     user: state.profile ? { id: state.profile.id, username: state.profile.username } : null,
     nextOnboardingStep,
     selectIdea,
