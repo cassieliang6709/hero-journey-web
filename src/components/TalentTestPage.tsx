@@ -112,7 +112,7 @@ const TalentTestPage: React.FC<TalentTestPageProps> = ({ user, onBack }) => {
         description: '天生的领导者，善于指导和激励他人',
         score: ((traitCounts.leadership || 0) / totalAnswers) * 100,
         icon: Target,
-        color: 'text-gray-800',
+        color: 'text-red-600',
         strengths: ['战略思维', '团队管理', '决策能力', '激励他人'],
         recommendations: ['培养沟通技巧', '学习管理理论', '参与领导力培训', '承担更多责任']
       },
@@ -122,7 +122,7 @@ const TalentTestPage: React.FC<TalentTestPageProps> = ({ user, onBack }) => {
         description: '富有创造力，善于发现新的解决方案',
         score: ((traitCounts.innovation || 0) / totalAnswers) * 100,
         icon: Lightbulb,
-        color: 'text-gray-700',
+        color: 'text-yellow-600',
         strengths: ['创意思维', '问题解决', '适应变化', '独立思考'],
         recommendations: ['多元化学习', '参与创新项目', '培养跨界思维', '保持好奇心']
       },
@@ -132,7 +132,7 @@ const TalentTestPage: React.FC<TalentTestPageProps> = ({ user, onBack }) => {
         description: '擅长建立关系，营造和谐的团队氛围',
         score: ((traitCounts.harmony || 0) / totalAnswers) * 100,
         icon: Users,
-        color: 'text-gray-700',
+        color: 'text-green-600',
         strengths: ['人际关系', '团队协作', '情感智慧', '冲突调解'],
         recommendations: ['发展情商', '学习心理学知识', '参与团队建设', '培养倾听技巧']
       },
@@ -142,7 +142,7 @@ const TalentTestPage: React.FC<TalentTestPageProps> = ({ user, onBack }) => {
         description: '高效执行者，能够将想法转化为现实',
         score: ((traitCounts.execution || 0) / totalAnswers) * 100,
         icon: Zap,
-        color: 'text-gray-700',
+        color: 'text-blue-600',
         strengths: ['计划制定', '任务执行', '时间管理', '目标达成'],
         recommendations: ['优化工作流程', '学习项目管理', '提升效率工具使用', '培养系统思维']
       }
@@ -163,21 +163,21 @@ const TalentTestPage: React.FC<TalentTestPageProps> = ({ user, onBack }) => {
   const renderIntro = () => (
     <div className="space-y-6">
       <div className="text-center space-y-4">
-        <div className="w-24 h-24 bg-gray-900 rounded-full flex items-center justify-center mx-auto">
+        <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto">
           <Brain className="w-12 h-12 text-white" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900">优势天赋测试</h2>
-        <p className="text-gray-600">
+        <h2 className="text-2xl font-bold text-slate-800">优势天赋测试</h2>
+        <p className="text-slate-600">
           发现你的天赋优势，了解你的潜力所在，为个人发展提供方向指引
         </p>
       </div>
 
-      <Card className="bg-white border border-gray-200">
+      <Card className="bg-white/80 backdrop-blur-sm border-white/20">
         <CardHeader>
-          <CardTitle className="text-gray-900">测试说明</CardTitle>
+          <CardTitle className="text-slate-800">测试说明</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-3 text-sm text-gray-700">
+          <div className="space-y-3 text-sm text-slate-700">
             <p>• 本测试包含5个情境问题</p>
             <p>• 每个问题有4个选项，请选择最符合你的选项</p>
             <p>• 请根据真实情况作答，没有标准答案</p>
@@ -187,35 +187,35 @@ const TalentTestPage: React.FC<TalentTestPageProps> = ({ user, onBack }) => {
       </Card>
 
       <div className="grid grid-cols-2 gap-4">
-        <Card className="bg-gray-50 border border-gray-200">
+        <Card className="bg-gradient-to-br from-red-50 to-orange-50 border-red-200">
           <CardContent className="p-4 text-center">
-            <Target className="w-8 h-8 text-gray-700 mx-auto mb-2" />
-            <p className="text-sm font-medium text-gray-900">领导力</p>
+            <Target className="w-8 h-8 text-red-600 mx-auto mb-2" />
+            <p className="text-sm font-medium text-red-800">领导力</p>
           </CardContent>
         </Card>
-        <Card className="bg-gray-50 border border-gray-200">
+        <Card className="bg-gradient-to-br from-yellow-50 to-amber-50 border-yellow-200">
           <CardContent className="p-4 text-center">
-            <Lightbulb className="w-8 h-8 text-gray-700 mx-auto mb-2" />
-            <p className="text-sm font-medium text-gray-900">创新思维</p>
+            <Lightbulb className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
+            <p className="text-sm font-medium text-yellow-800">创新思维</p>
           </CardContent>
         </Card>
-        <Card className="bg-gray-50 border border-gray-200">
+        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
           <CardContent className="p-4 text-center">
-            <Users className="w-8 h-8 text-gray-700 mx-auto mb-2" />
-            <p className="text-sm font-medium text-gray-900">人际和谐</p>
+            <Users className="w-8 h-8 text-green-600 mx-auto mb-2" />
+            <p className="text-sm font-medium text-green-800">人际和谐</p>
           </CardContent>
         </Card>
-        <Card className="bg-gray-50 border border-gray-200">
+        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
           <CardContent className="p-4 text-center">
-            <Zap className="w-8 h-8 text-gray-700 mx-auto mb-2" />
-            <p className="text-sm font-medium text-gray-900">执行力</p>
+            <Zap className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+            <p className="text-sm font-medium text-blue-800">执行力</p>
           </CardContent>
         </Card>
       </div>
 
       <Button 
         onClick={() => setCurrentStep('test')}
-        className="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-4 rounded-lg"
+        className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-medium py-4 rounded-xl"
       >
         开始测试
       </Button>
@@ -229,17 +229,17 @@ const TalentTestPage: React.FC<TalentTestPageProps> = ({ user, onBack }) => {
       <div className="space-y-6">
         <div className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-slate-200 rounded-full h-2">
               <div 
-                className="bg-gray-900 h-2 rounded-full transition-all duration-300"
+                className="bg-gradient-to-r from-purple-500 to-pink-600 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
               />
             </div>
           </div>
-          <p className="text-sm text-gray-600 mb-2">
+          <p className="text-sm text-slate-600 mb-2">
             问题 {currentQuestion + 1} / {questions.length}
           </p>
-          <h2 className="text-xl font-bold text-gray-900 mb-6">{question.question}</h2>
+          <h2 className="text-xl font-bold text-slate-800 mb-6">{question.question}</h2>
         </div>
 
         <div className="space-y-3">
@@ -248,13 +248,13 @@ const TalentTestPage: React.FC<TalentTestPageProps> = ({ user, onBack }) => {
               key={index}
               variant="outline"
               onClick={() => handleAnswer(option.trait)}
-              className="w-full p-4 h-auto text-left justify-start bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200"
+              className="w-full p-4 h-auto text-left justify-start bg-white/80 backdrop-blur-sm border-white/20 hover:bg-white/90 hover:border-purple-200 transition-all duration-200"
             >
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                  <span className="text-gray-700 font-medium">{String.fromCharCode(65 + index)}</span>
+                <div className="w-8 h-8 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center">
+                  <span className="text-purple-600 font-medium">{String.fromCharCode(65 + index)}</span>
                 </div>
-                <span className="text-gray-900">{option.text}</span>
+                <span className="text-slate-800">{option.text}</span>
               </div>
             </Button>
           ))}
@@ -266,38 +266,38 @@ const TalentTestPage: React.FC<TalentTestPageProps> = ({ user, onBack }) => {
   const renderResults = () => (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">你的天赋优势</h2>
-        <p className="text-gray-600 text-sm">基于你的回答，我们为你分析了以下优势特质</p>
+        <h2 className="text-xl font-bold text-slate-800 mb-2">你的天赋优势</h2>
+        <p className="text-slate-600 text-sm">基于你的回答，我们为你分析了以下优势特质</p>
       </div>
 
       <div className="space-y-4">
         {results.map((result, index) => (
-          <Card key={index} className={`bg-white border border-gray-200 ${index === 0 ? 'ring-2 ring-gray-300' : ''}`}>
+          <Card key={index} className={`bg-white/80 backdrop-blur-sm border-white/20 ${index === 0 ? 'ring-2 ring-purple-200' : ''}`}>
             <CardContent className="p-4">
               <div className="flex items-center space-x-4 mb-4">
-                <div className={`w-12 h-12 rounded-full ${
-                  index === 0 ? 'bg-gray-900' : 'bg-gray-100'
+                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${
+                  index === 0 ? 'from-purple-500 to-pink-600' : 'from-slate-100 to-slate-200'
                 } flex items-center justify-center`}>
-                  <result.icon className={`w-6 h-6 ${index === 0 ? 'text-white' : 'text-gray-700'}`} />
+                  <result.icon className={`w-6 h-6 ${index === 0 ? 'text-white' : result.color}`} />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-1">
-                    <h3 className="font-bold text-gray-900">{result.name}</h3>
+                    <h3 className="font-bold text-slate-800">{result.name}</h3>
                     {index === 0 && (
-                      <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full font-medium">
+                      <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full font-medium">
                         主要优势
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">{result.description}</p>
+                  <p className="text-sm text-slate-600 mb-2">{result.description}</p>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">匹配度</span>
+                    <span className="text-slate-600">匹配度</span>
                     <span className={`font-bold ${result.color}`}>{Math.round(result.score)}%</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                  <div className="w-full bg-slate-200 rounded-full h-2 mt-1">
                     <div 
                       className={`h-2 rounded-full transition-all duration-500 ${
-                        index === 0 ? 'bg-gray-900' : 'bg-gray-600'
+                        index === 0 ? 'bg-gradient-to-r from-purple-500 to-pink-600' : 'bg-slate-400'
                       }`}
                       style={{ width: `${result.score}%` }}
                     />
@@ -306,22 +306,22 @@ const TalentTestPage: React.FC<TalentTestPageProps> = ({ user, onBack }) => {
               </div>
 
               {index === 0 && (
-                <div className="space-y-3 pt-4 border-t border-gray-200">
+                <div className="space-y-3 pt-4 border-t border-slate-200">
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">核心优势</h4>
+                    <h4 className="font-medium text-slate-800 mb-2">核心优势</h4>
                     <div className="flex flex-wrap gap-2">
                       {result.strengths.map((strength, i) => (
-                        <span key={i} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
+                        <span key={i} className="px-2 py-1 bg-purple-50 text-purple-700 text-xs rounded-full">
                           {strength}
                         </span>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">发展建议</h4>
+                    <h4 className="font-medium text-slate-800 mb-2">发展建议</h4>
                     <div className="space-y-1">
                       {result.recommendations.map((rec, i) => (
-                        <p key={i} className="text-sm text-gray-600">• {rec}</p>
+                        <p key={i} className="text-sm text-slate-600">• {rec}</p>
                       ))}
                     </div>
                   </div>
@@ -332,12 +332,12 @@ const TalentTestPage: React.FC<TalentTestPageProps> = ({ user, onBack }) => {
         ))}
       </div>
 
-      <Card className="bg-gray-50 border border-gray-200">
+      <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
         <CardHeader>
-          <CardTitle className="text-gray-900">个性化成长路径</CardTitle>
+          <CardTitle className="text-slate-800">个性化成长路径</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2 text-sm text-gray-700">
+          <div className="space-y-2 text-sm text-slate-700">
             <p>• 专注发展你的主要优势: <strong>{results[0]?.name}</strong></p>
             <p>• 寻找能发挥你优势的工作机会和项目</p>
             <p>• 与具有互补优势的人合作</p>
@@ -348,7 +348,7 @@ const TalentTestPage: React.FC<TalentTestPageProps> = ({ user, onBack }) => {
 
       <Button 
         onClick={resetTest}
-        className="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-3 rounded-lg"
+        className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-medium py-3 rounded-xl"
       >
         重新测试
       </Button>
@@ -356,18 +356,18 @@ const TalentTestPage: React.FC<TalentTestPageProps> = ({ user, onBack }) => {
   );
 
   return (
-    <div className="mobile-container min-h-screen bg-gray-50">
-      <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
+    <div className="mobile-container min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50">
+      <div className="flex items-center justify-between p-4 bg-white/80 backdrop-blur-sm border-b border-white/20">
         <div className="flex items-center space-x-3">
           <Button
             variant="ghost"
             size="sm"
             onClick={onBack}
-            className="text-gray-900 p-0 hover:bg-gray-100"
+            className="text-slate-700 p-0 hover:bg-slate-100"
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="text-gray-900 font-bold text-lg">优势天赋测试</h1>
+          <h1 className="text-slate-800 font-bold text-lg">优势天赋测试</h1>
         </div>
       </div>
 

@@ -44,12 +44,12 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ onGoToPhysicalTest, onGoToTalen
     <div className="space-y-3">
       {/* 任务管理抽屉 */}
       <Collapsible open={isTaskOpen} onOpenChange={setIsTaskOpen}>
-        <Card className="bg-white/90 backdrop-blur border border-white/20 shadow-lg">
+        <Card className="bg-white border border-gray-200">
           <CollapsibleTrigger asChild>
-            <CardHeader className="pb-3 cursor-pointer hover:bg-white/50 transition-colors">
+            <CardHeader className="pb-3 cursor-pointer hover:bg-gray-50">
               <div className="flex items-center justify-between">
-                <CardTitle className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent font-medium text-sm">任务管理</CardTitle>
-                {isTaskOpen ? <ChevronUp className="w-4 h-4 text-purple-600" /> : <ChevronDown className="w-4 h-4 text-purple-600" />}
+                <CardTitle className="text-gray-900 font-medium text-sm">任务管理</CardTitle>
+                {isTaskOpen ? <ChevronUp className="w-4 h-4 text-gray-600" /> : <ChevronDown className="w-4 h-4 text-gray-600" />}
               </div>
             </CardHeader>
           </CollapsibleTrigger>
@@ -57,7 +57,7 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ onGoToPhysicalTest, onGoToTalen
           <CollapsibleContent>
             <CardContent className="pt-0 space-y-3">
               {taskData.map((task, index) => (
-                <div key={index} className="flex items-center justify-between py-2 border-b border-white/20 last:border-b-0">
+                <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
                   <div>
                     <h4 className="font-medium text-gray-900 text-sm">{task.title}</h4>
                   </div>
@@ -65,12 +65,12 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ onGoToPhysicalTest, onGoToTalen
                     {task.completed !== undefined ? (
                       <div>
                         <span className="text-sm font-medium text-gray-900">{task.completed}/{task.total}</span>
-                        <p className="text-xs text-gray-600">还剩{task.remaining}次</p>
+                        <p className="text-xs text-gray-500">还剩{task.remaining}次</p>
                       </div>
                     ) : (
                       <div>
                         <span className="text-sm font-medium text-gray-900">{task.progress}</span>
-                        {task.remaining && <p className="text-xs text-gray-600">{task.remaining}</p>}
+                        {task.remaining && <p className="text-xs text-gray-500">{task.remaining}</p>}
                       </div>
                     )}
                   </div>
@@ -83,12 +83,12 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ onGoToPhysicalTest, onGoToTalen
 
       {/* 能力评估抽屉 */}
       <Collapsible open={isAssessmentOpen} onOpenChange={setIsAssessmentOpen}>
-        <Card className="bg-white/90 backdrop-blur border border-white/20 shadow-lg">
+        <Card className="bg-white border border-gray-200">
           <CollapsibleTrigger asChild>
-            <CardHeader className="pb-3 cursor-pointer hover:bg-white/50 transition-colors">
+            <CardHeader className="pb-3 cursor-pointer hover:bg-gray-50">
               <div className="flex items-center justify-between">
-                <CardTitle className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent font-medium text-sm">能力评估</CardTitle>
-                {isAssessmentOpen ? <ChevronUp className="w-4 h-4 text-blue-600" /> : <ChevronDown className="w-4 h-4 text-blue-600" />}
+                <CardTitle className="text-gray-900 font-medium text-sm">能力评估</CardTitle>
+                {isAssessmentOpen ? <ChevronUp className="w-4 h-4 text-gray-600" /> : <ChevronDown className="w-4 h-4 text-gray-600" />}
               </div>
             </CardHeader>
           </CollapsibleTrigger>
@@ -96,37 +96,37 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ onGoToPhysicalTest, onGoToTalen
           <CollapsibleContent>
             <CardContent className="pt-0 space-y-3">
               <div 
-                className="flex items-center justify-between p-3 rounded-lg cursor-pointer hover:scale-105 transition-all duration-200 bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg hover:shadow-xl"
+                className="flex items-center justify-between p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50"
                 onClick={() => {
                   console.log('体能测试入口');
                   onGoToPhysicalTest?.();
                 }}
               >
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center backdrop-blur">
+                  <div className="w-8 h-8 bg-gray-900 rounded-full flex items-center justify-center">
                     <Activity className="w-4 h-4 text-white" />
                   </div>
                   <div>
-                    <div className="font-medium text-white text-sm">体能测试</div>
-                    <div className="text-xs text-white/80">评估身体素质</div>
+                    <div className="font-medium text-gray-900 text-sm">体能测试</div>
+                    <div className="text-xs text-gray-600">评估身体素质</div>
                   </div>
                 </div>
               </div>
               
               <div 
-                className="flex items-center justify-between p-3 rounded-lg cursor-pointer hover:scale-105 transition-all duration-200 bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg hover:shadow-xl"
+                className="flex items-center justify-between p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50"
                 onClick={() => {
                   console.log('优势天赋测试入口');
                   onGoToTalentTest?.();
                 }}
               >
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center backdrop-blur">
+                  <div className="w-8 h-8 bg-gray-900 rounded-full flex items-center justify-center">
                     <Brain className="w-4 h-4 text-white" />
                   </div>
                   <div>
-                    <div className="font-medium text-white text-sm">优势天赋测试</div>
-                    <div className="text-xs text-white/80">发现个人天赋优势</div>
+                    <div className="font-medium text-gray-900 text-sm">优势天赋测试</div>
+                    <div className="text-xs text-gray-600">发现个人天赋优势</div>
                   </div>
                 </div>
               </div>

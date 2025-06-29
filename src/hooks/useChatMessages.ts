@@ -14,14 +14,14 @@ interface Message {
 
 export const useChatMessages = (userId: string | undefined) => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(false); // 改为false，不加载历史消息
+  const [loading, setLoading] = useState(true);
 
-  // 不再自动加载历史消息
-  // useEffect(() => {
-  //   if (userId) {
-  //     loadMessages();
-  //   }
-  // }, [userId]);
+  // Load messages from database
+  useEffect(() => {
+    if (userId) {
+      loadMessages();
+    }
+  }, [userId]);
 
   const loadMessages = async () => {
     try {
