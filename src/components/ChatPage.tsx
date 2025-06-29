@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Send, ListTodo, Globe, Settings, Trash2 } from 'lucide-react';
 import { useChatMessages } from '@/hooks/useChatMessages';
+import { toast } from 'sonner';
 
 interface ChatPageProps {
   user: { id: string; username?: string };
@@ -116,9 +117,14 @@ const ChatPage: React.FC<ChatPageProps> = ({
     } catch (error) {
       console.error('AI调用失败:', error);
       
-      // Show more detailed error message
+      // Show more detailed error message with shorter duration
       const errorMessage = error instanceof Error ? error.message : '未知错误';
       console.log('显示错误信息:', errorMessage);
+      
+      // Show toast with 2 second duration
+      toast.error('AI服务暂时不可用，请稍后重试', {
+        duration: 2000
+      });
       
       // Use fallback response
       const fallbackResponses = [
@@ -137,6 +143,9 @@ const ChatPage: React.FC<ChatPageProps> = ({
   const handleClearChat = async () => {
     if (window.confirm('确定要清空所有聊天记录吗？')) {
       await clearMessages();
+      toast.success('聊天记录已清空', {
+        duration: 2000
+      });
     }
   };
 
