@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: '你是一个英雄导师，帮助用户成长和解决生活中的挑战。请用中文回复，语气要温暖、鼓励和富有智慧。'
+            content: '通过微小的行动，一起「解码」这个世界，我会陪着你'
           },
           {
             role: 'user',
@@ -55,11 +55,8 @@ Deno.serve(async (req) => {
       
       // Fallback response if API fails
       const fallbackResponses = [
-        "这是一个很好的想法！让我们深入探讨一下。",
-        "我理解你的感受。这种情况下，你觉得什么行动最有帮助？",
-        "很棒！你已经迈出了重要的一步。继续保持这种积极的态度。",
-        "让我们一起制定一个可行的计划来解决这个问题。",
         "你的成长意识很强！这正是英雄品质的体现。"
+        
       ];
       
       const randomResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
