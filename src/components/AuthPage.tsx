@@ -21,9 +21,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
     setLoading(true);
 
     try {
-      // 直接使用用户名创建简单的邮箱格式并登录
-      const email = `${username.trim()}@example.com`;
-      const password = 'simple123'; // 固定密码
+      // 使用更标准的邮箱格式
+      const email = `${username.trim()}@herojourney.app`;
+      const password = 'herojourney123'; // 简单的固定密码
 
       // 先尝试登录
       let { error: signInError } = await supabase.auth.signInWithPassword({
@@ -45,7 +45,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
         });
 
         if (signUpError) {
-          toast.error('创建账户失败: ' + signUpError.message);
+          console.error('注册错误:', signUpError);
+          toast.error('创建账户失败，请重试');
           return;
         }
 
@@ -56,7 +57,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
         });
 
         if (secondSignInError) {
-          toast.error('自动登录失败: ' + secondSignInError.message);
+          console.error('自动登录错误:', secondSignInError);
+          toast.error('自动登录失败，请重试');
           return;
         }
       }
@@ -64,6 +66,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
       toast.success('登录成功！');
       onAuthSuccess();
     } catch (error) {
+      console.error('登录过程中发生错误:', error);
       toast.error('操作失败，请重试');
     } finally {
       setLoading(false);
