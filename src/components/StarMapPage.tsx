@@ -32,13 +32,13 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   onGoToPhysicalTest, 
   onGoToTalentTest 
 }) => {
-  const [zoomLevel, setZoomLevel] = useState(0.8);
-  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+  const [zoomLevel, setZoomLevel] = useState(0.6);
+  const [panOffset, setPanOffset] = useState({ x: -300, y: -250 });
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [showNodeHistory, setShowNodeHistory] = useState<string | null>(null);
   const [showCategoryDetail, setShowCategoryDetail] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [dragStart, setDragStart] = useState({ x:0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   
   const { getNodeCompletionStats, getCategoryCompletionStats } = useTodos();
