@@ -114,9 +114,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
     } catch (error) {
       console.error('AI调用失败:', error);
       
-      toast.error('AI服务暂时不可用，请稍后重试', {
-        duration: 2000
-      });
+      toast.error('AI服务暂时不可用，请稍后重试');
       
       const fallbackResponses = [
         "抱歉，我现在无法连接到服务器。让我们继续聊天吧！",
@@ -134,9 +132,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
   const handleClearChat = async () => {
     if (window.confirm('确定要清空所有聊天记录吗？')) {
       await clearMessages();
-      toast.success('聊天记录已清空', {
-        duration: 2000
-      });
+      toast.success('聊天记录已清空');
     }
   };
 

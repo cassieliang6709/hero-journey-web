@@ -23,7 +23,7 @@ const TodoCard: React.FC<TodoCardProps> = ({ onClose, onGoToTodoList }) => {
     setIsAdding(true);
     
     // 显示AI分类提示
-    toast.info('🧠 AI正在智能分类任务...', { duration: 2000 });
+    toast.info('🧠 AI正在智能分类任务...');
     
     console.log('准备添加任务:', newTodoText);
     const result = await addTodo(newTodoText, '新增');
