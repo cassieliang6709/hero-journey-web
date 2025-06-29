@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Send, ListTodo, Globe, Settings, Trash2 } from 'lucide-react';
 import { useChatMessages } from '@/hooks/useChatMessages';
-import { supabase } from '@/integrations/supabase/client';
 
 interface ChatPageProps {
   user: { id: string; username?: string };
@@ -61,20 +60,26 @@ const ChatPage: React.FC<ChatPageProps> = ({
     setAiTyping(true);
     
     try {
-      // Call Supabase Edge Function which will proxy to external API
-      const { data, error } = await supabase.functions.invoke('chat-ai', {
-        body: { 
-          message: userMessage,
-          user_id: user.id
-        }
+      // Call backend API directly
+      const response = await fetch('http://47.96.231.221:5001/AgentChat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          send_message: userMessage
+        })
       });
       
-      if (error) {
-        console.error('AI调用失败:', error);
-        throw new Error('Supabase function error');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      await addMessage(data.response || '我理解你的想法，让我们继续探讨吧。', false);
+      const data = await response.json();
+      console.log('AI response:', data);
+      
+      await addMessage(data.text || '我理解你的想法，让我们继续探讨吧。', false);
     } catch (error) {
       console.error('AI调用错误:', error);
       // Fallback response
