@@ -1,8 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Heart } from 'lucide-react';
+import { Heart, RefreshCw } from 'lucide-react';
 
 interface OnboardingStep2Props {
   selectedIdeas: string[];
@@ -10,11 +10,21 @@ interface OnboardingStep2Props {
   onNext: () => void;
 }
 
-const ideas = [
+const allIdeas = [
   "我想变得更有活力",
   "我想找到符合心意的工作", 
   "我想存下许多钱",
-  "我想让身体更健康"
+  "我想让身体更健康",
+  "我想拥有一份不焦虑的工作",
+  "我想做出一个属于自己的产品",
+  "我想成为别人想要合作的人",
+  "我想让工作和生活都更有掌控感",
+  "我想换一个能让我期待早晨的行业",
+  "我想变得更自信",
+  "我想找到自己真正热爱的事情",
+  "我想更懂得如何应对压力",
+  "我想学会拒绝别人",
+  "我想过上更自由的生活"
 ];
 
 const OnboardingStep2: React.FC<OnboardingStep2Props> = ({ 
@@ -22,6 +32,21 @@ const OnboardingStep2: React.FC<OnboardingStep2Props> = ({
   onSelectIdea, 
   onNext 
 }) => {
+  const [currentPage, setCurrentPage] = useState(0);
+  const ideasPerPage = 4;
+  const totalPages = Math.ceil(allIdeas.length / ideasPerPage);
+  
+  const getCurrentIdeas = () => {
+    const startIndex = currentPage * ideasPerPage;
+    return allIdeas.slice(startIndex, startIndex + ideasPerPage);
+  };
+  
+  const handleNextPage = () => {
+    setCurrentPage((prev) => (prev + 1) % totalPages);
+  };
+
+  const currentIdeas = getCurrentIdeas();
+
   return (
     <div className="mobile-container gradient-bg p-6">
       <div className="animate-slide-in-right z-10 relative">
@@ -33,9 +58,9 @@ const OnboardingStep2: React.FC<OnboardingStep2Props> = ({
         </p>
         
         <div className="space-y-3 mb-24">
-          {ideas.map((idea, index) => (
+          {currentIdeas.map((idea, index) => (
             <Card 
-              key={index}
+              key={`${currentPage}-${index}`}
               className={`p-4 cursor-pointer transition-all duration-200 ${
                 selectedIdeas.includes(idea)
                   ? 'bg-white/90 border-orange-400 scale-105 shadow-lg backdrop-blur-sm'
@@ -57,8 +82,20 @@ const OnboardingStep2: React.FC<OnboardingStep2Props> = ({
           ))}
         </div>
         
+        {/* 换一换按钮 */}
+        <div className="fixed bottom-40 left-6 right-6 z-10">
+          <Button
+            onClick={handleNextPage}
+            variant="outline"
+            className="w-full glass-effect border-white/30 text-white hover:bg-white/20 font-medium transition-all duration-200 hover:scale-105"
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            换一换 ({currentPage + 1}/{totalPages})
+          </Button>
+        </div>
+        
         {/* 选择计数和鼓励文字 */}
-        <div className="fixed bottom-32 left-6 right-6 z-10">
+        <div className="fixed bottom-20 left-6 right-6 z-10">
           <div className="relative">
             <div className="absolute left-4 top-4 hero-gradient text-white rounded-full w-8 h-8 flex items-center justify-center font-bold z-10 animate-bounce-in shadow-lg">
               {selectedIdeas.length}
