@@ -11,48 +11,62 @@ interface AuthPageProps {
 }
 
 const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleAuth = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!username.trim()) return;
+
     setLoading(true);
 
     try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        
-        if (error) {
-          toast.error('登录失败: ' + error.message);
-        } else {
-          toast.success('登录成功！');
-          onAuthSuccess();
-        }
-      } else {
-        const { error } = await supabase.auth.signUp({
+      // 使用更标准的邮箱格式
+      const email = `${username.trim()}@herojourney.app`;
+      const password = 'herojourney123'; // 简单的固定密码
+
+      // 先尝试登录
+      let { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      // 如果登录失败，说明用户不存在，自动注册
+      if (signInError) {
+        const { error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/`,
             data: {
-              username: username || email.split('@')[0]
+              username: username.trim()
             }
           }
         });
-        
-        if (error) {
-          toast.error('注册失败: ' + error.message);
-        } else {
-          toast.success('注册成功！请检查邮箱进行验证。');
+
+        if (signUpError) {
+          console.error('注册错误:', signUpError);
+          toast.error('创建账户失败，请重试');
+          return;
+        }
+
+        // 注册成功后再次尝试登录
+        const { error: secondSignInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (secondSignInError) {
+          console.error('自动登录错误:', secondSignInError);
+          toast.error('自动登录失败，请重试');
+          return;
         }
       }
+
+      toast.success('登录成功！');
+      onAuthSuccess();
     } catch (error) {
+      console.error('登录过程中发生错误:', error);
       toast.error('操作失败，请重试');
     } finally {
       setLoading(false);
@@ -66,61 +80,28 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
           <div className="w-20 h-20 mx-auto mb-4 hero-gradient rounded-full flex items-center justify-center">
             <span className="text-3xl">🦸</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">
-            {isLogin ? '登录' : '注册'}
-          </h1>
-          <p className="text-gray-600 text-sm">
-            {isLogin ? '欢迎回来！' : '创建您的账户'}
-          </p>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">英雄之旅</h1>
+          <p className="text-gray-600 text-sm">输入用户名即可开始</p>
         </div>
         
-        <form onSubmit={handleAuth} className="space-y-4">
-          {!isLogin && (
-            <Input
-              type="text"
-              placeholder="用户名"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="bg-white border-gray-300 text-gray-800"
-            />
-          )}
-          
+        <form onSubmit={handleLogin} className="space-y-6">
           <Input
-            type="email"
-            placeholder="邮箱"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="bg-white border-gray-300 text-gray-800"
-            required
-          />
-          
-          <Input
-            type="password"
-            placeholder="密码"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="bg-white border-gray-300 text-gray-800"
+            type="text"
+            placeholder="请输入用户名"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="bg-white border-gray-300 text-gray-800 placeholder:text-gray-500 text-center text-lg h-12"
             required
           />
           
           <Button 
             type="submit" 
-            className="w-full hero-gradient text-white font-semibold h-12"
-            disabled={loading}
+            className="w-full hero-gradient text-white font-semibold h-12 text-lg hover:scale-105 transition-transform"
+            disabled={loading || !username.trim()}
           >
-            {loading ? '处理中...' : (isLogin ? '登录' : '注册')}
+            {loading ? '登录中...' : '开始旅程'}
           </Button>
         </form>
-        
-        <div className="text-center mt-6">
-          <button
-            type="button"
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-gray-600 hover:text-gray-800 text-sm"
-          >
-            {isLogin ? '没有账户？立即注册' : '已有账户？立即登录'}
-          </button>
-        </div>
       </Card>
     </div>
   );

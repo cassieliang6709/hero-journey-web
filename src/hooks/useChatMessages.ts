@@ -2,12 +2,14 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { SkillNode } from './useStarMap';
 
 interface Message {
   id: string;
   text: string;
   isUser: boolean;
   timestamp: Date;
+  completedNode?: SkillNode;
 }
 
 export const useChatMessages = (userId: string | undefined) => {
@@ -73,12 +75,13 @@ export const useChatMessages = (userId: string | undefined) => {
     }
   };
 
-  const addMessage = async (text: string, isUser: boolean) => {
+  const addMessage = async (text: string, isUser: boolean, completedNode?: SkillNode) => {
     const newMessage: Message = {
       id: Date.now().toString(),
       text,
       isUser,
-      timestamp: new Date()
+      timestamp: new Date(),
+      completedNode
     };
 
     setMessages(prev => [...prev, newMessage]);
@@ -109,7 +112,7 @@ export const useChatMessages = (userId: string | undefined) => {
   };
 
   const addWelcomeMessage = async () => {
-    await addMessage(`你好呀！我会陪着你一起通过微小的行动一起解码这个世界`, false);
+    await addMessage(`你好呀！我会陪着你一起通过微小的行动解码这个世界`, false);
   };
 
   return {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useChatMessages } from '@/hooks/useChatMessages';
+import { useStarMap } from '@/hooks/useStarMap';
 import { callAI } from '@/services/aiService';
 import ChatHeader from '@/components/chat/ChatHeader';
 import MessageList from '@/components/chat/MessageList';
@@ -29,6 +30,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
   const touchStartX = React.useRef<number>(0);
   
   const { messages, loading, addMessage, clearMessages, addWelcomeMessage } = useChatMessages(user.id);
+  const { nodes, level, completeNode, getNodeByKeywords } = useStarMap(user.id);
 
   // Add welcome message if no messages exist
   useEffect(() => {
@@ -37,6 +39,37 @@ const ChatPage: React.FC<ChatPageProps> = ({
     }
   }, [loading, messages.length, addWelcomeMessage]);
 
+  // 检测完成关键词并点亮节点
+  const checkForTaskCompletion = (userMessage: string) => {
+    const completionKeywords = [
+      ['完成', '做完', '结束', '搞定'],
+      ['运动', '锻炼', '跑步', '健身'],
+      ['学习', '看书', '阅读', '练习'],
+      ['沟通', '交流', '说话', '聊天'],
+      ['情绪', '心情', '感受', '冥想'],
+      ['面试', '工作', '求职', '简历']
+    ];
+
+    const foundKeywords: string[] = [];
+    completionKeywords.forEach(keywordGroup => {
+      keywordGroup.forEach(keyword => {
+        if (userMessage.includes(keyword)) {
+          foundKeywords.push(keyword);
+        }
+      });
+    });
+
+    if (foundKeywords.length > 0) {
+      const matchedNode = getNodeByKeywords(foundKeywords);
+      if (matchedNode && (matchedNode.status === 'available' || matchedNode.status === 'active')) {
+        completeNode(matchedNode.id);
+        return matchedNode;
+      }
+    }
+
+    return null;
+  };
+
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim() || aiTyping) return;
@@ -44,24 +77,21 @@ const ChatPage: React.FC<ChatPageProps> = ({
     const userMessage = inputText.trim();
     setInputText('');
     
+    // 检查任务完成
+    const completedNode = checkForTaskCompletion(userMessage);
+    
     // 检查是否包含待办事项相关关键词
     const todoKeywords = ['待办', '任务', 'todo', '计划', '安排', '提醒'];
     const shouldShowTodo = todoKeywords.some(keyword => 
       userMessage.toLowerCase().includes(keyword)
     );
     
-    // 检查是否包含创业活动相关关键词
-    const startupKeywords = ['startup', '创业', 'pitch', '路演', '组队', '商业模式', '原型', '52小时', 'starup'];
-    const shouldShowStartupTodo = startupKeywords.some(keyword => 
-      userMessage.toLowerCase().includes(keyword.toLowerCase())
-    );
-    
-    if (shouldShowTodo || shouldShowStartupTodo) {
+    if (shouldShowTodo) {
       setShowTodoCard(true);
     }
     
-    // Add user message
-    await addMessage(userMessage, true);
+    // Add user message with completed node info
+    await addMessage(userMessage, true, completedNode);
     
     // Show AI typing indicator
     setAiTyping(true);
@@ -69,31 +99,24 @@ const ChatPage: React.FC<ChatPageProps> = ({
     try {
       let aiResponse = await callAI(userMessage);
       
-      // 如果AI回复包含待办事项标记，自动显示TodoCard
-      if (aiResponse.includes('📝') || aiResponse.includes('TodoList')) {
-        setShowTodoCard(true);
-        aiResponse += '\n\n我已经为你生成了详细的待办清单，点击下方卡片查看和管理！';
-      }
-      
       // 如果用户提到待办事项，AI回复中也提示可以查看待办卡片
-      if (shouldShowTodo && !aiResponse.includes('📝')) {
+      if (shouldShowTodo) {
         aiResponse += '\n\n📝 我为你显示了待办事项卡片，你可以直接在这里查看和管理任务。';
+      }
+
+      // 如果有节点被点亮，AI会祝贺
+      if (completedNode) {
+        aiResponse += `\n\n🎉 太棒了！你刚刚点亮了「${completedNode.name}」节点，我们的星图又亮了一颗星！继续加油，我们会越来越强大的！`;
       }
       
       await addMessage(aiResponse, false);
     } catch (error) {
       console.error('AI调用失败:', error);
       
-      // Show more detailed error message with shorter duration
-      const errorMessage = error instanceof Error ? error.message : '未知错误';
-      console.log('显示错误信息:', errorMessage);
-      
-      // Show toast with 2 second duration
       toast.error('AI服务暂时不可用，请稍后重试', {
         duration: 2000
       });
       
-      // Use fallback response
       const fallbackResponses = [
         "抱歉，我现在无法连接到服务器。让我们继续聊天吧！",
         "网络连接似乎有问题，不过我仍然在这里陪伴你。",
@@ -155,8 +178,10 @@ const ChatPage: React.FC<ChatPageProps> = ({
         messages={messages}
         aiTyping={aiTyping}
         showTodoCard={showTodoCard}
+        starMapLevel={level}
         onCloseTodoCard={() => setShowTodoCard(false)}
         onGoToTodoList={onSwipeLeft}
+        onGoToStarMap={onGoToStarMap}
       />
 
       <ChatInput

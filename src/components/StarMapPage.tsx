@@ -1,14 +1,14 @@
+
 import React, { useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Plus, Minus } from 'lucide-react';
-import { useSkillProgress } from '@/hooks/useSkillProgress';
+import { ArrowLeft, Plus, Minus, Star, Sparkles } from 'lucide-react';
 
 interface SkillNode {
   id: string;
   name: string;
   description: string;
-  category: 'pitch' | 'team' | 'mvp' | 'dev' | 'demo' | 'emergency' | 'health' | 'center';
+  category: 'psychology' | 'health' | 'skill';
   position: { x: number; y: number };
   status: 'locked' | 'available' | 'active' | 'mastered';
   connections: string[];
@@ -30,283 +30,197 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   onGoToPhysicalTest, 
   onGoToTalentTest 
 }) => {
-  const [zoomLevel, setZoomLevel] = useState(0.6);
+  const [zoomLevel, setZoomLevel] = useState(0.8);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
-  
-  const { isSkillUnlocked, getSkillCompletedTasks } = useSkillProgress(user.username || 'default');
 
-  // 创业技能发展星图节点
+  // 重新设计的技能节点数据 - 上面1个分支，下面2个分支
   const skillNodes: SkillNode[] = [
     // 中心节点
     {
       id: 'center',
       name: user.username,
-      description: '创业技能发展中心',
-      category: 'center',
-      position: { x: 600, y: 400 },
+      description: '你的成长中心',
+      category: 'psychology',
+      position: { x: 500, y: 400 },
       status: 'active',
-      connections: ['pitch-root', 'team-root', 'mvp-root', 'dev-root', 'demo-root', 'emergency-root']
+      connections: ['psychology-root', 'health-root', 'skill-root']
     },
 
-    // Pitch表达分支 - 上方
+    // 心理优势分支 - 上方
     {
-      id: 'pitch-root',
-      name: 'Pitch表达',
-      description: '自我介绍与沟通表达能力',
-      category: 'pitch',
-      position: { x: 600, y: 150 },
+      id: 'psychology-root',
+      name: '心理优势',
+      description: '基于心理学的优势发展',
+      category: 'psychology',
+      position: { x: 500, y: 200 },
       status: 'active',
-      connections: ['pitch-intro', 'pitch-communication', 'pitch-alignment']
+      connections: ['psychology-1', 'psychology-2']
     },
     {
-      id: 'pitch-intro',
-      name: '技术标签化自我介绍',
-      description: '快速自我介绍（技术标签化）',
-      category: 'pitch',
-      position: { x: 450, y: 80 },
-      status: 'available',
-      connections: [],
-      requirements: ['pitch-root']
+      id: 'psychology-1',
+      name: '情绪管理',
+      description: '提升情绪识别和调节能力',
+      category: 'psychology',
+      position: { x: 350, y: 100 },
+      status: 'mastered',
+      connections: ['psychology-3'],
+      requirements: ['psychology-root']
     },
     {
-      id: 'pitch-communication',
-      name: '需求扫描沟通',
-      description: '倾听&扫描他人需求',
-      category: 'pitch',
-      position: { x: 600, y: 50 },
-      status: 'available',
-      connections: [],
-      requirements: ['pitch-root']
+      id: 'psychology-2',
+      name: '思维模式',
+      description: '培养积极思维和成长心态',
+      category: 'psychology',
+      position: { x: 650, y: 100 },
+      status: 'active',
+      connections: ['psychology-4'],
+      requirements: ['psychology-root']
     },
     {
-      id: 'pitch-alignment',
-      name: '价值对齐沟通',
-      description: '价值对齐型沟通',
-      category: 'pitch',
-      position: { x: 750, y: 80 },
+      id: 'psychology-3',
+      name: '自信建立',
+      description: '增强自信心和自我价值感',
+      category: 'psychology',
+      position: { x: 280, y: 50 },
       status: 'available',
       connections: [],
-      requirements: ['pitch-root']
+      requirements: ['psychology-1']
+    },
+    {
+      id: 'psychology-4',
+      name: '压力管理',
+      description: '有效应对和管理压力',
+      category: 'psychology',
+      position: { x: 720, y: 50 },
+      status: 'available',
+      connections: [],
+      requirements: ['psychology-2']
     },
 
-    // 团队组建分支 - 左上
+    // 身体健康分支 - 左下方
     {
-      id: 'team-root',
-      name: '团队组建',
-      description: '团队识别与协作匹配',
-      category: 'team',
-      position: { x: 300, y: 200 },
-      status: 'active',
-      connections: ['team-identification', 'team-value', 'team-collaboration']
-    },
-    {
-      id: 'team-identification',
-      name: '技术角色识别',
-      description: '技术角色识别',
-      category: 'team',
-      position: { x: 150, y: 120 },
-      status: 'available',
-      connections: [],
-      requirements: ['team-root']
-    },
-    {
-      id: 'team-value',
-      name: '技术价值锚定',
-      description: '技术价值锚定',
-      category: 'team',
-      position: { x: 250, y: 100 },
-      status: 'available',
-      connections: [],
-      requirements: ['team-root']
-    },
-    {
-      id: 'team-collaboration',
-      name: '主动协作匹配',
-      description: '主动沟通&协作匹配',
-      category: 'team',
-      position: { x: 350, y: 120 },
-      status: 'available',
-      connections: [],
-      requirements: ['team-root']
-    },
-
-    // MVP搭建分支 - 右上
-    {
-      id: 'mvp-root',
-      name: 'MVP搭建',
-      description: 'MVP原型快速搭建能力',
-      category: 'mvp',
-      position: { x: 900, y: 200 },
-      status: 'active',
-      connections: ['mvp-definition', 'mvp-feasibility', 'mvp-strategy']
-    },
-    {
-      id: 'mvp-definition',
-      name: 'MVP功能定义',
-      description: 'MVP功能定义',
-      category: 'mvp',
-      position: { x: 850, y: 120 },
-      status: 'available',
-      connections: [],
-      requirements: ['mvp-root']
-    },
-    {
-      id: 'mvp-feasibility',
-      name: '技术可行性判断',
-      description: '技术可行性判断',
-      category: 'mvp',
-      position: { x: 950, y: 100 },
-      status: 'available',
-      connections: [],
-      requirements: ['mvp-root']
-    },
-    {
-      id: 'mvp-strategy',
-      name: '极简开发策略',
-      description: '极简开发策略（mock数据/云服务优先）',
-      category: 'mvp',
-      position: { x: 1050, y: 120 },
-      status: 'available',
-      connections: [],
-      requirements: ['mvp-root']
-    },
-
-    // 协作开发分支 - 左下
-    {
-      id: 'dev-root',
-      name: '协作开发',
-      description: '团队协作开发流程',
-      category: 'dev',
-      position: { x: 300, y: 600 },
-      status: 'active',
-      connections: ['dev-git', 'dev-sync', 'dev-interface']
-    },
-    {
-      id: 'dev-git',
-      name: 'Git协作',
-      description: 'Git协作（代码仓管理）',
-      category: 'dev',
-      position: { x: 150, y: 680 },
-      status: 'available',
-      connections: [],
-      requirements: ['dev-root']
-    },
-    {
-      id: 'dev-sync',
-      name: '进度同步节奏',
-      description: '每小时同步进度节奏',
-      category: 'dev',
-      position: { x: 300, y: 720 },
-      status: 'available',
-      connections: [],
-      requirements: ['dev-root']
-    },
-    {
-      id: 'dev-interface',
-      name: '设计技术对齐',
-      description: '设计-技术接口对齐',
-      category: 'dev',
-      position: { x: 450, y: 680 },
-      status: 'available',
-      connections: [],
-      requirements: ['dev-root']
-    },
-
-    // 技术路演分支 - 右下
-    {
-      id: 'demo-root',
-      name: '技术路演',
-      description: '技术演示与表达能力',
-      category: 'demo',
-      position: { x: 900, y: 600 },
-      status: 'active',
-      connections: ['demo-expression', 'demo-rehearsal', 'demo-qa']
-    },
-    {
-      id: 'demo-expression',
-      name: '技术亮点表达',
-      description: '技术亮点转化为用户语言',
-      category: 'demo',
-      position: { x: 850, y: 680 },
-      status: 'available',
-      connections: [],
-      requirements: ['demo-root']
-    },
-    {
-      id: 'demo-rehearsal',
-      name: '演示彩排',
-      description: '演示彩排与临场稳定性',
-      category: 'demo',
-      position: { x: 950, y: 720 },
-      status: 'available',
-      connections: [],
-      requirements: ['demo-root']
-    },
-    {
-      id: 'demo-qa',
-      name: '技术答辩',
-      description: '技术答辩的结构化回应',
-      category: 'demo',
-      position: { x: 1050, y: 680 },
-      status: 'available',
-      connections: [],
-      requirements: ['demo-root']
-    },
-
-    // 应急恢复力分支 - 下方
-    {
-      id: 'emergency-root',
-      name: '应急恢复力',
-      description: '应急处理与风险预案',
-      category: 'emergency',
-      position: { x: 600, y: 750 },
-      status: 'active',
-      connections: ['emergency-fallback', 'emergency-backup', 'emergency-toolkit']
-    },
-    {
-      id: 'emergency-fallback',
-      name: '崩溃预案',
-      description: '崩溃5秒切换预案（截图/录屏）',
-      category: 'emergency',
-      position: { x: 450, y: 820 },
-      status: 'available',
-      connections: [],
-      requirements: ['emergency-root']
-    },
-    {
-      id: 'emergency-backup',
-      name: '技术替代路径',
-      description: '技术替代路径（备胎技术栈）',
-      category: 'emergency',
-      position: { x: 600, y: 850 },
-      status: 'available',
-      connections: [],
-      requirements: ['emergency-root']
-    },
-    {
-      id: 'emergency-toolkit',
-      name: '急救包准备',
-      description: '离线文档/U盘急救包准备',
-      category: 'emergency',
-      position: { x: 750, y: 820 },
-      status: 'available',
-      connections: [],
-      requirements: ['emergency-root']
-    },
-
-    // 健康管理 - 左侧
-    {
-      id: 'health-energy',
-      name: '能量管理',
-      description: '保持体力与精力的平衡',
+      id: 'health-root',
+      name: '身体健康',
+      description: '全面的身体健康管理',
       category: 'health',
-      position: { x: 150, y: 400 },
+      position: { x: 250, y: 600 },
       status: 'active',
-      connections: []
+      connections: ['health-1', 'health-2', 'health-3']
+    },
+    {
+      id: 'health-1',
+      name: '运动锻炼',
+      description: '制定并执行运动计划',
+      category: 'health',
+      position: { x: 100, y: 700 },
+      status: 'active',
+      connections: ['health-4'],
+      requirements: ['health-root']
+    },
+    {
+      id: 'health-2',
+      name: '饮食管理',
+      description: '建立健康的饮食习惯',
+      category: 'health',
+      position: { x: 250, y: 750 },
+      status: 'mastered',
+      connections: ['health-4'],
+      requirements: ['health-root']
+    },
+    {
+      id: 'health-3',
+      name: '睡眠优化',
+      description: '优化睡眠质量和作息规律',
+      category: 'health',
+      position: { x: 400, y: 700 },
+      status: 'available',
+      connections: ['health-5'],
+      requirements: ['health-root']
+    },
+    {
+      id: 'health-4',
+      name: '体重管理',
+      description: '科学的体重控制方法',
+      category: 'health',
+      position: { x: 150, y: 800 },
+      status: 'available',
+      connections: [],
+      requirements: ['health-1', 'health-2']
+    },
+    {
+      id: 'health-5',
+      name: '体能提升',
+      description: '全面提升身体素质',
+      category: 'health',
+      position: { x: 350, y: 800 },
+      status: 'locked',
+      connections: [],
+      requirements: ['health-3']
+    },
+
+    // 技能发展分支 - 右下方
+    {
+      id: 'skill-root',
+      name: '技能发展',
+      description: '职场与生活技能全面提升',
+      category: 'skill',
+      position: { x: 750, y: 600 },
+      status: 'active',
+      connections: ['skill-1', 'skill-2', 'skill-3']
+    },
+    {
+      id: 'skill-1',
+      name: '面试技巧',
+      description: '掌握面试表达和技巧',
+      category: 'skill',
+      position: { x: 600, y: 700 },
+      status: 'active',
+      connections: ['skill-4'],
+      requirements: ['skill-root']
+    },
+    {
+      id: 'skill-2',
+      name: '沟通能力',
+      description: '提升人际沟通技能',
+      category: 'skill',
+      position: { x: 750, y: 750 },
+      status: 'available',
+      connections: ['skill-4'],
+      requirements: ['skill-root']
+    },
+    {
+      id: 'skill-3',
+      name: '职业规划',
+      description: '制定清晰的职业发展路径',
+      category: 'skill',
+      position: { x: 900, y: 700 },
+      status: 'available',
+      connections: ['skill-5'],
+      requirements: ['skill-root']
+    },
+    {
+      id: 'skill-4',
+      name: '简历优化',
+      description: '制作吸引人的简历',
+      category: 'skill',
+      position: { x: 650, y: 800 },
+      status: 'available',
+      connections: [],
+      requirements: ['skill-1', 'skill-2']
+    },
+    {
+      id: 'skill-5',
+      name: '职场礼仪',
+      description: '掌握职场基本礼仪',
+      category: 'skill',
+      position: { x: 850, y: 800 },
+      status: 'locked',
+      connections: [],
+      requirements: ['skill-3']
     }
   ];
 
@@ -331,30 +245,20 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   }, []);
 
   const getNodeColor = (node: SkillNode) => {
-    const isUnlockedByTodos = isSkillUnlocked(node.id);
-    
-    if (isUnlockedByTodos) {
-      return 'bg-yellow-400 border-yellow-500 text-white animate-pulse';
-    }
-    
-    const colors = {
-      center: 'bg-purple-600 border-purple-700 text-white',
-      pitch: 'bg-blue-500 border-blue-600 text-white',
-      team: 'bg-green-500 border-green-600 text-white',
-      mvp: 'bg-orange-500 border-orange-600 text-white',
-      dev: 'bg-red-500 border-red-600 text-white',
-      demo: 'bg-pink-500 border-pink-600 text-white',
-      emergency: 'bg-gray-600 border-gray-700 text-white',
-      health: 'bg-cyan-500 border-cyan-600 text-white'
+    const baseColors = {
+      psychology: 'from-purple-400 to-pink-500',
+      health: 'from-green-400 to-emerald-500', 
+      skill: 'from-blue-400 to-indigo-500'
     };
-    
-    switch (node.status) {
-      case 'locked': return 'bg-gray-200 border-gray-300 text-gray-600';
-      case 'available': return colors[node.category] || 'bg-gray-400';
-      case 'active': return colors[node.category] || 'bg-gray-600';
-      case 'mastered': return colors[node.category] || 'bg-gray-800';
-      default: return 'bg-gray-200';
-    }
+
+    const statusColors = {
+      locked: 'from-gray-200 to-gray-300 border-gray-400 text-gray-600',
+      available: `bg-gradient-to-br ${baseColors[node.category]} border-white text-white opacity-60`,
+      active: `bg-gradient-to-br ${baseColors[node.category]} border-white text-white shadow-lg`,
+      mastered: `bg-gradient-to-br ${baseColors[node.category]} border-yellow-300 text-white shadow-xl ring-2 ring-yellow-300/50`
+    };
+
+    return statusColors[node.status];
   };
 
   const getNodeSize = (node: SkillNode) => {
@@ -378,6 +282,8 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
           const start = getNodeCenter(node);
           const end = getNodeCenter(targetNode);
           
+          const isActive = node.status !== 'locked' && targetNode.status !== 'locked';
+          
           connections.push(
             <line
               key={`${node.id}-${connectionId}`}
@@ -385,10 +291,11 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
               y1={start.y}
               x2={end.x}
               y2={end.y}
-              stroke={node.status === 'locked' ? "#d1d5db" : "#374151"}
-              strokeWidth="2"
+              stroke={isActive ? "url(#connectionGradient)" : "#d1d5db"}
+              strokeWidth={isActive ? "3" : "2"}
               strokeDasharray={node.status === 'locked' ? "4,2" : "none"}
-              opacity={node.status === 'locked' ? 0.4 : 0.7}
+              opacity={node.status === 'locked' ? 0.4 : 0.8}
+              className="drop-shadow-sm"
             />
           );
         }
@@ -399,55 +306,37 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   };
 
   const renderNodes = (): JSX.Element[] => {
-    return skillNodes.map((node) => {
-      const isUnlockedByTodos = isSkillUnlocked(node.id);
-      const completedTasks = getSkillCompletedTasks(node.id);
-      
-      return (
-        <div key={node.id}>
-          <div
-            className={`absolute ${getNodeSize(node)} ${getNodeColor(node)} rounded-full flex items-center justify-center border-2 cursor-pointer transition-all duration-300 hover:scale-110 ${
-              selectedNode === node.id ? 'ring-2 ring-gray-400 scale-110' : ''
-            }`}
-            style={{
-              left: node.position.x,
-              top: node.position.y,
-            }}
-            onClick={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
-          />
-          
-          {isUnlockedByTodos && (
-            <div
-              className="absolute w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center animate-bounce"
-              style={{
-                left: node.position.x + (node.id === 'center' ? 48 : node.id.includes('root') ? 36 : 28),
-                top: node.position.y - 4,
-              }}
-            >
-              <span className="text-white text-xs font-bold">✓</span>
-            </div>
+    return skillNodes.map((node) => (
+      <div key={node.id}>
+        <div
+          className={`absolute ${getNodeSize(node)} ${getNodeColor(node)} rounded-full flex items-center justify-center border-2 cursor-pointer transition-all duration-300 hover:scale-110 ${
+            selectedNode === node.id ? 'ring-4 ring-yellow-400/60 scale-110' : ''
+          } ${node.status === 'mastered' ? 'animate-pulse-glow' : ''}`}
+          style={{
+            left: node.position.x,
+            top: node.position.y,
+          }}
+          onClick={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
+        >
+          {node.status === 'mastered' && (
+            <Star className="w-4 h-4 text-yellow-300 fill-current animate-spin" style={{animationDuration: '3s'}} />
           )}
-          
-          <div
-            className={`absolute text-gray-800 text-xs text-center font-medium bg-white/95 px-2 py-1 rounded shadow-sm transition-all duration-300 ${
-              selectedNode === node.id ? 'bg-white scale-105' : ''
-            } ${isUnlockedByTodos ? 'bg-yellow-50 border border-yellow-200' : ''}`}
-            style={{
-              left: node.position.x - 20,
-              top: node.position.y + (node.id === 'center' ? 70 : node.id.includes('root') ? 55 : 45),
-              width: node.id === 'center' ? 100 : node.id.includes('root') ? 80 : 80,
-            }}
-          >
-            {node.name}
-            {completedTasks > 0 && (
-              <div className="text-xs text-yellow-600 font-bold">
-                +{completedTasks}任务
-              </div>
-            )}
-          </div>
         </div>
-      );
-    });
+        
+        <div
+          className={`absolute text-gray-800 text-xs text-center font-medium bg-white/95 backdrop-blur-sm px-2 py-1 rounded-lg shadow-lg border border-purple-200 transition-all duration-300 ${
+            selectedNode === node.id ? 'bg-gradient-to-r from-purple-100 to-pink-100 scale-105 border-purple-300' : ''
+          }`}
+          style={{
+            left: node.position.x - 15,
+            top: node.position.y + (node.id === 'center' ? 70 : node.id.includes('root') ? 55 : 45),
+            width: node.id === 'center' ? 90 : node.id.includes('root') ? 80 : 70,
+          }}
+        >
+          {node.name}
+        </div>
+      </div>
+    ));
   };
 
   const handleZoomIn = () => {
@@ -459,51 +348,42 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   };
 
   const resetView = () => {
-    setZoomLevel(0.6);
+    setZoomLevel(0.8);
     setPanOffset({ x: -100, y: -50 });
   };
 
   const selectedNodeData = selectedNode ? skillNodes.find(n => n.id === selectedNode) : null;
-  const selectedNodeUnlocked = selectedNodeData ? isSkillUnlocked(selectedNodeData.id) : false;
-  const selectedNodeTasks = selectedNodeData ? getSkillCompletedTasks(selectedNodeData.id) : 0;
 
   return (
-    <div className="mobile-container min-h-screen bg-white">
+    <div className="mobile-container min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-orange-50">
       {/* 顶部导航 */}
-      <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
+      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 border-b border-purple-300">
         <div className="flex items-center space-x-3">
           <Button
             variant="ghost"
             size="sm"
             onClick={onBack}
-            className="text-gray-900 p-0 hover:bg-gray-100"
+            className="text-white p-0 hover:bg-white/20 rounded-full hover:scale-110 transition-all"
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex items-center space-x-2">
-            <h1 className="text-gray-900 font-bold text-lg">创业技能星图</h1>
-            <Badge variant="secondary" className="text-xs px-2 py-1 bg-gray-100 text-gray-700 border-gray-200">
-              创业模式
+            <Sparkles className="w-5 h-5 text-yellow-300 animate-pulse" />
+            <h1 className="text-white font-bold text-lg drop-shadow-lg">星图</h1>
+            <Badge className="text-xs px-2 py-1 bg-white/20 text-white border-white/30 backdrop-blur-sm">
+              lv1
             </Badge>
           </div>
         </div>
         
         <div className="flex items-center space-x-2">
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={handleZoomOut}
-            className="text-gray-700 p-2 border-gray-200 hover:bg-gray-50"
+            className="text-white p-2 hover:bg-white/20 rounded-full hover:scale-110 transition-all"
           >
             <Minus className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleZoomIn}
-            className="text-gray-700 p-2 border-gray-200 hover:bg-gray-50"
-          >
-            <Plus className="w-4 h-4" />
           </Button>
         </div>
       </div>
@@ -511,21 +391,36 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       {/* 星图容器 */}
       <div 
         ref={containerRef}
-        className="relative h-96 overflow-hidden bg-gradient-to-br from-blue-50 to-purple-50 mb-4 cursor-move"
+        className="relative h-96 overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 mb-4 cursor-move"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
+        {/* 星空背景效果 */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute w-1 h-1 bg-white rounded-full animate-pulse" style={{top: '20%', left: '10%'}}></div>
+          <div className="absolute w-1 h-1 bg-yellow-300 rounded-full animate-pulse" style={{top: '30%', left: '80%', animationDelay: '1s'}}></div>
+          <div className="absolute w-1 h-1 bg-pink-300 rounded-full animate-pulse" style={{top: '70%', left: '20%', animationDelay: '2s'}}></div>
+          <div className="absolute w-1 h-1 bg-blue-300 rounded-full animate-pulse" style={{top: '60%', left: '90%', animationDelay: '0.5s'}}></div>
+        </div>
+
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none"
           style={{
             transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`,
             transformOrigin: 'center',
-            width: '1400px',
-            height: '1000px'
+            width: '1200px',
+            height: '900px'
           }}
         >
+          <defs>
+            <linearGradient id="connectionGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#8b5cf6" />
+              <stop offset="50%" stopColor="#ec4899" />
+              <stop offset="100%" stopColor="#f97316" />
+            </linearGradient>
+          </defs>
           {renderConnections()}
         </svg>
         
@@ -534,8 +429,8 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
           style={{
             transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`,
             transformOrigin: 'center',
-            width: '1400px',
-            height: '1000px'
+            width: '1200px',
+            height: '900px'
           }}
         >
           <div className="pointer-events-auto">
@@ -544,47 +439,17 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
         </div>
       </div>
 
-      {/* 技能分类说明 */}
-      <div className="px-4 mb-4">
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <h3 className="text-gray-900 font-semibold mb-3">创业技能分类</h3>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-              <span>Pitch表达</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              <span>团队组建</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-              <span>MVP搭建</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-              <span>协作开发</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-pink-500 rounded-full"></div>
-              <span>技术路演</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-gray-600 rounded-full"></div>
-              <span>应急恢复</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* 能力评估 */}
       <div className="px-4 mb-4">
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <h3 className="text-gray-900 font-semibold mb-3">能力评估</h3>
+        <div className="bg-gradient-to-r from-white to-purple-50 border border-purple-200 rounded-xl p-4 shadow-lg backdrop-blur-sm">
+          <h3 className="text-gray-900 font-semibold mb-3 flex items-center">
+            <Sparkles className="w-5 h-5 text-purple-500 mr-2" />
+            能力评估
+          </h3>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-md">
                   <div className="w-4 h-4 bg-white rounded-full"></div>
                 </div>
                 <div>
@@ -593,10 +458,8 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
                 </div>
               </div>
               <Button
-                variant="outline"
-                size="sm"
                 onClick={onGoToPhysicalTest}
-                className="text-gray-700 border-gray-300 hover:bg-gray-50"
+                className="bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all"
               >
                 开始测试
               </Button>
@@ -604,7 +467,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
             
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full flex items-center justify-center shadow-md">
                   <div className="w-4 h-4 bg-white rounded-sm"></div>
                 </div>
                 <div>
@@ -613,10 +476,8 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
                 </div>
               </div>
               <Button
-                variant="outline"
-                size="sm"
                 onClick={onGoToTalentTest}
-                className="text-gray-700 border-gray-300 hover:bg-gray-50"
+                className="bg-gradient-to-r from-blue-400 to-indigo-500 hover:from-blue-500 hover:to-indigo-600 text-white border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all"
               >
                 开始测试
               </Button>
@@ -627,41 +488,30 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
 
       {/* 节点详情面板 */}
       {selectedNodeData && (
-        <div className="absolute bottom-4 left-4 right-4 bg-white border border-gray-200 shadow-lg p-4 rounded-lg animate-fade-in">
+        <div className="absolute bottom-4 left-4 right-4 bg-gradient-to-r from-white to-purple-50 border border-purple-200 shadow-2xl p-4 rounded-xl animate-fade-in backdrop-blur-sm">
           <div className="flex items-start space-x-4">
-            <div className={`w-12 h-12 ${getNodeColor(selectedNodeData)} rounded-full border-2 relative`}>
-              {selectedNodeUnlocked && (
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs">✓</span>
-                </div>
+            <div className={`w-12 h-12 ${getNodeColor(selectedNodeData)} rounded-full border-2 shadow-lg flex items-center justify-center`}>
+              {selectedNodeData.status === 'mastered' && (
+                <Star className="w-6 h-6 text-yellow-300 fill-current" />
               )}
             </div>
             <div className="flex-1">
               <div className="flex items-center space-x-2 mb-2">
                 <h3 className="text-gray-900 font-bold text-lg">{selectedNodeData.name}</h3>
-                <span className={`px-3 py-1 text-xs rounded-full font-medium ${
-                  selectedNodeUnlocked ? 'bg-yellow-100 text-yellow-800' :
-                  selectedNodeData.status === 'mastered' ? 'bg-gray-100 text-gray-800' :
-                  selectedNodeData.status === 'active' ? 'bg-blue-100 text-blue-800' :
-                  selectedNodeData.status === 'available' ? 'bg-green-100 text-green-700' :
-                  'bg-gray-100 text-gray-600'
+                <span className={`px-3 py-1 text-xs rounded-full font-medium shadow-sm ${
+                  selectedNodeData.status === 'mastered' ? 'bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 border border-yellow-200' :
+                  selectedNodeData.status === 'active' ? 'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 border border-purple-200' :
+                  selectedNodeData.status === 'available' ? 'bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border border-blue-200' :
+                  'bg-gray-100 text-gray-600 border border-gray-200'
                 }`}>
-                  {selectedNodeUnlocked ? '已解锁' :
-                   selectedNodeData.status === 'mastered' ? '已掌握' :
-                   selectedNodeData.status === 'active' ? '进行中' :
-                   selectedNodeData.status === 'available' ? '可开始' : '未解锁'}
+                  {selectedNodeData.status === 'mastered' ? '🌟 已掌握' :
+                   selectedNodeData.status === 'active' ? '🔄 进行中' :
+                   selectedNodeData.status === 'available' ? '✨ 可开始' : '🔒 未解锁'}
                 </span>
               </div>
               <p className="text-gray-600 text-sm mb-3">{selectedNodeData.description}</p>
-              
-              {selectedNodeUnlocked && selectedNodeTasks > 0 && (
-                <div className="text-xs text-yellow-600 bg-yellow-50 p-2 rounded-lg mb-2">
-                  🎉 通过完成 {selectedNodeTasks} 个相关任务解锁了此技能！
-                </div>
-              )}
-              
               {selectedNodeData.requirements && selectedNodeData.requirements.length > 0 && (
-                <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded-lg">
+                <div className="text-xs text-purple-600 bg-gradient-to-r from-purple-50 to-pink-50 p-2 rounded-lg border border-purple-200">
                   前置条件: {selectedNodeData.requirements.map(req => 
                     skillNodes.find(n => n.id === req)?.name || req
                   ).join(', ')}
