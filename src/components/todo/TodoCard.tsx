@@ -47,7 +47,7 @@ const TodoCard: React.FC<TodoCardProps> = ({ onClose, onGoToTodoList }) => {
         </Card>
       </div>
     );
-  }
+  };
 
   return (
     <div className="flex justify-center animate-fade-in">
@@ -56,7 +56,7 @@ const TodoCard: React.FC<TodoCardProps> = ({ onClose, onGoToTodoList }) => {
           <h3 className="text-gray-900 font-medium flex items-center">
             <ListTodo className="w-4 h-4 mr-2" />
             待办事项
-            <Brain className="w-4 h-4 ml-1 text-purple-500" title="AI智能分类" />
+            <Brain className="w-4 h-4 ml-1 text-purple-500" />
           </h3>
           <button
             onClick={onClose}
