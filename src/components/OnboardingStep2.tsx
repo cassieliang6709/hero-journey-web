@@ -94,19 +94,7 @@ const OnboardingStep2: React.FC<OnboardingStep2Props> = ({
           </Button>
         </div>
         
-        {/* 选择计数和鼓励文字 */}
-        <div className="fixed bottom-20 left-6 right-6 z-10">
-          <div className="relative">
-            <div className="absolute left-4 top-4 hero-gradient text-white rounded-full w-8 h-8 flex items-center justify-center font-bold z-10 animate-bounce-in shadow-lg">
-              {selectedIdeas.length}
-            </div>
-            <Card className="glass-effect p-4 pl-16">
-              <div className="flex items-center text-white">
-                <Heart className="w-6 h-6 mr-3 text-orange-300" />
-              </div>
-            </Card>
-          </div>
-        </div>
+
         
         {/* 底部按钮 */}
         <div className="fixed bottom-6 left-6 right-6 z-10">
