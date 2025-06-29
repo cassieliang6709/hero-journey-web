@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Send, ListTodo, Globe, Settings, Trash2 } from 'lucide-react';
 import { useChatMessages } from '@/hooks/useChatMessages';
-import { supabase } from '@/integrations/supabase/client';
 
 interface ChatPageProps {
   user: { id: string; username?: string };
@@ -48,24 +47,32 @@ const ChatPage: React.FC<ChatPageProps> = ({
   }, [loading, messages.length, addWelcomeMessage]);
 
   const callAI = async (userMessage: string) => {
-    console.log('调用Supabase Edge Function');
+    console.log('直接调用后端API');
     console.log('请求参数:', { user_id: user.id, send_message: userMessage });
     
     try {
-      const { data, error } = await supabase.functions.invoke('chat-ai', {
-        body: {
+      const response = await fetch('http://47.96.231.221:5001/AgentChat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           user_id: user.id,
           send_message: userMessage
-        }
+        })
       });
       
-      if (error) {
-        console.error('Edge Function调用错误:', error);
-        throw new Error(error.message);
+      console.log('后端API响应状态:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`后端API错误: ${response.status} ${response.statusText}`);
       }
       
-      console.log('Edge Function响应:', data);
-      return data.text || '我理解你的想法，让我们继续探讨吧。';
+      const data = await response.json();
+      console.log('后端API响应数据:', data);
+      
+      // 根据你的后端API响应格式返回文本
+      return data.receive_message || data.text || '我理解你的想法，让我们继续探讨吧。';
     } catch (error) {
       console.error('AI调用详细错误:', error);
       throw error;
