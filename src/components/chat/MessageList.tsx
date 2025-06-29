@@ -34,6 +34,9 @@ const MessageList: React.FC<MessageListProps> = ({
     scrollToBottom();
   }, [messages]);
 
+  // 获取最后一条AI消息
+  const lastAiMessage = messages.filter(msg => !msg.isUser).pop();
+
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-4">
       {messages.map((message) => (
@@ -48,7 +51,7 @@ const MessageList: React.FC<MessageListProps> = ({
                 : 'bg-gray-100 text-gray-900 border border-gray-200 animate-fade-in'
             }`}
           >
-            <p>{message.text}</p>
+            <p className="whitespace-pre-line">{message.text}</p>
           </div>
         </div>
       ))}
@@ -58,6 +61,7 @@ const MessageList: React.FC<MessageListProps> = ({
         <TodoCard
           onClose={onCloseTodoCard}
           onGoToTodoList={onGoToTodoList}
+          aiMessage={lastAiMessage?.text}
         />
       )}
       

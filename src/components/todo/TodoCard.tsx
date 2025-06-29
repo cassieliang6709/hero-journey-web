@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,15 +16,58 @@ interface TodoItem {
 interface TodoCardProps {
   onClose: () => void;
   onGoToTodoList: () => void;
+  aiMessage?: string; // 新增属性接收AI消息
 }
 
-const TodoCard: React.FC<TodoCardProps> = ({ onClose, onGoToTodoList }) => {
+const TodoCard: React.FC<TodoCardProps> = ({ onClose, onGoToTodoList, aiMessage }) => {
   const [todos, setTodos] = useState<TodoItem[]>([
     { id: 1, text: '早上运动', completed: false, category: '身体' },
     { id: 2, text: '冥想练习', completed: false, category: '情绪' },
     { id: 3, text: '学习新技能', completed: false, category: '技能' },
   ]);
   const [newTodoText, setNewTodoText] = useState('');
+
+  // 当收到AI消息时，自动生成待办事项
+  useEffect(() => {
+    if (aiMessage && aiMessage.includes('📝')) {
+      generateTodosFromAiMessage(aiMessage);
+    }
+  }, [aiMessage]);
+
+  const generateTodosFromAiMessage = (message: string) => {
+    // 提取包含📝的行作为待办事项
+    const lines = message.split('\n');
+    const todoLines = lines.filter(line => line.includes('📝'));
+    
+    if (todoLines.length > 0) {
+      const newTodos: TodoItem[] = todoLines.map((line, index) => {
+        // 移除📝符号并清理文本
+        const text = line.replace('📝', '').trim();
+        
+        // 根据内容判断分类
+        let category = '技能';
+        if (text.includes('组队') || text.includes('沟通') || text.includes('自我介绍')) {
+          category = '社交';
+        } else if (text.includes('技术') || text.includes('开发') || text.includes('代码')) {
+          category = '技术';
+        } else if (text.includes('路演') || text.includes('演示') || text.includes('表达')) {
+          category = '展示';
+        } else if (text.includes('休息') || text.includes('喝水') || text.includes('拉伸')) {
+          category = '健康';
+        }
+        
+        return {
+          id: Date.now() + index,
+          text,
+          completed: false,
+          category
+        };
+      });
+      
+      setTodos(newTodos);
+      toast.success('已为你生成创业活动待办清单！', { duration: 3000 });
+    }
+  };
 
   const toggleTodo = (id: number) => {
     setTodos(prev => prev.map(todo => 
@@ -64,7 +107,7 @@ const TodoCard: React.FC<TodoCardProps> = ({ onClose, onGoToTodoList }) => {
         </div>
         
         {/* 待办事项列表 */}
-        <div className="space-y-2 mb-3 max-h-40 overflow-y-auto">
+        <div className="space-y-2 mb-3 max-h-60 overflow-y-auto">
           {todos.map((todo) => (
             <div
               key={todo.id}

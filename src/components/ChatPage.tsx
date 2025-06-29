@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useChatMessages } from '@/hooks/useChatMessages';
@@ -51,7 +50,13 @@ const ChatPage: React.FC<ChatPageProps> = ({
       userMessage.toLowerCase().includes(keyword)
     );
     
-    if (shouldShowTodo) {
+    // 检查是否包含创业活动相关关键词
+    const startupKeywords = ['startup', '创业', 'pitch', '路演', '组队', '商业模式', '原型', '52小时', 'starup'];
+    const shouldShowStartupTodo = startupKeywords.some(keyword => 
+      userMessage.toLowerCase().includes(keyword.toLowerCase())
+    );
+    
+    if (shouldShowTodo || shouldShowStartupTodo) {
       setShowTodoCard(true);
     }
     
@@ -64,8 +69,14 @@ const ChatPage: React.FC<ChatPageProps> = ({
     try {
       let aiResponse = await callAI(userMessage);
       
+      // 如果AI回复包含待办事项标记，自动显示TodoCard
+      if (aiResponse.includes('📝') || aiResponse.includes('TodoList')) {
+        setShowTodoCard(true);
+        aiResponse += '\n\n我已经为你生成了详细的待办清单，点击下方卡片查看和管理！';
+      }
+      
       // 如果用户提到待办事项，AI回复中也提示可以查看待办卡片
-      if (shouldShowTodo) {
+      if (shouldShowTodo && !aiResponse.includes('📝')) {
         aiResponse += '\n\n📝 我为你显示了待办事项卡片，你可以直接在这里查看和管理任务。';
       }
       
