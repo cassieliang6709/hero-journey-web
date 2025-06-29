@@ -47,7 +47,7 @@ const BecomingPage: React.FC<BecomingPageProps> = ({ onAuthSuccess }) => {
           <div className="w-20 h-20 mx-auto mb-4 hero-gradient rounded-full flex items-center justify-center animate-pulse-glow">
             <span className="text-3xl">🦸</span>
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">becoming</h1>
+          <h1 className="text-2xl font-bold text-white mb-2">Becoming</h1>
           <p className="text-white text-sm">
             {isSignUp ? '创建账户开始你的旅程' : '登录继续你的成长之路'}
           </p>
