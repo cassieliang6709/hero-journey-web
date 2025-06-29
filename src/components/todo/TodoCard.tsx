@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ListTodo, Plus, Check } from 'lucide-react';
+import { ListTodo, Plus, Check, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTodos } from '@/hooks/useTodos';
 
@@ -13,16 +13,37 @@ interface TodoCardProps {
 }
 
 const TodoCard: React.FC<TodoCardProps> = ({ onClose, onGoToTodoList }) => {
-  const { todos, toggleTodo, addTodo } = useTodos();
+  const { todos, loading, toggleTodo, addTodo } = useTodos();
   const [newTodoText, setNewTodoText] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
 
-  const handleAddTodo = () => {
-    if (!newTodoText.trim()) return;
+  const handleAddTodo = async () => {
+    if (!newTodoText.trim() || isAdding) return;
     
-    addTodo(newTodoText, '新增');
-    setNewTodoText('');
-    toast.success('待办事项已添加', { duration: 2000 });
+    setIsAdding(true);
+    const result = await addTodo(newTodoText, '新增');
+    if (result) {
+      setNewTodoText('');
+    }
+    setIsAdding(false);
   };
+
+  const handleToggle = async (id: string) => {
+    await toggleTodo(id);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center animate-fade-in">
+        <Card className="w-full max-w-sm bg-white border border-gray-200 p-4">
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+            <span className="ml-2 text-gray-500">加载中...</span>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center animate-fade-in">
@@ -48,7 +69,7 @@ const TodoCard: React.FC<TodoCardProps> = ({ onClose, onGoToTodoList }) => {
               className="flex items-center space-x-2 p-2 bg-gray-50 rounded-lg"
             >
               <button
-                onClick={() => toggleTodo(todo.id)}
+                onClick={() => handleToggle(todo.id)}
                 className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
                   todo.completed 
                     ? 'bg-gray-900 border-gray-900' 
@@ -67,6 +88,11 @@ const TodoCard: React.FC<TodoCardProps> = ({ onClose, onGoToTodoList }) => {
               </span>
             </div>
           ))}
+          {todos.length === 0 && (
+            <div className="text-center py-4 text-gray-500 text-sm">
+              还没有待办事项
+            </div>
+          )}
         </div>
         
         {/* 添加新待办事项 */}
@@ -77,13 +103,19 @@ const TodoCard: React.FC<TodoCardProps> = ({ onClose, onGoToTodoList }) => {
             placeholder="添加新任务..."
             className="flex-1 text-sm"
             onKeyPress={(e) => e.key === 'Enter' && handleAddTodo()}
+            disabled={isAdding}
           />
           <Button
             onClick={handleAddTodo}
             size="sm"
             className="bg-gray-900 hover:bg-gray-800 text-white px-3"
+            disabled={isAdding || !newTodoText.trim()}
           >
-            <Plus className="w-4 h-4" />
+            {isAdding ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Plus className="w-4 h-4" />
+            )}
           </Button>
         </div>
         

@@ -1,8 +1,10 @@
 
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export interface TodoItem {
-  id: number;
+  id: string;
   text: string;
   completed: boolean;
   category: string;
@@ -11,75 +13,172 @@ export interface TodoItem {
     total: number;
   };
   completedAt?: Date;
-  starMapNodeId?: string; // 关联的星图节点ID
+  starMapNodeId?: string;
+  userId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-const STORAGE_KEY = 'user_todos';
-
-const initialTodos: TodoItem[] = [
-  { 
-    id: 1, 
-    text: '早上运动', 
-    completed: false, 
-    category: '身体',
-    progress: { completed: 2, total: 5 },
-    starMapNodeId: 'health-1'
-  },
-  { 
-    id: 2, 
-    text: '冥想练习', 
-    completed: false, 
-    category: '情绪',
-    progress: { completed: 1, total: 3 },
-    starMapNodeId: 'psychology-1'
-  },
-  { 
-    id: 3, 
-    text: '学习新技能', 
-    completed: false, 
-    category: '技能',
-    progress: { completed: 4, total: 6 },
-    starMapNodeId: 'skill-1'
-  },
-];
-
 export const useTodos = () => {
-  const [todos, setTodos] = useState<TodoItem[]>(() => {
-    // 从本地存储加载数据
-    const savedTodos = localStorage.getItem(STORAGE_KEY);
-    return savedTodos ? JSON.parse(savedTodos) : initialTodos;
-  });
+  const [todos, setTodos] = useState<TodoItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // 保存到本地存储
+  // 从Supabase加载待办事项
+  const loadTodos = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.log('User not authenticated');
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('todos')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading todos:', error);
+        toast.error('加载待办事项失败');
+        return;
+      }
+
+      const formattedTodos: TodoItem[] = data.map(todo => ({
+        id: todo.id,
+        text: todo.text,
+        completed: todo.completed,
+        category: todo.category,
+        progress: todo.progress_completed && todo.progress_total ? {
+          completed: todo.progress_completed,
+          total: todo.progress_total
+        } : undefined,
+        completedAt: todo.completed_at ? new Date(todo.completed_at) : undefined,
+        starMapNodeId: todo.star_map_node_id || undefined,
+        userId: todo.user_id,
+        createdAt: todo.created_at ? new Date(todo.created_at) : undefined,
+        updatedAt: todo.updated_at ? new Date(todo.updated_at) : undefined
+      }));
+
+      setTodos(formattedTodos);
+    } catch (error) {
+      console.error('Error loading todos:', error);
+      toast.error('加载待办事项失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 初始化加载
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
-  }, [todos]);
+    loadTodos();
+  }, []);
 
-  const toggleTodo = (id: number) => {
-    setTodos(prev => prev.map(todo => 
-      todo.id === id ? { 
-        ...todo, 
-        completed: !todo.completed,
-        completedAt: !todo.completed ? new Date() : undefined
-      } : todo
-    ));
+  const toggleTodo = async (id: string) => {
+    try {
+      const todo = todos.find(t => t.id === id);
+      if (!todo) return;
+
+      const newCompleted = !todo.completed;
+      const completedAt = newCompleted ? new Date().toISOString() : null;
+
+      const { error } = await supabase
+        .from('todos')
+        .update({ 
+          completed: newCompleted,
+          completed_at: completedAt
+        })
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error toggling todo:', error);
+        toast.error('更新待办事项失败');
+        return;
+      }
+
+      setTodos(prev => prev.map(todo => 
+        todo.id === id ? { 
+          ...todo, 
+          completed: newCompleted,
+          completedAt: newCompleted ? new Date() : undefined
+        } : todo
+      ));
+
+      toast.success(newCompleted ? '任务已完成' : '任务已取消完成');
+    } catch (error) {
+      console.error('Error toggling todo:', error);
+      toast.error('更新待办事项失败');
+    }
   };
 
-  const addTodo = (text: string, category: string = '新增', starMapNodeId?: string) => {
-    const newTodo: TodoItem = {
-      id: Date.now(),
-      text: text.trim(),
-      completed: false,
-      category,
-      starMapNodeId
-    };
-    
-    setTodos(prev => [...prev, newTodo]);
-    return newTodo;
+  const addTodo = async (text: string, category: string = '新增', starMapNodeId?: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('请先登录');
+        return null;
+      }
+
+      const newTodoData = {
+        user_id: user.id,
+        text: text.trim(),
+        completed: false,
+        category,
+        star_map_node_id: starMapNodeId || null
+      };
+
+      const { data, error } = await supabase
+        .from('todos')
+        .insert([newTodoData])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error adding todo:', error);
+        toast.error('添加待办事项失败');
+        return null;
+      }
+
+      const newTodo: TodoItem = {
+        id: data.id,
+        text: data.text,
+        completed: data.completed,
+        category: data.category,
+        starMapNodeId: data.star_map_node_id || undefined,
+        userId: data.user_id,
+        createdAt: new Date(data.created_at),
+        updatedAt: new Date(data.updated_at)
+      };
+
+      setTodos(prev => [newTodo, ...prev]);
+      toast.success('待办事项已添加');
+      return newTodo;
+    } catch (error) {
+      console.error('Error adding todo:', error);
+      toast.error('添加待办事项失败');
+      return null;
+    }
   };
 
-  const deleteTodo = (id: number) => {
-    setTodos(prev => prev.filter(todo => todo.id !== id));
+  const deleteTodo = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('todos')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting todo:', error);
+        toast.error('删除待办事项失败');
+        return;
+      }
+
+      setTodos(prev => prev.filter(todo => todo.id !== id));
+      toast.success('待办事项已删除');
+    } catch (error) {
+      console.error('Error deleting todo:', error);
+      toast.error('删除待办事项失败');
+    }
   };
 
   // 获取特定星图节点的完成任务统计
@@ -117,10 +216,12 @@ export const useTodos = () => {
 
   return {
     todos,
+    loading,
     toggleTodo,
     addTodo,
     deleteTodo,
     getNodeCompletionStats,
-    getCategoryCompletionStats
+    getCategoryCompletionStats,
+    refreshTodos: loadTodos
   };
 };

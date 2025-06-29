@@ -63,6 +63,48 @@ export type Database = {
         }
         Relationships: []
       }
+      todos: {
+        Row: {
+          category: string
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          id: string
+          progress_completed: number | null
+          progress_total: number | null
+          star_map_node_id: string | null
+          text: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          progress_completed?: number | null
+          progress_total?: number | null
+          star_map_node_id?: string | null
+          text: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          progress_completed?: number | null
+          progress_total?: number | null
+          star_map_node_id?: string | null
+          text?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

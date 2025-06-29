@@ -5,7 +5,7 @@ import { Check } from 'lucide-react';
 import CircularProgress from './CircularProgress';
 
 interface TodoItemProps {
-  id: number;
+  id: string;
   text: string;
   completed: boolean;
   category: string;
@@ -13,7 +13,7 @@ interface TodoItemProps {
     completed: number;
     total: number;
   };
-  onToggle: (id: number) => void;
+  onToggle: (id: string) => void;
 }
 
 const TodoItem: React.FC<TodoItemProps> = ({ 
