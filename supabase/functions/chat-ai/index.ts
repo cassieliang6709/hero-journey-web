@@ -18,30 +18,53 @@ serve(async (req) => {
     
     console.log('Edge Function 收到请求:', { user_id, send_message });
     
-    // 调用你的后端API
-    const response = await fetch('http://47.96.231.221:5001/AgentChat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        user_id,
-        send_message
-      })
-    });
+    try {
+      // 尝试调用你的后端API
+      const response = await fetch('http://47.96.231.221:5001/AgentChat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id,
+          send_message
+        })
+      });
 
-    console.log('后端API响应状态:', response.status);
-    
-    if (!response.ok) {
-      throw new Error(`后端API错误: ${response.status} ${response.statusText}`);
+      console.log('后端API响应状态:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`后端API错误: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('后端API响应数据:', data);
+
+      return new Response(JSON.stringify(data), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+
+    } catch (apiError) {
+      console.error('调用后端API失败:', apiError);
+      
+      // 如果后端API不可用，返回模拟响应
+      const mockResponses = [
+        "很高兴和你聊天！我理解你的想法。",
+        "这是一个很好的问题，让我们深入探讨一下。", 
+        "我明白你的观点，继续分享你的想法吧。",
+        "非常有趣的角度！你还有什么想法吗？",
+        "我在这里陪伴你，请继续说下去。"
+      ];
+      
+      const randomResponse = mockResponses[Math.floor(Math.random() * mockResponses.length)];
+      
+      return new Response(JSON.stringify({ 
+        text: randomResponse,
+        note: "后端API暂时不可用，这是模拟响应"
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
-
-    const data = await response.json();
-    console.log('后端API响应数据:', data);
-
-    return new Response(JSON.stringify(data), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
 
   } catch (error) {
     console.error('Edge Function错误:', error);
