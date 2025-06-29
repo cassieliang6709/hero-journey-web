@@ -11,6 +11,8 @@ interface ChatHeaderProps {
   onGoToStarMap: () => void;
 }
 
+const avatars = ['🦸‍♂️', '🦸‍♀️', '🧙‍♂️', '🧙‍♀️', '👑', '⚡', '🔥', '🌟'];
+
 const ChatHeader: React.FC<ChatHeaderProps> = ({
   selectedAvatar,
   onAvatarClick,
@@ -23,13 +25,9 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       <div className="flex items-center space-x-3">
         <button
           onClick={onAvatarClick}
-          className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors overflow-hidden"
+          className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors"
         >
-          <img
-            src="http://47.96.231.221:9001/api/v1/download-shared-object/aHR0cDovLzEyNy4wLjAuMTo5MDAwLzEzMTUxMTg1NzA4OTU1NzI5OTIvMzI5MTc1MTE4MzE1NF8ucGljX2hkLmpwZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUpFNE4yNVMxQkM0Uk5ZVFpYSUNVJTJGMjAyNTA2MjklMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwNjI5VDA4MTgxN1omWC1BbXotRXhwaXJlcz00MzIwMCZYLUFtei1TZWN1cml0eS1Ub2tlbj1leUpoYkdjaU9pSklVelV4TWlJc0luUjVjQ0k2SWtwWFZDSjkuZXlKaFkyTmxjM05MWlhraU9pSktSVFJPTWpWVE1VSkRORkpPV1ZSYVdFbERWU0lzSW1WNGNDSTZNVGMxTVRJeU9ERXpNQ3dpY0dGeVpXNTBJam9pYldsdWFXOWZTSE5hV25oRUluMC42enVIZi01VEFZbFdDekFQSVRJbVB5MGR6XzFkT19xa0h6UXJ4MjZxb0Y0NExGM3BOSVpBM2RHV3p1RTczVE1zNU5uZEVjWGFscHdBY2xfYnhhRVdhdyZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmdmVyc2lvbklkPW51bGwmWC1BbXotU2lnbmF0dXJlPThjNGNiZjM2MDdhOGIzNTJlODlhZjA0YjEyZTM2MGMxMTRjOGJkYzA0ZDhiM2ZmMGU0NzY0YTcwN2E0ZGU3ZDM"
-            alt="AI Avatar"
-            className="w-full h-full object-cover rounded-full"
-          />
+          <span className="text-xl">{avatars[selectedAvatar]}</span>
         </button>
         <div>
           <h1 className="text-gray-900 font-semibold">小精灵</h1>
