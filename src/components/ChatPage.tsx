@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import backgroundImage from '@/assets/background1.jpg';  // 导入图片
 import { toast } from 'sonner';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { useStarMap } from '@/hooks/useStarMap';
@@ -165,6 +166,9 @@ const ChatPage: React.FC<ChatPageProps> = ({
       className="mobile-container bg-white flex flex-col h-screen"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
+      style=    {{backgroundImage: `url(${backgroundImage})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center'}}
     >
       <ChatHeader
         selectedAvatar={selectedAvatar}
