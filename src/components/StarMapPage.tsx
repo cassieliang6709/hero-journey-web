@@ -38,7 +38,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   const [showNodeHistory, setShowNodeHistory] = useState<string | null>(null);
   const [showCategoryDetail, setShowCategoryDetail] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x:0, y: 0 });
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   
   const { getNodeCompletionStats, getCategoryCompletionStats } = useTodos();
@@ -232,12 +232,14 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
 
   // 鼠标拖动处理
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
     setIsDragging(true);
     setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
   }, [panOffset]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!isDragging) return;
+    e.preventDefault();
     
     const newOffset = {
       x: e.clientX - dragStart.x,
@@ -452,7 +454,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   };
 
   const handleZoomIn = () => {
-    setZoomLevel(prev => Math.min(prev + 0.1, 1.5));
+    setZoomLevel(prev => Math.min(prev + 0.1, 2.0));
   };
 
   const handleZoomOut = () => {
@@ -460,8 +462,8 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   };
 
   const resetView = () => {
-    setZoomLevel(0.8);
-    setPanOffset({ x: -100, y: -50 });
+    setZoomLevel(0.6);
+    setPanOffset({ x: -300, y: -250 });
   };
 
   const selectedNodeData = selectedNode ? skillNodes.find(n => n.id === selectedNode) : null;
@@ -498,7 +500,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setZoomLevel(prev => Math.max(prev - 0.1, 0.3))}
+            onClick={handleZoomOut}
             className="text-white border-white/30 hover:bg-white/10 bg-white/10"
           >
             <Minus className="w-4 h-4" />
@@ -506,32 +508,34 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setZoomLevel(prev => Math.min(prev + 0.1, 1.5))}
+            onClick={handleZoomIn}
             className="text-white border-white/30 hover:bg-white/10 bg-white/10"
           >
             <Plus className="w-4 h-4" />
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={resetView}
+            className="text-white border-white/30 hover:bg-white/10 bg-white/10 text-xs px-2"
+          >
+            重置
+          </Button>
         </div>
       </div>
 
-      {/* 星图容器 - 调整高度以适配大容器 */}
+      {/* 星图容器 - 修复缩放和拖拽 */}
       <div 
         ref={containerRef}
-        className="relative overflow-hidden cursor-move"
+        className="relative overflow-hidden cursor-move select-none"
         style={{ 
-          height: 'calc(100vh - 80px - 180px)', // 减去顶部导航和底部评估面板的高度
-          minHeight: '500px' // 设置最小高度确保可用性
+          height: 'calc(100vh - 80px - 180px)',
+          minHeight: '500px'
         }}
-        onMouseDown={(e) => {
-          setIsDragging(true);
-          setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
-        }}
-        onMouseMove={(e) => {
-          if (!isDragging) return;
-          setPanOffset({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
-        }}
-        onMouseUp={() => setIsDragging(false)}
-        onMouseLeave={() => setIsDragging(false)}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
       >
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none"
