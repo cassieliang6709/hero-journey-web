@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -12,6 +11,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { useSkillProgress } from '@/hooks/useSkillProgress';
 
 interface TodoItem {
   id: number;
@@ -89,14 +89,32 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
     ));
   };
 
+  const { updateSkillProgress, isSkillUnlocked } = useSkillProgress(user.username || 'default');
+
   const toggleTodo = (groupId: string, todoId: number) => {
     setTodoGroups(prev => prev.map(group => 
       group.id === groupId 
         ? {
             ...group,
-            todos: group.todos.map(todo => 
-              todo.id === todoId ? { ...todo, completed: !todo.completed } : todo
-            )
+            todos: group.todos.map(todo => {
+              if (todo.id === todoId) {
+                const updatedTodo = { ...todo, completed: !todo.completed };
+                
+                // 更新技能进度
+                updateSkillProgress(updatedTodo);
+                
+                // 显示技能解锁提示
+                if (updatedTodo.completed) {
+                  toast.success('任务完成！技能进度已更新 🌟', { 
+                    duration: 3000,
+                    description: '前往星图查看解锁的技能'
+                  });
+                }
+                
+                return updatedTodo;
+              }
+              return todo;
+            })
           }
         : group
     ));
@@ -151,16 +169,17 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
           </Button>
           <div>
             <h1 className="text-gray-900 font-semibold">创业活动待办清单</h1>
-            <p className="text-gray-600 text-sm">完成率: {completionRate}%</p>
+            <p className="text-gray-600 text-sm">完成率: {completionRate}% | 已解锁技能</p>
           </div>
         </div>
         <Button
           variant="ghost"
           size="sm"
           onClick={onGoToStarMap}
-          className="text-gray-900 hover:bg-gray-100"
+          className="text-gray-900 hover:bg-gray-100 relative"
         >
           <Globe className="w-5 h-5" />
+          <span className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></span>
         </Button>
       </div>
 
@@ -172,6 +191,26 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
           totalCount={totalCount}
           completionRate={completionRate}
         />
+
+        {/* 技能解锁提示卡片 */}
+        <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
+          <div className="p-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <span className="text-xl">🌟</span>
+              <h3 className="font-medium text-gray-900">技能解锁系统</h3>
+            </div>
+            <p className="text-sm text-gray-600 mb-3">
+              完成待办任务即可在星图中解锁对应技能，快去星图查看你的成长轨迹吧！
+            </p>
+            <Button
+              onClick={onGoToStarMap}
+              size="sm"
+              className="bg-yellow-500 hover:bg-yellow-600 text-white"
+            >
+              查看星图技能
+            </Button>
+          </div>
+        </Card>
 
         {/* 折叠式待办事项组 */}
         <div className="space-y-3">

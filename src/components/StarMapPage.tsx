@@ -1,8 +1,8 @@
-
 import React, { useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Plus, Minus } from 'lucide-react';
+import { useSkillProgress } from '@/hooks/useSkillProgress';
 
 interface SkillNode {
   id: string;
@@ -36,6 +36,8 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  const { isSkillUnlocked, getSkillCompletedTasks } = useSkillProgress(user.username || 'default');
 
   // 重新设计的技能节点数据 - 上面1个分支，下面2个分支
   const skillNodes: SkillNode[] = [
@@ -245,6 +247,13 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   }, []);
 
   const getNodeColor = (node: SkillNode) => {
+    // 检查是否通过待办事项解锁
+    const isUnlockedByTodos = isSkillUnlocked(node.id);
+    
+    if (isUnlockedByTodos) {
+      return 'bg-yellow-400 border-yellow-500 text-white animate-pulse';
+    }
+    
     switch (node.status) {
       case 'locked': return 'bg-gray-200 border-gray-300 text-gray-600';
       case 'available': return 'bg-gray-100 border-gray-400 text-gray-800';
@@ -296,33 +305,56 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   };
 
   const renderNodes = (): JSX.Element[] => {
-    return skillNodes.map((node) => (
-      <div key={node.id}>
-        <div
-          className={`absolute ${getNodeSize(node)} ${getNodeColor(node)} rounded-full flex items-center justify-center border-2 cursor-pointer transition-all duration-300 hover:scale-110 ${
-            selectedNode === node.id ? 'ring-2 ring-gray-400 scale-110' : ''
-          }`}
-          style={{
-            left: node.position.x,
-            top: node.position.y,
-          }}
-          onClick={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
-        />
-        
-        <div
-          className={`absolute text-gray-800 text-xs text-center font-medium bg-white/95 px-2 py-1 rounded shadow-sm transition-all duration-300 ${
-            selectedNode === node.id ? 'bg-white scale-105' : ''
-          }`}
-          style={{
-            left: node.position.x - 15,
-            top: node.position.y + (node.id === 'center' ? 70 : node.id.includes('root') ? 55 : 45),
-            width: node.id === 'center' ? 90 : node.id.includes('root') ? 80 : 70,
-          }}
-        >
-          {node.name}
+    return skillNodes.map((node) => {
+      const isUnlockedByTodos = isSkillUnlocked(node.id);
+      const completedTasks = getSkillCompletedTasks(node.id);
+      
+      return (
+        <div key={node.id}>
+          <div
+            className={`absolute ${getNodeSize(node)} ${getNodeColor(node)} rounded-full flex items-center justify-center border-2 cursor-pointer transition-all duration-300 hover:scale-110 ${
+              selectedNode === node.id ? 'ring-2 ring-gray-400 scale-110' : ''
+            }`}
+            style={{
+              left: node.position.x,
+              top: node.position.y,
+            }}
+            onClick={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
+          />
+          
+          {/* 技能解锁状态指示器 */}
+          {isUnlockedByTodos && (
+            <div
+              className="absolute w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center animate-bounce"
+              style={{
+                left: node.position.x + (node.id === 'center' ? 48 : node.id.includes('root') ? 36 : 28),
+                top: node.position.y - 4,
+              }}
+            >
+              <span className="text-white text-xs font-bold">✓</span>
+            </div>
+          )}
+          
+          <div
+            className={`absolute text-gray-800 text-xs text-center font-medium bg-white/95 px-2 py-1 rounded shadow-sm transition-all duration-300 ${
+              selectedNode === node.id ? 'bg-white scale-105' : ''
+            } ${isUnlockedByTodos ? 'bg-yellow-50 border border-yellow-200' : ''}`}
+            style={{
+              left: node.position.x - 15,
+              top: node.position.y + (node.id === 'center' ? 70 : node.id.includes('root') ? 55 : 45),
+              width: node.id === 'center' ? 90 : node.id.includes('root') ? 80 : 70,
+            }}
+          >
+            {node.name}
+            {completedTasks > 0 && (
+              <div className="text-xs text-yellow-600 font-bold">
+                +{completedTasks}任务
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    ));
+      );
+    });
   };
 
   const handleZoomIn = () => {
@@ -339,6 +371,8 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   };
 
   const selectedNodeData = selectedNode ? skillNodes.find(n => n.id === selectedNode) : null;
+  const selectedNodeUnlocked = selectedNodeData ? isSkillUnlocked(selectedNodeData.id) : false;
+  const selectedNodeTasks = selectedNodeData ? getSkillCompletedTasks(selectedNodeData.id) : 0;
 
   return (
     <div className="mobile-container min-h-screen bg-white">
@@ -461,23 +495,37 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       {selectedNodeData && (
         <div className="absolute bottom-4 left-4 right-4 bg-white border border-gray-200 shadow-lg p-4 rounded-lg animate-fade-in">
           <div className="flex items-start space-x-4">
-            <div className={`w-12 h-12 ${getNodeColor(selectedNodeData)} rounded-full border-2`}>
+            <div className={`w-12 h-12 ${getNodeColor(selectedNodeData)} rounded-full border-2 relative`}>
+              {selectedNodeUnlocked && (
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs">✓</span>
+                </div>
+              )}
             </div>
             <div className="flex-1">
               <div className="flex items-center space-x-2 mb-2">
                 <h3 className="text-gray-900 font-bold text-lg">{selectedNodeData.name}</h3>
                 <span className={`px-3 py-1 text-xs rounded-full font-medium ${
+                  selectedNodeUnlocked ? 'bg-yellow-100 text-yellow-800' :
                   selectedNodeData.status === 'mastered' ? 'bg-gray-100 text-gray-800' :
                   selectedNodeData.status === 'active' ? 'bg-gray-900 text-white' :
                   selectedNodeData.status === 'available' ? 'bg-gray-100 text-gray-700' :
                   'bg-gray-100 text-gray-600'
                 }`}>
-                  {selectedNodeData.status === 'mastered' ? '已掌握' :
+                  {selectedNodeUnlocked ? '已解锁' :
+                   selectedNodeData.status === 'mastered' ? '已掌握' :
                    selectedNodeData.status === 'active' ? '进行中' :
                    selectedNodeData.status === 'available' ? '可开始' : '未解锁'}
                 </span>
               </div>
               <p className="text-gray-600 text-sm mb-3">{selectedNodeData.description}</p>
+              
+              {selectedNodeUnlocked && selectedNodeTasks > 0 && (
+                <div className="text-xs text-yellow-600 bg-yellow-50 p-2 rounded-lg mb-2">
+                  🎉 通过完成 {selectedNodeTasks} 个相关任务解锁了此技能！
+                </div>
+              )}
+              
               {selectedNodeData.requirements && selectedNodeData.requirements.length > 0 && (
                 <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded-lg">
                   前置条件: {selectedNodeData.requirements.map(req => 
