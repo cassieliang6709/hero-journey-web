@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { useAppState } from '@/hooks/useAppState';
-import AuthPage from '@/components/AuthPage';
+import LoginPage from '@/components/LoginPage';
 import OnboardingStep1 from '@/components/OnboardingStep1';
 import OnboardingStep2 from '@/components/OnboardingStep2';
 import OnboardingStep3 from '@/components/OnboardingStep3';
@@ -16,6 +17,7 @@ const Index = () => {
     changeAvatar,
     completeOnboarding,
     resetOnboarding,
+    handleLogin,
     logout
   } = useAppState();
 
@@ -31,7 +33,7 @@ const Index = () => {
 
   // 未登录显示登录页面
   if (state.currentStep === 'login' || !user) {
-    return <AuthPage onAuthSuccess={() => {}} />;
+    return <LoginPage onLogin={handleLogin} />;
   }
 
   // 引导流程
