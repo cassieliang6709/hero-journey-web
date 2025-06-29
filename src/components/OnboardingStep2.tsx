@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -83,11 +82,11 @@ const OnboardingStep2: React.FC<OnboardingStep2Props> = ({
         </div>
         
         {/* 换一换按钮 */}
-        <div className="fixed bottom-40 left-6 right-6 z-10">
+        <div className="fixed bottom-40 left-1/2 transform -translate-x-1/2 z-10">
           <Button
             onClick={handleNextPage}
             variant="outline"
-            className="w-full glass-effect border-white/30 text-white hover:bg-white/20 font-medium transition-all duration-200 hover:scale-105"
+            className="w-[200px] glass-effect border-white/30 text-white hover:bg-white/20 font-medium transition-all duration-200 hover:scale-105"
           >
             <RefreshCw className="w-4 h-4 mr-2" />
             换一换 ({currentPage + 1}/{totalPages})
