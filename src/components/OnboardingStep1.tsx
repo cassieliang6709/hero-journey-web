@@ -23,13 +23,13 @@ const OnboardingStep1: React.FC<OnboardingStep1Props> = ({ onNext, username }) =
         <div className="animate-fade-in space-y-6 z-10 relative">
           <div className="space-y-4 text-gray-200 leading-relaxed">
             <p className="text-lg drop-shadow-md">
-              ✨ 我们如同散落的星尘，漂浮在数据的海洋。
+              我们如同散落的星尘，漂浮在数据的海洋。
             </p>
             <p className="text-lg drop-shadow-md">
-              ✨ 每个人内心都潜藏着英雄，但现实让我们迷失方向。
+              每个人内心都潜藏着英雄，但现实让我们迷失方向。
             </p>
             <p className="text-xl font-semibold text-orange-300 mt-6 drop-shadow-lg">
-              ✨ Becoming——成长，值得重新想象
+              Becoming——成长，值得重新想象
             </p>
           </div>
           <Button 
