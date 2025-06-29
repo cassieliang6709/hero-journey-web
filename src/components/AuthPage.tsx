@@ -13,7 +13,6 @@ interface AuthPageProps {
 const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
-  const [isRegistering, setIsRegistering] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +24,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
       const email = `${username.trim()}@herojourney.app`;
       const password = 'herojourney123';
 
+      console.log('尝试登录:', email);
+
       // 先尝试登录
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
@@ -32,77 +33,45 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
       });
 
       if (signInError) {
-        // 如果是邮箱未确认的错误，提示用户
-        if (signInError.message.includes('Email not confirmed')) {
-          toast.error('账户需要邮箱确认，请检查您的邮箱并点击确认链接');
-          setLoading(false);
+        console.log('登录失败，尝试注册:', signInError.message);
+        
+        // 如果登录失败，尝试注册（不需要邮件确认）
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              username: username.trim()
+            }
+          }
+        });
+
+        if (signUpError) {
+          console.error('注册错误:', signUpError);
+          toast.error(`注册失败：${signUpError.message}`);
           return;
         }
 
-        // 如果是用户不存在，则尝试注册
-        if (signInError.message.includes('Invalid login credentials')) {
-          console.log('用户不存在，开始注册流程');
-          setIsRegistering(true);
-          
-          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              emailRedirectTo: `${window.location.origin}/`,
-              data: {
-                username: username.trim()
-              }
-            }
-          });
-
-          if (signUpError) {
-            console.error('注册错误:', signUpError);
-            
-            // 处理发送邮件频率限制错误
-            if (signUpError.message.includes('For security purposes')) {
-              toast.error('请稍等片刻再尝试注册，避免频繁操作');
-            } else if (signUpError.message.includes('User already registered')) {
-              toast.error('用户已存在，请尝试登录或重置密码');
-            } else {
-              toast.error(`注册失败：${signUpError.message}`);
-            }
-            setIsRegistering(false);
-            setLoading(false);
-            return;
-          }
-
-          // 注册成功
-          if (signUpData.user && !signUpData.session) {
-            toast.success('注册成功！请检查您的邮箱并点击确认链接后再登录');
-            setIsRegistering(false);
-            setLoading(false);
-            return;
-          }
-
-          // 如果注册后直接有session，说明邮箱确认被禁用了
-          if (signUpData.session) {
-            toast.success('注册并登录成功！');
-            onAuthSuccess();
-            setIsRegistering(false);
-            setLoading(false);
-            return;
-          }
-        } else {
-          // 其他登录错误
-          console.error('登录错误:', signInError);
-          toast.error(`登录失败：${signInError.message}`);
+        // 注册成功后检查是否有session
+        if (signUpData.session) {
+          console.log('注册并直接登录成功');
+          toast.success('注册成功，欢迎使用！');
+          onAuthSuccess();
+        } else if (signUpData.user && !signUpData.session) {
+          console.log('注册成功但需要确认邮件');
+          toast.error('注册成功但需要邮件确认，请联系管理员');
         }
       } else {
         // 登录成功
+        console.log('登录成功');
         toast.success('登录成功！');
         onAuthSuccess();
       }
     } catch (error) {
-      console.error('登录过程中发生错误:', error);
+      console.error('认证过程中发生错误:', error);
       toast.error('操作失败，请重试');
     } finally {
       setLoading(false);
-      setIsRegistering(false);
     }
   };
 
@@ -115,7 +84,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
           </div>
           <h1 className="text-2xl font-bold text-gray-800 mb-2">英雄之旅</h1>
           <p className="text-gray-600 text-sm">
-            {isRegistering ? '正在创建新账户...' : '输入用户名即可开始'}
+            输入用户名即可开始
           </p>
         </div>
         
@@ -135,10 +104,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
             className="w-full hero-gradient text-white font-semibold h-12 text-lg hover:scale-105 transition-transform"
             disabled={loading || !username.trim()}
           >
-            {loading 
-              ? (isRegistering ? '创建账户中...' : '登录中...') 
-              : '开始旅程'
-            }
+            {loading ? '登录中...' : '开始旅程'}
           </Button>
         </form>
 
