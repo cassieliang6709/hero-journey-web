@@ -61,19 +61,26 @@ const ChatPage: React.FC<ChatPageProps> = ({
     setAiTyping(true);
     
     try {
-      // Call AI API through Supabase Edge Function
-      const { data, error } = await supabase.functions.invoke('chat-ai', {
-        body: { message: userMessage }
+      // Call external API
+      const response = await fetch('http://47.96.231.221:5001/AgentChat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          send_message: userMessage
+        })
       });
       
-      if (error) {
-        console.error('AI调用失败:', error);
-        await addMessage('抱歉，我现在无法回复。请稍后再试。', false);
-      } else {
-        await addMessage(data.response || '我理解你的想法，让我们继续探讨吧。', false);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
+      const data = await response.json();
+      await addMessage(data.text || '我理解你的想法，让我们继续探讨吧。', false);
     } catch (error) {
-      console.error('AI调用错误:', error);
+      console.error('外部API调用错误:', error);
       // Fallback response
       const responses = [
         "这是一个很好的想法！让我们深入探讨一下。",
