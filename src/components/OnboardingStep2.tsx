@@ -103,7 +103,6 @@ const OnboardingStep2: React.FC<OnboardingStep2Props> = ({
             <Card className="glass-effect p-4 pl-16">
               <div className="flex items-center text-white">
                 <Heart className="w-6 h-6 mr-3 text-orange-300" />
-                <span className="drop-shadow-sm">每次微小期许，请相信，这会成为我们向前的力量</span>
               </div>
             </Card>
           </div>
