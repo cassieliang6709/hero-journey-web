@@ -8,7 +8,7 @@ interface SkillNode {
   id: string;
   name: string;
   description: string;
-  category: 'psychology' | 'health' | 'skill';
+  category: 'pitch' | 'team' | 'mvp' | 'dev' | 'demo' | 'emergency' | 'health' | 'center';
   position: { x: number; y: number };
   status: 'locked' | 'available' | 'active' | 'mastered';
   connections: string[];
@@ -30,7 +30,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   onGoToPhysicalTest, 
   onGoToTalentTest 
 }) => {
-  const [zoomLevel, setZoomLevel] = useState(0.8);
+  const [zoomLevel, setZoomLevel] = useState(0.6);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -39,190 +39,274 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   
   const { isSkillUnlocked, getSkillCompletedTasks } = useSkillProgress(user.username || 'default');
 
-  // 重新设计的技能节点数据 - 上面1个分支，下面2个分支
+  // 创业技能发展星图节点
   const skillNodes: SkillNode[] = [
     // 中心节点
     {
       id: 'center',
       name: user.username,
-      description: '你的成长中心',
-      category: 'psychology',
-      position: { x: 500, y: 400 },
+      description: '创业技能发展中心',
+      category: 'center',
+      position: { x: 600, y: 400 },
       status: 'active',
-      connections: ['psychology-root', 'health-root', 'skill-root']
+      connections: ['pitch-root', 'team-root', 'mvp-root', 'dev-root', 'demo-root', 'emergency-root']
     },
 
-    // 心理优势分支 - 上方
+    // Pitch表达分支 - 上方
     {
-      id: 'psychology-root',
-      name: '心理优势',
-      description: '基于心理学的优势发展',
-      category: 'psychology',
-      position: { x: 500, y: 200 },
+      id: 'pitch-root',
+      name: 'Pitch表达',
+      description: '自我介绍与沟通表达能力',
+      category: 'pitch',
+      position: { x: 600, y: 150 },
       status: 'active',
-      connections: ['psychology-1', 'psychology-2']
+      connections: ['pitch-intro', 'pitch-communication', 'pitch-alignment']
     },
     {
-      id: 'psychology-1',
-      name: '情绪管理',
-      description: '提升情绪识别和调节能力',
-      category: 'psychology',
-      position: { x: 350, y: 100 },
-      status: 'mastered',
-      connections: ['psychology-3'],
-      requirements: ['psychology-root']
-    },
-    {
-      id: 'psychology-2',
-      name: '思维模式',
-      description: '培养积极思维和成长心态',
-      category: 'psychology',
-      position: { x: 650, y: 100 },
-      status: 'active',
-      connections: ['psychology-4'],
-      requirements: ['psychology-root']
-    },
-    {
-      id: 'psychology-3',
-      name: '自信建立',
-      description: '增强自信心和自我价值感',
-      category: 'psychology',
-      position: { x: 280, y: 50 },
+      id: 'pitch-intro',
+      name: '技术标签化自我介绍',
+      description: '快速自我介绍（技术标签化）',
+      category: 'pitch',
+      position: { x: 450, y: 80 },
       status: 'available',
       connections: [],
-      requirements: ['psychology-1']
+      requirements: ['pitch-root']
     },
     {
-      id: 'psychology-4',
-      name: '压力管理',
-      description: '有效应对和管理压力',
-      category: 'psychology',
-      position: { x: 720, y: 50 },
+      id: 'pitch-communication',
+      name: '需求扫描沟通',
+      description: '倾听&扫描他人需求',
+      category: 'pitch',
+      position: { x: 600, y: 50 },
       status: 'available',
       connections: [],
-      requirements: ['psychology-2']
+      requirements: ['pitch-root']
+    },
+    {
+      id: 'pitch-alignment',
+      name: '价值对齐沟通',
+      description: '价值对齐型沟通',
+      category: 'pitch',
+      position: { x: 750, y: 80 },
+      status: 'available',
+      connections: [],
+      requirements: ['pitch-root']
     },
 
-    // 身体健康分支 - 左下方
+    // 团队组建分支 - 左上
     {
-      id: 'health-root',
-      name: '身体健康',
-      description: '全面的身体健康管理',
-      category: 'health',
-      position: { x: 250, y: 600 },
+      id: 'team-root',
+      name: '团队组建',
+      description: '团队识别与协作匹配',
+      category: 'team',
+      position: { x: 300, y: 200 },
       status: 'active',
-      connections: ['health-1', 'health-2', 'health-3']
+      connections: ['team-identification', 'team-value', 'team-collaboration']
     },
     {
-      id: 'health-1',
-      name: '运动锻炼',
-      description: '制定并执行运动计划',
-      category: 'health',
-      position: { x: 100, y: 700 },
-      status: 'active',
-      connections: ['health-4'],
-      requirements: ['health-root']
-    },
-    {
-      id: 'health-2',
-      name: '饮食管理',
-      description: '建立健康的饮食习惯',
-      category: 'health',
-      position: { x: 250, y: 750 },
-      status: 'mastered',
-      connections: ['health-4'],
-      requirements: ['health-root']
-    },
-    {
-      id: 'health-3',
-      name: '睡眠优化',
-      description: '优化睡眠质量和作息规律',
-      category: 'health',
-      position: { x: 400, y: 700 },
-      status: 'available',
-      connections: ['health-5'],
-      requirements: ['health-root']
-    },
-    {
-      id: 'health-4',
-      name: '体重管理',
-      description: '科学的体重控制方法',
-      category: 'health',
-      position: { x: 150, y: 800 },
+      id: 'team-identification',
+      name: '技术角色识别',
+      description: '技术角色识别',
+      category: 'team',
+      position: { x: 150, y: 120 },
       status: 'available',
       connections: [],
-      requirements: ['health-1', 'health-2']
+      requirements: ['team-root']
     },
     {
-      id: 'health-5',
-      name: '体能提升',
-      description: '全面提升身体素质',
-      category: 'health',
-      position: { x: 350, y: 800 },
-      status: 'locked',
+      id: 'team-value',
+      name: '技术价值锚定',
+      description: '技术价值锚定',
+      category: 'team',
+      position: { x: 250, y: 100 },
+      status: 'available',
       connections: [],
-      requirements: ['health-3']
+      requirements: ['team-root']
+    },
+    {
+      id: 'team-collaboration',
+      name: '主动协作匹配',
+      description: '主动沟通&协作匹配',
+      category: 'team',
+      position: { x: 350, y: 120 },
+      status: 'available',
+      connections: [],
+      requirements: ['team-root']
     },
 
-    // 技能发展分支 - 右下方
+    // MVP搭建分支 - 右上
     {
-      id: 'skill-root',
-      name: '技能发展',
-      description: '职场与生活技能全面提升',
-      category: 'skill',
-      position: { x: 750, y: 600 },
+      id: 'mvp-root',
+      name: 'MVP搭建',
+      description: 'MVP原型快速搭建能力',
+      category: 'mvp',
+      position: { x: 900, y: 200 },
       status: 'active',
-      connections: ['skill-1', 'skill-2', 'skill-3']
+      connections: ['mvp-definition', 'mvp-feasibility', 'mvp-strategy']
     },
     {
-      id: 'skill-1',
-      name: '面试技巧',
-      description: '掌握面试表达和技巧',
-      category: 'skill',
-      position: { x: 600, y: 700 },
-      status: 'active',
-      connections: ['skill-4'],
-      requirements: ['skill-root']
-    },
-    {
-      id: 'skill-2',
-      name: '沟通能力',
-      description: '提升人际沟通技能',
-      category: 'skill',
-      position: { x: 750, y: 750 },
-      status: 'available',
-      connections: ['skill-4'],
-      requirements: ['skill-root']
-    },
-    {
-      id: 'skill-3',
-      name: '职业规划',
-      description: '制定清晰的职业发展路径',
-      category: 'skill',
-      position: { x: 900, y: 700 },
-      status: 'available',
-      connections: ['skill-5'],
-      requirements: ['skill-root']
-    },
-    {
-      id: 'skill-4',
-      name: '简历优化',
-      description: '制作吸引人的简历',
-      category: 'skill',
-      position: { x: 650, y: 800 },
+      id: 'mvp-definition',
+      name: 'MVP功能定义',
+      description: 'MVP功能定义',
+      category: 'mvp',
+      position: { x: 850, y: 120 },
       status: 'available',
       connections: [],
-      requirements: ['skill-1', 'skill-2']
+      requirements: ['mvp-root']
     },
     {
-      id: 'skill-5',
-      name: '职场礼仪',
-      description: '掌握职场基本礼仪',
-      category: 'skill',
-      position: { x: 850, y: 800 },
-      status: 'locked',
+      id: 'mvp-feasibility',
+      name: '技术可行性判断',
+      description: '技术可行性判断',
+      category: 'mvp',
+      position: { x: 950, y: 100 },
+      status: 'available',
       connections: [],
-      requirements: ['skill-3']
+      requirements: ['mvp-root']
+    },
+    {
+      id: 'mvp-strategy',
+      name: '极简开发策略',
+      description: '极简开发策略（mock数据/云服务优先）',
+      category: 'mvp',
+      position: { x: 1050, y: 120 },
+      status: 'available',
+      connections: [],
+      requirements: ['mvp-root']
+    },
+
+    // 协作开发分支 - 左下
+    {
+      id: 'dev-root',
+      name: '协作开发',
+      description: '团队协作开发流程',
+      category: 'dev',
+      position: { x: 300, y: 600 },
+      status: 'active',
+      connections: ['dev-git', 'dev-sync', 'dev-interface']
+    },
+    {
+      id: 'dev-git',
+      name: 'Git协作',
+      description: 'Git协作（代码仓管理）',
+      category: 'dev',
+      position: { x: 150, y: 680 },
+      status: 'available',
+      connections: [],
+      requirements: ['dev-root']
+    },
+    {
+      id: 'dev-sync',
+      name: '进度同步节奏',
+      description: '每小时同步进度节奏',
+      category: 'dev',
+      position: { x: 300, y: 720 },
+      status: 'available',
+      connections: [],
+      requirements: ['dev-root']
+    },
+    {
+      id: 'dev-interface',
+      name: '设计技术对齐',
+      description: '设计-技术接口对齐',
+      category: 'dev',
+      position: { x: 450, y: 680 },
+      status: 'available',
+      connections: [],
+      requirements: ['dev-root']
+    },
+
+    // 技术路演分支 - 右下
+    {
+      id: 'demo-root',
+      name: '技术路演',
+      description: '技术演示与表达能力',
+      category: 'demo',
+      position: { x: 900, y: 600 },
+      status: 'active',
+      connections: ['demo-expression', 'demo-rehearsal', 'demo-qa']
+    },
+    {
+      id: 'demo-expression',
+      name: '技术亮点表达',
+      description: '技术亮点转化为用户语言',
+      category: 'demo',
+      position: { x: 850, y: 680 },
+      status: 'available',
+      connections: [],
+      requirements: ['demo-root']
+    },
+    {
+      id: 'demo-rehearsal',
+      name: '演示彩排',
+      description: '演示彩排与临场稳定性',
+      category: 'demo',
+      position: { x: 950, y: 720 },
+      status: 'available',
+      connections: [],
+      requirements: ['demo-root']
+    },
+    {
+      id: 'demo-qa',
+      name: '技术答辩',
+      description: '技术答辩的结构化回应',
+      category: 'demo',
+      position: { x: 1050, y: 680 },
+      status: 'available',
+      connections: [],
+      requirements: ['demo-root']
+    },
+
+    // 应急恢复力分支 - 下方
+    {
+      id: 'emergency-root',
+      name: '应急恢复力',
+      description: '应急处理与风险预案',
+      category: 'emergency',
+      position: { x: 600, y: 750 },
+      status: 'active',
+      connections: ['emergency-fallback', 'emergency-backup', 'emergency-toolkit']
+    },
+    {
+      id: 'emergency-fallback',
+      name: '崩溃预案',
+      description: '崩溃5秒切换预案（截图/录屏）',
+      category: 'emergency',
+      position: { x: 450, y: 820 },
+      status: 'available',
+      connections: [],
+      requirements: ['emergency-root']
+    },
+    {
+      id: 'emergency-backup',
+      name: '技术替代路径',
+      description: '技术替代路径（备胎技术栈）',
+      category: 'emergency',
+      position: { x: 600, y: 850 },
+      status: 'available',
+      connections: [],
+      requirements: ['emergency-root']
+    },
+    {
+      id: 'emergency-toolkit',
+      name: '急救包准备',
+      description: '离线文档/U盘急救包准备',
+      category: 'emergency',
+      position: { x: 750, y: 820 },
+      status: 'available',
+      connections: [],
+      requirements: ['emergency-root']
+    },
+
+    // 健康管理 - 左侧
+    {
+      id: 'health-energy',
+      name: '能量管理',
+      description: '保持体力与精力的平衡',
+      category: 'health',
+      position: { x: 150, y: 400 },
+      status: 'active',
+      connections: []
     }
   ];
 
@@ -247,18 +331,28 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   }, []);
 
   const getNodeColor = (node: SkillNode) => {
-    // 检查是否通过待办事项解锁
     const isUnlockedByTodos = isSkillUnlocked(node.id);
     
     if (isUnlockedByTodos) {
       return 'bg-yellow-400 border-yellow-500 text-white animate-pulse';
     }
     
+    const colors = {
+      center: 'bg-purple-600 border-purple-700 text-white',
+      pitch: 'bg-blue-500 border-blue-600 text-white',
+      team: 'bg-green-500 border-green-600 text-white',
+      mvp: 'bg-orange-500 border-orange-600 text-white',
+      dev: 'bg-red-500 border-red-600 text-white',
+      demo: 'bg-pink-500 border-pink-600 text-white',
+      emergency: 'bg-gray-600 border-gray-700 text-white',
+      health: 'bg-cyan-500 border-cyan-600 text-white'
+    };
+    
     switch (node.status) {
       case 'locked': return 'bg-gray-200 border-gray-300 text-gray-600';
-      case 'available': return 'bg-gray-100 border-gray-400 text-gray-800';
-      case 'active': return 'bg-gray-900 border-gray-900 text-white';
-      case 'mastered': return 'bg-gray-800 border-gray-800 text-white';
+      case 'available': return colors[node.category] || 'bg-gray-400';
+      case 'active': return colors[node.category] || 'bg-gray-600';
+      case 'mastered': return colors[node.category] || 'bg-gray-800';
       default: return 'bg-gray-200';
     }
   };
@@ -322,7 +416,6 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
             onClick={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
           />
           
-          {/* 技能解锁状态指示器 */}
           {isUnlockedByTodos && (
             <div
               className="absolute w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center animate-bounce"
@@ -340,9 +433,9 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
               selectedNode === node.id ? 'bg-white scale-105' : ''
             } ${isUnlockedByTodos ? 'bg-yellow-50 border border-yellow-200' : ''}`}
             style={{
-              left: node.position.x - 15,
+              left: node.position.x - 20,
               top: node.position.y + (node.id === 'center' ? 70 : node.id.includes('root') ? 55 : 45),
-              width: node.id === 'center' ? 90 : node.id.includes('root') ? 80 : 70,
+              width: node.id === 'center' ? 100 : node.id.includes('root') ? 80 : 80,
             }}
           >
             {node.name}
@@ -366,7 +459,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   };
 
   const resetView = () => {
-    setZoomLevel(0.8);
+    setZoomLevel(0.6);
     setPanOffset({ x: -100, y: -50 });
   };
 
@@ -388,9 +481,9 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex items-center space-x-2">
-            <h1 className="text-gray-900 font-bold text-lg">星图</h1>
+            <h1 className="text-gray-900 font-bold text-lg">创业技能星图</h1>
             <Badge variant="secondary" className="text-xs px-2 py-1 bg-gray-100 text-gray-700 border-gray-200">
-              lv1
+              创业模式
             </Badge>
           </div>
         </div>
@@ -404,13 +497,21 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
           >
             <Minus className="w-4 h-4" />
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleZoomIn}
+            className="text-gray-700 p-2 border-gray-200 hover:bg-gray-50"
+          >
+            <Plus className="w-4 h-4" />
+          </Button>
         </div>
       </div>
 
       {/* 星图容器 */}
       <div 
         ref={containerRef}
-        className="relative h-96 overflow-hidden bg-gray-50 mb-4 cursor-move"
+        className="relative h-96 overflow-hidden bg-gradient-to-br from-blue-50 to-purple-50 mb-4 cursor-move"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -421,8 +522,8 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
           style={{
             transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`,
             transformOrigin: 'center',
-            width: '1200px',
-            height: '900px'
+            width: '1400px',
+            height: '1000px'
           }}
         >
           {renderConnections()}
@@ -433,12 +534,45 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
           style={{
             transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`,
             transformOrigin: 'center',
-            width: '1200px',
-            height: '900px'
+            width: '1400px',
+            height: '1000px'
           }}
         >
           <div className="pointer-events-auto">
             {renderNodes()}
+          </div>
+        </div>
+      </div>
+
+      {/* 技能分类说明 */}
+      <div className="px-4 mb-4">
+        <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <h3 className="text-gray-900 font-semibold mb-3">创业技能分类</h3>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <span>Pitch表达</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <span>团队组建</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+              <span>MVP搭建</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+              <span>协作开发</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-pink-500 rounded-full"></div>
+              <span>技术路演</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-gray-600 rounded-full"></div>
+              <span>应急恢复</span>
+            </div>
           </div>
         </div>
       </div>
@@ -508,8 +642,8 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
                 <span className={`px-3 py-1 text-xs rounded-full font-medium ${
                   selectedNodeUnlocked ? 'bg-yellow-100 text-yellow-800' :
                   selectedNodeData.status === 'mastered' ? 'bg-gray-100 text-gray-800' :
-                  selectedNodeData.status === 'active' ? 'bg-gray-900 text-white' :
-                  selectedNodeData.status === 'available' ? 'bg-gray-100 text-gray-700' :
+                  selectedNodeData.status === 'active' ? 'bg-blue-100 text-blue-800' :
+                  selectedNodeData.status === 'available' ? 'bg-green-100 text-green-700' :
                   'bg-gray-100 text-gray-600'
                 }`}>
                   {selectedNodeUnlocked ? '已解锁' :
