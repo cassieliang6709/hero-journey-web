@@ -18,13 +18,7 @@ const OnboardingStep1: React.FC<OnboardingStep1Props> = ({ onNext, username }) =
   }, []);
 
   return (
-    <div className="mobile-container gradient-bg flex flex-col items-center justify-center p-8 text-center">
-      <div className="animate-bounce-in z-10 relative">
-        <div className="w-32 h-32 mx-auto mb-8 hero-gradient rounded-full flex items-center justify-center animate-pulse-glow">
-          <span className="text-6xl">🌟</span>
-        </div>
-      </div>
-      
+    <div className="mobile-container gradient-bg flex flex-col items-center justify-center p-8 text-center">   
       {showContent && (
         <div className="animate-fade-in space-y-6 z-10 relative">
           <div className="space-y-4 text-gray-200 leading-relaxed">
