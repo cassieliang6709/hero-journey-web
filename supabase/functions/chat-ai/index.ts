@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
     
     console.log('Received message:', message, 'from user:', user_id);
     
-    // Call your external API
+    // Call the correct external API endpoint
     const response = await fetch('http://47.96.231.221:5001/AgentChat', {
       method: 'POST',
       headers: {
