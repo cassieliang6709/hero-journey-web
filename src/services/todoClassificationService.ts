@@ -4,8 +4,8 @@ const API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
 export interface NodeClassification {
   nodeId: string;
   nodeName: string;
-  confidence: number;
-  reason: string;
+  confidence?: number;
+  reason?: string;
 }
 
 // 星图节点映射
@@ -13,36 +13,36 @@ const NODE_MAPPING = {
   'psychology': {
     id: 'psychology-root',
     name: '心理优势',
-    subNodes: ['psychology-1', 'psychology-2', 'psychology-3', 'psychology-4']
+    subNodes: ['psychology-emotion', 'psychology-thinking', 'psychology-confidence', 'psychology-stress']
   },
   'health': {
     id: 'health-root', 
     name: '身体健康',
-    subNodes: ['health-1', 'health-2', 'health-3', 'health-4', 'health-5']
+    subNodes: ['health-exercise', 'health-diet', 'health-sleep', 'health-weight', 'health-fitness']
   },
   'skill': {
     id: 'skill-root',
     name: '技能发展', 
-    subNodes: ['skill-1', 'skill-2', 'skill-3', 'skill-4', 'skill-5']
+    subNodes: ['skill-interview', 'skill-communication', 'skill-career', 'skill-resume', 'skill-etiquette']
   }
 };
 
 // 详细的节点信息
 const DETAILED_NODES = {
-  'psychology-1': '情绪管理',
-  'psychology-2': '思维模式',
-  'psychology-3': '自信建立',
-  'psychology-4': '压力管理',
-  'health-1': '运动锻炼',
-  'health-2': '饮食管理',
-  'health-3': '睡眠优化',
-  'health-4': '体重管理',
-  'health-5': '体能提升',
-  'skill-1': '面试技巧',
-  'skill-2': '沟通能力',
-  'skill-3': '职业规划',
-  'skill-4': '简历优化',
-  'skill-5': '职场礼仪'
+  'psychology-emotion': '情绪管理',
+  'psychology-thinking': '思维模式',
+  'psychology-confidence': '自信建立',
+  'psychology-stress': '压力管理',
+  'health-exercise': '运动锻炼',
+  'health-diet': '饮食管理',
+  'health-sleep': '睡眠优化',
+  'health-weight': '体重管理',
+  'health-fitness': '体能提升',
+  'skill-interview': '面试技巧',
+  'skill-communication': '沟通能力',
+  'skill-career': '职业规划',
+  'skill-resume': '简历优化',
+  'skill-etiquette': '职场礼仪'
 };
 
 const classificationPrompts = {
@@ -77,7 +77,12 @@ export const classifyTodoToNode = async (todoText: string): Promise<NodeClassifi
         if (todoText.includes(keyword)) {
           const nodeName = getNodeNameById(nodeId);
           console.log('关键词匹配成功:', { nodeId, nodeName, keyword });
-          return { nodeId, nodeName };
+          return { 
+            nodeId, 
+            nodeName,
+            confidence: 0.9,
+            reason: `关键词匹配: ${keyword}`
+          };
         }
       }
     }
@@ -137,16 +142,31 @@ export const classifyTodoToNode = async (todoText: string): Promise<NodeClassifi
     
     if (!nodeId || !isValidNodeId(nodeId)) {
       console.log('AI分类失败，使用默认分类');
-      return { nodeId: 'skill-communication', nodeName: '沟通能力' };
+      return { 
+        nodeId: 'skill-communication', 
+        nodeName: '沟通能力',
+        confidence: 0.5,
+        reason: '默认分类'
+      };
     }
 
     const nodeName = getNodeNameById(nodeId);
     console.log('AI分类成功:', { nodeId, nodeName });
-    return { nodeId, nodeName };
+    return { 
+      nodeId, 
+      nodeName,
+      confidence: 0.8,
+      reason: 'AI智能分类'
+    };
 
   } catch (error) {
     console.error('分类服务错误:', error);
-    return { nodeId: 'skill-communication', nodeName: '沟通能力' };
+    return { 
+      nodeId: 'skill-communication', 
+      nodeName: '沟通能力',
+      confidence: 0.5,
+      reason: '错误回退'
+    };
   }
 };
 
@@ -296,5 +316,5 @@ const getNodeNameById = (nodeId: string): string => {
 };
 
 const isValidNodeId = (nodeId: string): boolean => {
-  return nodeId in NODE_MAPPING;
+  return nodeId in DETAILED_NODES;
 };

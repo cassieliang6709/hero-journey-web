@@ -1,10 +1,10 @@
-
 import React, { useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Plus, Minus } from 'lucide-react';
 import { useTodos } from '@/hooks/useTodos';
 import NodeCompletionHistory from '@/components/todo/NodeCompletionHistory';
+import CategoryDetailPage from '@/components/CategoryDetailPage';
 
 interface SkillNode {
   id: string;
@@ -36,6 +36,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [showNodeHistory, setShowNodeHistory] = useState<string | null>(null);
+  const [showCategoryDetail, setShowCategoryDetail] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -254,6 +255,39 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
     setShowNodeHistory(nodeId);
   };
 
+  // 处理分类节点点击事件
+  const handleCategoryNodeClick = (nodeId: string) => {
+    if (nodeId.includes('root')) {
+      const categoryId = nodeId.replace('-root', '');
+      const categoryNames = {
+        psychology: '心理优势',
+        health: '身体健康', 
+        skill: '技能发展'
+      };
+      
+      setShowCategoryDetail(categoryId);
+    } else {
+      setSelectedNode(selectedNode === nodeId ? null : nodeId);
+    }
+  };
+
+  // 如果显示分类详情页面，则渲染该页面
+  if (showCategoryDetail) {
+    const categoryNames = {
+      psychology: '心理优势',
+      health: '身体健康',
+      skill: '技能发展'
+    };
+    
+    return (
+      <CategoryDetailPage
+        categoryId={showCategoryDetail}
+        categoryName={categoryNames[showCategoryDetail as keyof typeof categoryNames]}
+        onBack={() => setShowCategoryDetail(null)}
+      />
+    );
+  }
+
   // 根据任务完成情况动态更新节点状态
   const getNodeStatusWithTodos = (node: SkillNode) => {
     const stats = getNodeCompletionStats(node.id);
@@ -380,8 +414,8 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
               top: node.position.y,
               boxShadow: actualStatus === 'mastered' ? '0 0 20px rgba(255,255,255,0.6)' : undefined
             }}
-            onClick={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
-            onDoubleClick={() => handleNodeDoubleClick(node.id)}
+            onClick={() => handleCategoryNodeClick(node.id)}
+            onDoubleClick={() => !node.id.includes('root') && handleNodeDoubleClick(node.id)}
           >
             {/* 显示完成数量的小徽章 */}
             {stats.completed > 0 && (
@@ -407,6 +441,10 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
             }}
           >
             {node.name}
+            {/* 为根节点添加点击提示 */}
+            {node.id.includes('root') && (
+              <div className="text-xs text-white/60 mt-1">点击查看详情</div>
+            )}
           </div>
         </div>
       );
@@ -567,7 +605,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       </div>
 
       {/* 节点详情面板 */}
-      {selectedNodeData && (
+      {selectedNodeData && !selectedNodeData.id.includes('root') && (
         <div className="absolute bottom-4 left-4 right-4 bg-black/40 backdrop-blur-lg border border-white/20 shadow-2xl p-4 rounded-lg animate-fade-in z-20">
           <div className="flex items-start space-x-4">
             <div className={`w-12 h-12 ${getNodeGradient(selectedNodeData)} rounded-full border-2 border-white shadow-lg`}>
