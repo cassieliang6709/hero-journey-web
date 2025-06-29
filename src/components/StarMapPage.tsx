@@ -1,8 +1,7 @@
-
 import React, { useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Plus, Minus, Star, Sparkles } from 'lucide-react';
+import { ArrowLeft, Plus, Minus } from 'lucide-react';
 
 interface SkillNode {
   id: string;
@@ -244,27 +243,42 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
     setIsDragging(false);
   }, []);
 
-  const getNodeColor = (node: SkillNode) => {
-    const baseColors = {
-      psychology: 'from-purple-400 to-pink-500',
-      health: 'from-green-400 to-emerald-500', 
-      skill: 'from-blue-400 to-indigo-500'
+  const getNodeGradient = (node: SkillNode) => {
+    const baseGradients = {
+      psychology: 'from-purple-400 via-pink-400 to-purple-500',
+      health: 'from-green-400 via-emerald-400 to-green-500',
+      skill: 'from-blue-400 via-cyan-400 to-blue-500'
+    };
+    
+    const statusOpacity = {
+      locked: 'opacity-30',
+      available: 'opacity-60',
+      active: 'opacity-90',
+      mastered: 'opacity-100'
     };
 
-    const statusColors = {
-      locked: 'from-gray-200 to-gray-300 border-gray-400 text-gray-600',
-      available: `bg-gradient-to-br ${baseColors[node.category]} border-white text-white opacity-60`,
-      active: `bg-gradient-to-br ${baseColors[node.category]} border-white text-white shadow-lg`,
-      mastered: `bg-gradient-to-br ${baseColors[node.category]} border-yellow-300 text-white shadow-xl ring-2 ring-yellow-300/50`
-    };
-
-    return statusColors[node.status];
+    return `bg-gradient-to-br ${baseGradients[node.category]} ${statusOpacity[node.status]}`;
   };
 
   const getNodeSize = (node: SkillNode) => {
     if (node.id === 'center') return 'w-16 h-16';
     if (node.id.includes('root')) return 'w-12 h-12';
     return 'w-10 h-10';
+  };
+
+  const getConnectionColor = (fromNode: SkillNode, toNode: SkillNode) => {
+    if (fromNode.status === 'locked' || toNode.status === 'locked') {
+      return '#64748b'; // gray-500
+    }
+    
+    // 根据节点类别返回渐变色
+    const colors = {
+      psychology: '#a855f7', // purple-500
+      health: '#10b981', // emerald-500
+      skill: '#3b82f6' // blue-500
+    };
+    
+    return colors[fromNode.category] || '#64748b';
   };
 
   const renderConnections = (): JSX.Element[] => {
@@ -281,8 +295,19 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
           
           const start = getNodeCenter(node);
           const end = getNodeCenter(targetNode);
+          const strokeColor = getConnectionColor(node, targetNode);
           
-          const isActive = node.status !== 'locked' && targetNode.status !== 'locked';
+          connections.push(
+            <defs key={`defs-${node.id}-${connectionId}`}>
+              <linearGradient 
+                id={`gradient-${node.id}-${connectionId}`} 
+                x1="0%" y1="0%" x2="100%" y2="100%"
+              >
+                <stop offset="0%" stopColor={strokeColor} stopOpacity="0.8" />
+                <stop offset="100%" stopColor={strokeColor} stopOpacity="0.4" />
+              </linearGradient>
+            </defs>
+          );
           
           connections.push(
             <line
@@ -291,11 +316,10 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
               y1={start.y}
               x2={end.x}
               y2={end.y}
-              stroke={isActive ? "url(#connectionGradient)" : "#d1d5db"}
-              strokeWidth={isActive ? "3" : "2"}
-              strokeDasharray={node.status === 'locked' ? "4,2" : "none"}
-              opacity={node.status === 'locked' ? 0.4 : 0.8}
-              className="drop-shadow-sm"
+              stroke={`url(#gradient-${node.id}-${connectionId})`}
+              strokeWidth="3"
+              strokeDasharray={node.status === 'locked' ? "6,3" : "none"}
+              opacity={node.status === 'locked' ? 0.3 : 0.8}
             />
           );
         }
@@ -309,23 +333,20 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
     return skillNodes.map((node) => (
       <div key={node.id}>
         <div
-          className={`absolute ${getNodeSize(node)} ${getNodeColor(node)} rounded-full flex items-center justify-center border-2 cursor-pointer transition-all duration-300 hover:scale-110 ${
-            selectedNode === node.id ? 'ring-4 ring-yellow-400/60 scale-110' : ''
-          } ${node.status === 'mastered' ? 'animate-pulse-glow' : ''}`}
+          className={`absolute ${getNodeSize(node)} ${getNodeGradient(node)} rounded-full flex items-center justify-center border-2 border-white shadow-lg cursor-pointer transition-all duration-300 hover:scale-110 hover:shadow-xl ${
+            selectedNode === node.id ? 'ring-4 ring-white scale-110 shadow-2xl' : ''
+          }`}
           style={{
             left: node.position.x,
             top: node.position.y,
+            boxShadow: node.status === 'mastered' ? '0 0 20px rgba(255,255,255,0.6)' : undefined
           }}
           onClick={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
-        >
-          {node.status === 'mastered' && (
-            <Star className="w-4 h-4 text-yellow-300 fill-current animate-spin" style={{animationDuration: '3s'}} />
-          )}
-        </div>
+        />
         
         <div
-          className={`absolute text-gray-800 text-xs text-center font-medium bg-white/95 backdrop-blur-sm px-2 py-1 rounded-lg shadow-lg border border-purple-200 transition-all duration-300 ${
-            selectedNode === node.id ? 'bg-gradient-to-r from-purple-100 to-pink-100 scale-105 border-purple-300' : ''
+          className={`absolute text-white text-xs text-center font-medium bg-black/80 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg transition-all duration-300 ${
+            selectedNode === node.id ? 'bg-black/90 scale-105' : ''
           }`}
           style={{
             left: node.position.x - 15,
@@ -355,22 +376,28 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   const selectedNodeData = selectedNode ? skillNodes.find(n => n.id === selectedNode) : null;
 
   return (
-    <div className="mobile-container min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-orange-50">
+    <div className="mobile-container min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative overflow-hidden">
+      {/* 星空背景 */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="stars absolute inset-0"></div>
+        <div className="stars2 absolute inset-0"></div>
+        <div className="stars3 absolute inset-0"></div>
+      </div>
+
       {/* 顶部导航 */}
-      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 border-b border-purple-300">
+      <div className="relative z-10 flex items-center justify-between p-4 bg-black/20 backdrop-blur-sm border-b border-white/10">
         <div className="flex items-center space-x-3">
           <Button
             variant="ghost"
             size="sm"
             onClick={onBack}
-            className="text-white p-0 hover:bg-white/20 rounded-full hover:scale-110 transition-all"
+            className="text-white p-0 hover:bg-white/10"
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex items-center space-x-2">
-            <Sparkles className="w-5 h-5 text-yellow-300 animate-pulse" />
-            <h1 className="text-white font-bold text-lg drop-shadow-lg">星图</h1>
-            <Badge className="text-xs px-2 py-1 bg-white/20 text-white border-white/30 backdrop-blur-sm">
+            <h1 className="text-white font-bold text-lg">星图</h1>
+            <Badge variant="secondary" className="text-xs px-2 py-1 bg-white/20 text-white border-white/30">
               lv1
             </Badge>
           </div>
@@ -378,10 +405,10 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
         
         <div className="flex items-center space-x-2">
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={handleZoomOut}
-            className="text-white p-2 hover:bg-white/20 rounded-full hover:scale-110 transition-all"
+            className="text-white border-white/30 hover:bg-white/10"
           >
             <Minus className="w-4 h-4" />
           </Button>
@@ -391,20 +418,12 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       {/* 星图容器 */}
       <div 
         ref={containerRef}
-        className="relative h-96 overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 mb-4 cursor-move"
+        className="relative h-96 overflow-hidden mb-4 cursor-move"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
-        {/* 星空背景效果 */}
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute w-1 h-1 bg-white rounded-full animate-pulse" style={{top: '20%', left: '10%'}}></div>
-          <div className="absolute w-1 h-1 bg-yellow-300 rounded-full animate-pulse" style={{top: '30%', left: '80%', animationDelay: '1s'}}></div>
-          <div className="absolute w-1 h-1 bg-pink-300 rounded-full animate-pulse" style={{top: '70%', left: '20%', animationDelay: '2s'}}></div>
-          <div className="absolute w-1 h-1 bg-blue-300 rounded-full animate-pulse" style={{top: '60%', left: '90%', animationDelay: '0.5s'}}></div>
-        </div>
-
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none"
           style={{
@@ -414,13 +433,6 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
             height: '900px'
           }}
         >
-          <defs>
-            <linearGradient id="connectionGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#8b5cf6" />
-              <stop offset="50%" stopColor="#ec4899" />
-              <stop offset="100%" stopColor="#f97316" />
-            </linearGradient>
-          </defs>
           {renderConnections()}
         </svg>
         
@@ -440,26 +452,25 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       </div>
 
       {/* 能力评估 */}
-      <div className="px-4 mb-4">
-        <div className="bg-gradient-to-r from-white to-purple-50 border border-purple-200 rounded-xl p-4 shadow-lg backdrop-blur-sm">
-          <h3 className="text-gray-900 font-semibold mb-3 flex items-center">
-            <Sparkles className="w-5 h-5 text-purple-500 mr-2" />
-            能力评估
-          </h3>
+      <div className="relative z-10 px-4 mb-4">
+        <div className="bg-black/20 backdrop-blur-sm border border-white/20 rounded-lg p-4">
+          <h3 className="text-white font-semibold mb-3">能力评估</h3>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-md">
+                <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg">
                   <div className="w-4 h-4 bg-white rounded-full"></div>
                 </div>
                 <div>
-                  <div className="text-gray-900 font-medium">体能测试</div>
-                  <div className="text-gray-600 text-sm">评估身体素质</div>
+                  <div className="text-white font-medium">体能测试</div>
+                  <div className="text-white/70 text-sm">评估身体素质</div>
                 </div>
               </div>
               <Button
+                variant="outline"
+                size="sm"
                 onClick={onGoToPhysicalTest}
-                className="bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all"
+                className="text-white border-white/30 hover:bg-white/10"
               >
                 开始测试
               </Button>
@@ -467,17 +478,19 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
             
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full flex items-center justify-center shadow-md">
+                <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
                   <div className="w-4 h-4 bg-white rounded-sm"></div>
                 </div>
                 <div>
-                  <div className="text-gray-900 font-medium">优势天赋测试</div>
-                  <div className="text-gray-600 text-sm">发现个人天赋优势</div>
+                  <div className="text-white font-medium">优势天赋测试</div>
+                  <div className="text-white/70 text-sm">发现个人天赋优势</div>
                 </div>
               </div>
               <Button
+                variant="outline"
+                size="sm"
                 onClick={onGoToTalentTest}
-                className="bg-gradient-to-r from-blue-400 to-indigo-500 hover:from-blue-500 hover:to-indigo-600 text-white border-0 shadow-md hover:shadow-lg hover:scale-105 transition-all"
+                className="text-white border-white/30 hover:bg-white/10"
               >
                 开始测试
               </Button>
@@ -488,30 +501,27 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
 
       {/* 节点详情面板 */}
       {selectedNodeData && (
-        <div className="absolute bottom-4 left-4 right-4 bg-gradient-to-r from-white to-purple-50 border border-purple-200 shadow-2xl p-4 rounded-xl animate-fade-in backdrop-blur-sm">
+        <div className="absolute bottom-4 left-4 right-4 bg-black/40 backdrop-blur-lg border border-white/20 shadow-2xl p-4 rounded-lg animate-fade-in z-20">
           <div className="flex items-start space-x-4">
-            <div className={`w-12 h-12 ${getNodeColor(selectedNodeData)} rounded-full border-2 shadow-lg flex items-center justify-center`}>
-              {selectedNodeData.status === 'mastered' && (
-                <Star className="w-6 h-6 text-yellow-300 fill-current" />
-              )}
+            <div className={`w-12 h-12 ${getNodeGradient(selectedNodeData)} rounded-full border-2 border-white shadow-lg`}>
             </div>
             <div className="flex-1">
               <div className="flex items-center space-x-2 mb-2">
-                <h3 className="text-gray-900 font-bold text-lg">{selectedNodeData.name}</h3>
-                <span className={`px-3 py-1 text-xs rounded-full font-medium shadow-sm ${
-                  selectedNodeData.status === 'mastered' ? 'bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 border border-yellow-200' :
-                  selectedNodeData.status === 'active' ? 'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 border border-purple-200' :
-                  selectedNodeData.status === 'available' ? 'bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border border-blue-200' :
-                  'bg-gray-100 text-gray-600 border border-gray-200'
+                <h3 className="text-white font-bold text-lg">{selectedNodeData.name}</h3>
+                <span className={`px-3 py-1 text-xs rounded-full font-medium border ${
+                  selectedNodeData.status === 'mastered' ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-yellow-300' :
+                  selectedNodeData.status === 'active' ? 'bg-gradient-to-r from-blue-400 to-purple-500 text-white border-blue-300' :
+                  selectedNodeData.status === 'available' ? 'bg-white/20 text-white border-white/30' :
+                  'bg-gray-500/20 text-gray-300 border-gray-400/30'
                 }`}>
-                  {selectedNodeData.status === 'mastered' ? '🌟 已掌握' :
-                   selectedNodeData.status === 'active' ? '🔄 进行中' :
-                   selectedNodeData.status === 'available' ? '✨ 可开始' : '🔒 未解锁'}
+                  {selectedNodeData.status === 'mastered' ? '已掌握' :
+                   selectedNodeData.status === 'active' ? '进行中' :
+                   selectedNodeData.status === 'available' ? '可开始' : '未解锁'}
                 </span>
               </div>
-              <p className="text-gray-600 text-sm mb-3">{selectedNodeData.description}</p>
+              <p className="text-white/80 text-sm mb-3">{selectedNodeData.description}</p>
               {selectedNodeData.requirements && selectedNodeData.requirements.length > 0 && (
-                <div className="text-xs text-purple-600 bg-gradient-to-r from-purple-50 to-pink-50 p-2 rounded-lg border border-purple-200">
+                <div className="text-xs text-white/60 bg-white/10 p-2 rounded-lg border border-white/20">
                   前置条件: {selectedNodeData.requirements.map(req => 
                     skillNodes.find(n => n.id === req)?.name || req
                   ).join(', ')}
