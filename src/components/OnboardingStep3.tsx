@@ -21,12 +21,12 @@ const OnboardingStep3: React.FC<OnboardingStep3Props> = ({
 }) => {
   return (
     <div className="mobile-container gradient-bg flex flex-col items-center justify-center p-8 text-center">
-      <div className="animate-slide-in-left">
+      <div className="animate-slide-in-left z-10 relative">
         <div className="space-y-4 mb-8">
-          <h1 className="text-2xl font-bold text-white">
+          <h1 className="text-2xl font-bold text-white drop-shadow-lg">
             你听说过"星图"吗？
           </h1>
-          <p className="text-gray-300 text-lg leading-relaxed">
+          <p className="text-gray-200 text-lg leading-relaxed drop-shadow-md">
             它将是你的英雄之路
             <br />
             从这里开始，我将与你一起找到答案
@@ -41,25 +41,25 @@ const OnboardingStep3: React.FC<OnboardingStep3Props> = ({
           {/* 切换按钮 */}
           <button
             onClick={onChangeAvatar}
-            className="absolute bottom-2 right-8 w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all hover:scale-110"
+            className="absolute bottom-2 right-8 w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all hover:scale-110 border border-white/30"
           >
             <RotateCcw className="w-5 h-5" />
           </button>
         </div>
         
-        <h2 className="text-xl font-semibold text-hero-400 mb-2">
+        <h2 className="text-xl font-semibold text-orange-300 mb-2 drop-shadow-lg">
           {avatarNames[selectedAvatar]}
         </h2>
-        <div className="space-y-2 text-gray-400 mb-8">
-          <p>我是谁？</p>
-          <p>我不记得了</p>
-          <p>但是我相信随着星图的点亮</p>
-          <p>我们都能找回自己</p>
+        <div className="space-y-2 text-gray-300 mb-8">
+          <p className="drop-shadow-sm">我是谁？</p>
+          <p className="drop-shadow-sm">我不记得了</p>
+          <p className="drop-shadow-sm">但是我相信随着星图的点亮</p>
+          <p className="drop-shadow-sm">我们都能找回自己</p>
         </div>
         
         <Button 
           onClick={onComplete}
-          className="w-full max-w-xs hero-gradient text-white font-semibold h-12 text-lg hover:scale-105 transition-transform"
+          className="w-full max-w-xs hero-gradient text-white font-semibold h-12 text-lg hover:scale-105 transition-transform shadow-lg"
         >
           启程！
         </Button>
