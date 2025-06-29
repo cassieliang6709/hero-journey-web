@@ -391,7 +391,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
             variant="ghost"
             size="sm"
             onClick={onBack}
-            className="text-white p-0 hover:bg-white/10"
+            className="text-white p-2 hover:bg-white/10 hover:scale-105 transition-all"
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
@@ -411,6 +411,14 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
             className="text-white border-white/30 hover:bg-white/10"
           >
             <Minus className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleZoomIn}
+            className="text-white border-white/30 hover:bg-white/10"
+          >
+            <Plus className="w-4 h-4" />
           </Button>
         </div>
       </div>
