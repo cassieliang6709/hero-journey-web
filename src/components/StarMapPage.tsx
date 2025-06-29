@@ -517,7 +517,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       {/* 星图容器 */}
       <div 
         ref={containerRef}
-        className="relative h-96 overflow-hidden mb-4 cursor-move"
+        className="relative h-96 overflow-hidden cursor-move"
         onMouseDown={(e) => {
           setIsDragging(true);
           setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
@@ -558,7 +558,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
 
       {/* 节点详情面板 */}
       {selectedNodeData && !selectedNodeData.id.includes('root') && (
-        <div className="absolute bottom-32 left-4 right-4 bg-black/40 backdrop-blur-lg border border-white/20 shadow-2xl p-4 rounded-lg animate-fade-in z-20">
+        <div className="absolute bottom-44 left-4 right-4 bg-black/40 backdrop-blur-lg border border-white/20 shadow-2xl p-4 rounded-lg animate-fade-in z-20">
           <div className="flex items-start space-x-4">
             <div className={`w-12 h-12 ${getNodeGradient(selectedNodeData)} rounded-full border-2 border-white shadow-lg`}>
             </div>
@@ -600,49 +600,51 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
         </div>
       )}
 
-      {/* 能力评估 - 移动到页面底部 */}
-      <div className="relative z-10 px-4 mb-4">
-        <div className="bg-black/20 backdrop-blur-sm border border-white/20 rounded-lg p-4">
-          <h3 className="text-white font-semibold mb-3">能力评估</h3>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg">
-                  <div className="w-4 h-4 bg-white rounded-full"></div>
+      {/* 能力评估 - 固定在底部 */}
+      <div className="fixed bottom-0 left-0 right-0 z-10 px-4 pb-4">
+        <div className="max-w-md mx-auto">
+          <div className="bg-black/40 backdrop-blur-lg border border-white/20 rounded-lg p-4 shadow-2xl">
+            <h3 className="text-white font-semibold mb-3">能力评估</h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg">
+                    <div className="w-4 h-4 bg-white rounded-full"></div>
+                  </div>
+                  <div>
+                    <div className="text-white font-medium">体能测试</div>
+                    <div className="text-white/70 text-sm">评估身体素质</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-white font-medium">体能测试</div>
-                  <div className="text-white/70 text-sm">评估身体素质</div>
-                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onGoToPhysicalTest}
+                  className="text-white border-white/30 hover:bg-white/10 bg-white/10"
+                >
+                  开始测试
+                </Button>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onGoToPhysicalTest}
-                className="text-white border-white/30 hover:bg-white/10 bg-white/10"
-              >
-                开始测试
-              </Button>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
-                  <div className="w-4 h-4 bg-white rounded-sm"></div>
+              
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
+                    <div className="w-4 h-4 bg-white rounded-sm"></div>
+                  </div>
+                  <div>
+                    <div className="text-white font-medium">优势天赋测试</div>
+                    <div className="text-white/70 text-sm">发现个人天赋优势</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-white font-medium">优势天赋测试</div>
-                  <div className="text-white/70 text-sm">发现个人天赋优势</div>
-                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onGoToTalentTest}
+                  className="text-white border-white/30 hover:bg-white/10 bg-white/10"
+                >
+                  开始测试
+                </Button>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onGoToTalentTest}
-                className="text-white border-white/30 hover:bg-white/10 bg-white/10"
-              >
-                开始测试
-              </Button>
             </div>
           </div>
         </div>
