@@ -1,4 +1,3 @@
-
 const SILICONFLOW_API_KEY = 'sk-cjzjgedahutksrbaeyxbwvuxwhufuculcqfbrsncxvmheltl';
 const API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
 
@@ -46,97 +45,108 @@ const DETAILED_NODES = {
   'skill-5': '职场礼仪'
 };
 
-export const classifyTodoToNode = async (todoText: string): Promise<NodeClassification> => {
-  console.log('开始分类任务:', todoText);
+const classificationPrompts = {
+  // 心理优势分支
+  'psychology-emotion': ['情绪', '心情', '焦虑', '压力调节', '情感管理', '心理健康'],
+  'psychology-thinking': ['思维', '心态', '积极', '思考方式', '认知', '心理模式'],
+  'psychology-confidence': ['自信', '信心', '自我肯定', '自尊', '勇气', '胆量'],
+  'psychology-stress': ['压力', '减压', '放松', '缓解', '调节压力', '心理压力'],
   
+  // 身体健康分支
+  'health-exercise': ['运动', '锻炼', '健身', '跑步', '游泳', '瑜伽', '体育'],
+  'health-diet': ['饮食', '营养', '吃', '食物', '膳食', '减肥餐', '健康饮食'],
+  'health-sleep': ['睡眠', '休息', '睡觉', '作息', '失眠', '早睡', '睡眠质量'],
+  'health-weight': ['体重', '减肥', '增重', '体重管理', '称重', '体重控制'],
+  'health-fitness': ['体能', '体质', '身体素质', '体力', '耐力', '体能训练'],
+  
+  // 技能发展分支
+  'skill-interview': ['面试', '面谈', '求职', '应聘', '面试准备', '面试技巧', '面试练习', '准备面试', 'Pre', 'pre'],
+  'skill-communication': ['沟通', '交流', '表达', '演讲', '谈话', '对话', '人际交往'],
+  'skill-career': ['职业', '职场', '工作规划', '职业发展', '职业规划', '事业'],
+  'skill-resume': ['简历', '求职信', '个人简介', 'CV', '履历', '简历优化'],
+  'skill-etiquette': ['礼仪', '礼貌', '职场礼仪', '商务礼仪', '社交礼仪', '礼节']
+};
+
+export const classifyTodoToNode = async (todoText: string): Promise<NodeClassification> => {
   try {
-    const response = await fetch(API_URL, {
+    console.log('开始分类任务:', todoText);
+    
+    // 首先尝试关键词匹配
+    for (const [nodeId, keywords] of Object.entries(classificationPrompts)) {
+      for (const keyword of keywords) {
+        if (todoText.includes(keyword)) {
+          const nodeName = getNodeNameById(nodeId);
+          console.log('关键词匹配成功:', { nodeId, nodeName, keyword });
+          return { nodeId, nodeName };
+        }
+      }
+    }
+
+    // 如果关键词匹配失败，使用AI分类
+    const response = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${SILICONFLOW_API_KEY}`,
-        'Content-Type': 'application/json'
+        'Authorization': 'Bearer sk-vdmkqyaxpcsjpnzbmgfqetaynyrzpzxtdcqipxqclxumolqf',
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: "Qwen/Qwen2.5-32B-Instruct",
-        stream: false,
-        max_tokens: 512,
-        temperature: 0.3,
+        model: 'Qwen/Qwen2.5-7B-Instruct',
         messages: [
           {
-            role: "system",
-            content: `你是一个任务分类专家。请将用户的待办事项分类到以下星图节点中：
+            role: 'system',
+            content: `你是一个任务分类助手。请将用户的任务分类到以下15个星图节点中的一个：
 
-**心理优势类节点：**
-- psychology-1: 情绪管理 - 情绪识别、调节、心情管理相关
-- psychology-2: 思维模式 - 积极思维、成长心态、认知改变相关
-- psychology-3: 自信建立 - 增强自信心、自我价值感相关
-- psychology-4: 压力管理 - 压力应对、放松技巧相关
+心理优势类：
+- psychology-emotion (情绪管理)
+- psychology-thinking (思维模式) 
+- psychology-confidence (自信建立)
+- psychology-stress (压力管理)
 
-**身体健康类节点：**
-- health-1: 运动锻炼 - 健身、跑步、运动计划相关
-- health-2: 饮食管理 - 饮食习惯、营养摄入、食谱相关
-- health-3: 睡眠优化 - 睡眠质量、作息规律相关
-- health-4: 体重管理 - 减肥、体重控制相关
-- health-5: 体能提升 - 身体素质、体力增强相关
+身体健康类：
+- health-exercise (运动锻炼)
+- health-diet (饮食管理)
+- health-sleep (睡眠优化)
+- health-weight (体重管理)
+- health-fitness (体能提升)
 
-**技能发展类节点：**
-- skill-1: 面试技巧 - 面试准备、表达技巧相关
-- skill-2: 沟通能力 - 人际沟通、交流技能相关
-- skill-3: 职业规划 - 职业发展、规划路径相关
-- skill-4: 简历优化 - 简历制作、优化相关
-- skill-5: 职场礼仪 - 职场规范、礼仪相关
+技能发展类：
+- skill-interview (面试技巧)
+- skill-communication (沟通能力)
+- skill-career (职业规划)
+- skill-resume (简历优化)
+- skill-etiquette (职场礼仪)
 
-请返回JSON格式：
-{
-  "nodeId": "最匹配的节点ID",
-  "nodeName": "节点名称",
-  "confidence": 0.95,
-  "reason": "分类理由"
-}`
+请只返回最匹配的节点ID，如skill-interview。特别注意：任何包含"面试"、"准备面试"、"面试技巧"、"Pre"、"pre"等词汇的任务都应该分类为skill-interview。`
           },
           {
-            role: "user",
-            content: `请分类这个任务："${todoText}"`
+            role: 'user',
+            content: `请将这个任务分类: "${todoText}"`
           }
-        ]
+        ],
+        temperature: 0.1,
+        max_tokens: 50
       })
     });
 
     if (!response.ok) {
-      throw new Error(`API错误: ${response.status} ${response.statusText}`);
+      throw new Error(`API请求失败: ${response.status}`);
     }
 
     const data = await response.json();
-    const aiResponse = data.choices?.[0]?.message?.content || '';
+    const nodeId = data.choices[0]?.message?.content?.trim();
     
-    console.log('AI分类响应:', aiResponse);
-
-    // 解析AI响应
-    try {
-      const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const classification = JSON.parse(jsonMatch[0]);
-        
-        // 验证nodeId是否有效
-        if (classification.nodeId && DETAILED_NODES[classification.nodeId as keyof typeof DETAILED_NODES]) {
-          return {
-            nodeId: classification.nodeId,
-            nodeName: classification.nodeName || DETAILED_NODES[classification.nodeId as keyof typeof DETAILED_NODES],
-            confidence: classification.confidence || 0.8,
-            reason: classification.reason || '基于任务内容的智能匹配'
-          };
-        }
-      }
-    } catch (parseError) {
-      console.error('解析AI响应失败:', parseError);
+    if (!nodeId || !isValidNodeId(nodeId)) {
+      console.log('AI分类失败，使用默认分类');
+      return { nodeId: 'skill-communication', nodeName: '沟通能力' };
     }
 
-    // 如果AI分类失败，使用关键词回退策略
-    return fallbackClassification(todoText);
+    const nodeName = getNodeNameById(nodeId);
+    console.log('AI分类成功:', { nodeId, nodeName });
+    return { nodeId, nodeName };
 
   } catch (error) {
-    console.error('AI分类失败:', error);
-    return fallbackClassification(todoText);
+    console.error('分类服务错误:', error);
+    return { nodeId: 'skill-communication', nodeName: '沟通能力' };
   }
 };
 
@@ -279,4 +289,12 @@ const fallbackClassification = (todoText: string): NodeClassification => {
     confidence: 0.5,
     reason: '默认分类到通用技能发展'
   };
+};
+
+const getNodeNameById = (nodeId: string): string => {
+  return DETAILED_NODES[nodeId as keyof typeof DETAILED_NODES] || '';
+};
+
+const isValidNodeId = (nodeId: string): boolean => {
+  return nodeId in NODE_MAPPING;
 };

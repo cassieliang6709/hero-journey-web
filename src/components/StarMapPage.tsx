@@ -257,11 +257,22 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   // 根据任务完成情况动态更新节点状态
   const getNodeStatusWithTodos = (node: SkillNode) => {
     const stats = getNodeCompletionStats(node.id);
-    if (stats.completed > 0 && stats.completed >= stats.total * 0.8) {
-      return 'mastered';
-    } else if (stats.completed > 0) {
-      return 'active';
+    console.log(`节点 ${node.id} 的完成统计:`, stats);
+    
+    if (stats.total === 0) {
+      return node.status; // 没有任务时保持原状态
     }
+    
+    if (stats.completed > 0) {
+      if (stats.completed >= Math.max(3, Math.ceil(stats.total * 0.8))) {
+        console.log(`节点 ${node.id} 应该被标记为mastered`);
+        return 'mastered';
+      } else {
+        console.log(`节点 ${node.id} 应该被标记为active`);
+        return 'active';
+      }
+    }
+    
     return node.status;
   };
 
@@ -356,6 +367,8 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   const renderNodes = (): JSX.Element[] => {
     return skillNodes.map((node) => {
       const stats = getNodeCompletionStats(node.id);
+      const actualStatus = getNodeStatusWithTodos(node);
+      
       return (
         <div key={node.id}>
           <div
@@ -365,7 +378,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
             style={{
               left: node.position.x,
               top: node.position.y,
-              boxShadow: getNodeStatusWithTodos(node) === 'mastered' ? '0 0 20px rgba(255,255,255,0.6)' : undefined
+              boxShadow: actualStatus === 'mastered' ? '0 0 20px rgba(255,255,255,0.6)' : undefined
             }}
             onClick={() => setSelectedNode(selectedNode === node.id ? null : node.id)}
             onDoubleClick={() => handleNodeDoubleClick(node.id)}
@@ -375,6 +388,11 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
               <div className="absolute -top-2 -right-2 bg-yellow-400 text-yellow-900 text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg">
                 {stats.completed}
               </div>
+            )}
+            
+            {/* 掌握状态的光环效果 */}
+            {actualStatus === 'mastered' && (
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 animate-pulse opacity-30"></div>
             )}
           </div>
           
@@ -571,6 +589,11 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
               <p className="text-white/80 text-sm mb-3">{selectedNodeData.description}</p>
               <div className="text-xs text-white/60 bg-white/10 p-2 rounded-lg border border-white/20 mb-2">
                 完成任务: {getNodeCompletionStats(selectedNodeData.id).completed}/{getNodeCompletionStats(selectedNodeData.id).total}
+                {getNodeCompletionStats(selectedNodeData.id).total > 0 && (
+                  <span className="ml-2">
+                    ({Math.round((getNodeCompletionStats(selectedNodeData.id).completed / getNodeCompletionStats(selectedNodeData.id).total) * 100)}%)
+                  </span>
+                )}
               </div>
               {selectedNodeData.requirements && selectedNodeData.requirements.length > 0 && (
                 <div className="text-xs text-white/60 bg-white/10 p-2 rounded-lg border border-white/20">
