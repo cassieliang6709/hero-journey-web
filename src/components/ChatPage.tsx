@@ -46,6 +46,40 @@ const ChatPage: React.FC<ChatPageProps> = ({
     }
   }, [loading, messages.length, addWelcomeMessage]);
 
+  const callAI = async (userMessage: string) => {
+    const apiUrl = 'http://47.96.231.221:5001/AgentChat';
+    console.log('准备调用AI API:', apiUrl);
+    console.log('请求参数:', { user_id: user.id, send_message: userMessage });
+    
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          send_message: userMessage
+        })
+      });
+      
+      console.log('响应状态:', response.status);
+      console.log('响应状态文本:', response.statusText);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('AI响应数据:', data);
+      
+      return data.text || '我理解你的想法，让我们继续探讨吧。';
+    } catch (error) {
+      console.error('AI调用详细错误:', error);
+      throw error;
+    }
+  };
+
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim() || aiTyping) return;
@@ -60,38 +94,23 @@ const ChatPage: React.FC<ChatPageProps> = ({
     setAiTyping(true);
     
     try {
-      // Call backend API directly
-      const response = await fetch('http://47.96.231.221:5001/AgentChat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user_id: user.id,
-          send_message: userMessage
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      console.log('AI response:', data);
-      
-      await addMessage(data.text || '我理解你的想法，让我们继续探讨吧。', false);
+      const aiResponse = await callAI(userMessage);
+      await addMessage(aiResponse, false);
     } catch (error) {
-      console.error('AI调用错误:', error);
-      // Fallback response
-      const responses = [
-        "这是一个很好的想法！让我们深入探讨一下。",
-        "我理解你的感受。这种情况下，你觉得什么行动最有帮助？",
-        "很棒！你已经迈出了重要的一步。继续保持这种积极的态度。",
-        "让我们一起制定一个可行的计划来解决这个问题。",
-        "你的成长意识很强！这正是英雄品质的体现。"
+      console.error('AI调用失败:', error);
+      
+      // Show more detailed error message
+      const errorMessage = error instanceof Error ? error.message : '未知错误';
+      console.log('显示错误信息:', errorMessage);
+      
+      // Use fallback response
+      const fallbackResponses = [
+        "抱歉，我现在无法连接到服务器。让我们继续聊天吧！",
+        "网络连接似乎有问题，不过我仍然在这里陪伴你。",
+        "技术问题暂时阻碍了我，但这不影响我们的对话。"
       ];
       
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+      const randomResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
       await addMessage(randomResponse, false);
     } finally {
       setAiTyping(false);
