@@ -1,5 +1,7 @@
 
 import React from 'react';
+import headImage from '../../assets/headimage1.png';  // 导入图片
+
 import { Button } from '@/components/ui/button';
 import { Globe, Settings, Trash2 } from 'lucide-react';
 
@@ -24,10 +26,14 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
     <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
       <div className="flex items-center space-x-3">
         <button
-          onClick={onAvatarClick}
-          className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors"
+            onClick={onAvatarClick}
+            className="w-10 h-10 bg-gray-900 rounded-full overflow-hidden flex items-center justify-center hover:bg-gray-700 transition-colors"
         >
-          <span className="text-xl">{avatars[selectedAvatar]}</span>
+          <img
+              src={headImage}
+              alt="用户头像"
+              className="w-full h-full object-cover"
+          />
         </button>
         <div>
           <h1 className="text-gray-900 font-semibold">小精灵</h1>
@@ -35,13 +41,13 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       </div>
       <div className="flex items-center space-x-2">
         <Button
-          variant="ghost"
-          size="sm"
-          onClick={onClearChat}
-          className="text-gray-900 p-2 hover:bg-gray-100 hover:scale-105 transition-all"
-          title="清空聊天记录"
+            variant="ghost"
+            size="sm"
+            onClick={onClearChat}
+            className="text-gray-900 p-2 hover:bg-gray-100 hover:scale-105 transition-all"
+            title="清空聊天记录"
         >
-          <Trash2 className="w-5 h-5" />
+          <Trash2 className="w-5 h-5"/>
         </Button>
         <Button
           variant="ghost"
