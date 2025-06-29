@@ -85,10 +85,34 @@ export const useChatMessages = (userId: string | undefined) => {
     await saveMessage(text, isUser);
   };
 
+  const clearMessages = async () => {
+    if (!userId) return;
+
+    try {
+      const { error } = await supabase
+        .from('chat_messages')
+        .delete()
+        .eq('user_id', userId);
+
+      if (error) {
+        console.error('清空聊天记录失败:', error);
+        toast.error('清空聊天记录失败');
+        return;
+      }
+
+      setMessages([]);
+      toast.success('聊天记录已清空');
+    } catch (error) {
+      console.error('清空聊天记录错误:', error);
+      toast.error('清空聊天记录失败');
+    }
+  };
+
   return {
     messages,
     loading,
     addMessage,
+    clearMessages,
     refreshMessages: loadMessages
   };
 };

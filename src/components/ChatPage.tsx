@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Send, ListTodo, Globe, Settings } from 'lucide-react';
+import { Send, ListTodo, Globe, Settings, Trash2 } from 'lucide-react';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -30,7 +30,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number>(0);
   
-  const { messages, loading, addMessage } = useChatMessages(user.id);
+  const { messages, loading, addMessage, clearMessages } = useChatMessages(user.id);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -43,9 +43,9 @@ const ChatPage: React.FC<ChatPageProps> = ({
   // Add welcome message if no messages exist
   useEffect(() => {
     if (!loading && messages.length === 0) {
-      addMessage(`你好 ${user.username || '用户'}！我是你的英雄导师。今天想聊什么呢？`, false);
+      addMessage(`你好呀！我会陪着你一起通过微小的行动一起解码这个世界`, false);
     }
-  }, [loading, messages.length, user.username, addMessage]);
+  }, [loading, messages.length, addMessage]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +87,16 @@ const ChatPage: React.FC<ChatPageProps> = ({
       await addMessage(randomResponse, false);
     } finally {
       setAiTyping(false);
+    }
+  };
+
+  const handleClearChat = async () => {
+    if (window.confirm('确定要清空所有聊天记录吗？')) {
+      await clearMessages();
+      // Add welcome message after clearing
+      setTimeout(() => {
+        addMessage(`你好呀！我会陪着你一起通过微小的行动一起解码这个世界`, false);
+      }, 500);
     }
   };
 
@@ -139,6 +149,15 @@ const ChatPage: React.FC<ChatPageProps> = ({
           </div>
         </div>
         <div className="flex items-center space-x-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClearChat}
+            className="text-gray-900 p-2 hover:bg-gray-100 hover:scale-105 transition-all"
+            title="清空聊天记录"
+          >
+            <Trash2 className="w-5 h-5" />
+          </Button>
           <Button
             variant="ghost"
             size="sm"
