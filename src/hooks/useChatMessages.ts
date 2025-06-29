@@ -108,11 +108,16 @@ export const useChatMessages = (userId: string | undefined) => {
     }
   };
 
+  const addWelcomeMessage = async () => {
+    await addMessage(`你好呀！我会陪着你一起通过微小的行动一起解码这个世界`, false);
+  };
+
   return {
     messages,
     loading,
     addMessage,
     clearMessages,
+    addWelcomeMessage,
     refreshMessages: loadMessages
   };
 };

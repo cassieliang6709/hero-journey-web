@@ -30,7 +30,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number>(0);
   
-  const { messages, loading, addMessage, clearMessages } = useChatMessages(user.id);
+  const { messages, loading, addMessage, clearMessages, addWelcomeMessage } = useChatMessages(user.id);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -43,9 +43,9 @@ const ChatPage: React.FC<ChatPageProps> = ({
   // Add welcome message if no messages exist
   useEffect(() => {
     if (!loading && messages.length === 0) {
-      addMessage(`你好呀！我会陪着你一起通过微小的行动一起解码这个世界`, false);
+      addWelcomeMessage();
     }
-  }, [loading, messages.length, addMessage]);
+  }, [loading, messages.length, addWelcomeMessage]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,7 +95,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
       await clearMessages();
       // Add welcome message after clearing
       setTimeout(() => {
-        addMessage(`你好呀！我会陪着你一起通过微小的行动一起解码这个世界`, false);
+        addWelcomeMessage();
       }, 500);
     }
   };
