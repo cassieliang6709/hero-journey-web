@@ -1,9 +1,8 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Send, ListTodo, Globe } from 'lucide-react';
+import { Send, ListTodo, Globe, Settings } from 'lucide-react';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -18,7 +17,14 @@ interface ChatPageProps {
 
 const avatars = ['🦸‍♂️', '🦸‍♀️', '🧙‍♂️', '🧙‍♀️', '👑', '⚡', '🔥', '🌟'];
 
-const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, onGoToStarMap, onLogout, onResetOnboarding }) => {
+const ChatPage: React.FC<ChatPageProps> = ({ 
+  user, 
+  selectedAvatar, 
+  onSwipeLeft, 
+  onGoToStarMap, 
+  onLogout, 
+  onResetOnboarding 
+}) => {
   const [inputText, setInputText] = useState('');
   const [aiTyping, setAiTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -101,6 +107,10 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
     onLogout();
   };
 
+  const handleOnboardingClick = () => {
+    onResetOnboarding();
+  };
+
   if (loading) {
     return (
       <div className="mobile-container bg-white flex items-center justify-center">
@@ -132,8 +142,17 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
           <Button
             variant="ghost"
             size="sm"
+            onClick={handleOnboardingClick}
+            className="text-gray-900 p-2 hover:bg-gray-100 hover:scale-105 transition-all"
+            title="重新设置目标"
+          >
+            <Settings className="w-5 h-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={onGoToStarMap}
-            className="text-gray-900 p-2 hover:bg-gray-100"
+            className="text-gray-900 p-2 hover:bg-gray-100 hover:scale-105 transition-all"
           >
             <Globe className="w-5 h-5" />
           </Button>
@@ -148,10 +167,10 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
             className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[80%] p-3 rounded-2xl ${
+              className={`max-w-[80%] p-3 rounded-2xl transition-all duration-200 ${
                 message.isUser
-                  ? 'bg-gray-900 text-white'
-                  : 'bg-gray-100 text-gray-900 border border-gray-200'
+                  ? 'bg-gray-900 text-white animate-fade-in'
+                  : 'bg-gray-100 text-gray-900 border border-gray-200 animate-fade-in'
               }`}
             >
               <p>{message.text}</p>
@@ -160,7 +179,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
         ))}
         
         {aiTyping && (
-          <div className="flex justify-start">
+          <div className="flex justify-start animate-fade-in">
             <div className="bg-gray-100 text-gray-900 border border-gray-200 p-3 rounded-2xl">
               <div className="flex space-x-1">
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
@@ -179,7 +198,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
         <Button
           onClick={onSwipeLeft}
           variant="outline"
-          className="flex items-center space-x-2 text-gray-700 border-gray-300 hover:bg-gray-50"
+          className="flex items-center space-x-2 text-gray-700 border-gray-300 hover:bg-gray-50 hover:scale-105 transition-all animate-fade-in"
         >
           <ListTodo className="w-4 h-4" />
           <span>待办事项</span>
@@ -193,12 +212,12 @@ const ChatPage: React.FC<ChatPageProps> = ({ user, selectedAvatar, onSwipeLeft, 
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="输入你的想法..."
-            className="flex-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
+            className="flex-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500 transition-all duration-200 focus:scale-105"
             disabled={aiTyping}
           />
           <Button 
             type="submit" 
-            className="bg-gray-900 hover:bg-gray-800 text-white px-3"
+            className="bg-gray-900 hover:bg-gray-800 text-white px-3 hover:scale-105 transition-all"
             disabled={aiTyping || !inputText.trim()}
           >
             <Send className="w-5 h-5" />
