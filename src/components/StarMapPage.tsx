@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -230,27 +231,64 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
     }
   ];
 
-  // 鼠标拖动处理
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
+  // 统一的开始拖拽处理函数
+  const handleDragStart = useCallback((clientX: number, clientY: number) => {
     setIsDragging(true);
-    setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
+    setDragStart({ x: clientX - panOffset.x, y: clientY - panOffset.y });
   }, [panOffset]);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+  // 统一的拖拽移动处理函数
+  const handleDragMove = useCallback((clientX: number, clientY: number) => {
     if (!isDragging) return;
-    e.preventDefault();
     
     const newOffset = {
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y
+      x: clientX - dragStart.x,
+      y: clientY - dragStart.y
     };
     setPanOffset(newOffset);
   }, [isDragging, dragStart]);
 
-  const handleMouseUp = useCallback(() => {
+  // 统一的结束拖拽处理函数
+  const handleDragEnd = useCallback(() => {
     setIsDragging(false);
   }, []);
+
+  // 鼠标事件处理
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    handleDragStart(e.clientX, e.clientY);
+  }, [handleDragStart]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    handleDragMove(e.clientX, e.clientY);
+  }, [isDragging, handleDragMove]);
+
+  const handleMouseUp = useCallback(() => {
+    handleDragEnd();
+  }, [handleDragEnd]);
+
+  // 触摸事件处理
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      handleDragStart(touch.clientX, touch.clientY);
+    }
+  }, [handleDragStart]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!isDragging || e.touches.length !== 1) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    handleDragMove(touch.clientX, touch.clientY);
+  }, [isDragging, handleDragMove]);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
+    handleDragEnd();
+  }, [handleDragEnd]);
 
   // 处理节点双击事件
   const handleNodeDoubleClick = (nodeId: string) => {
@@ -524,18 +562,21 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
         </div>
       </div>
 
-      {/* 星图容器 - 修复缩放和拖拽 */}
+      {/* 星图容器 - 支持触摸和鼠标交互 */}
       <div 
         ref={containerRef}
-        className="relative overflow-hidden cursor-move select-none"
+        className="relative overflow-hidden cursor-move select-none touch-none"
         style={{ 
-          height: 'calc(100vh - 80px - 180px)',
-          minHeight: '500px'
+          height: 'calc(100vh - 80px - 160px)',
+          minHeight: '400px'
         }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none"
@@ -566,7 +607,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
 
       {/* 节点详情面板 */}
       {selectedNodeData && !selectedNodeData.id.includes('root') && (
-        <div className="absolute bottom-44 left-4 right-4 bg-black/40 backdrop-blur-lg border border-white/20 shadow-2xl p-4 rounded-lg animate-fade-in z-20">
+        <div className="absolute bottom-32 left-4 right-4 bg-black/40 backdrop-blur-lg border border-white/20 shadow-2xl p-4 rounded-lg animate-fade-in z-20">
           <div className="flex items-start space-x-4">
             <div className={`w-12 h-12 ${getNodeGradient(selectedNodeData)} rounded-full border-2 border-white shadow-lg`}>
             </div>
@@ -608,7 +649,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
         </div>
       )}
 
-      {/* 能力评估 - 固定在底部，调整位置确保不遮挡星图 */}
+      {/* 能力评估 - 固定在底部 */}
       <div className="fixed bottom-0 left-0 right-0 z-10 px-4 pb-2">
         <div className="max-w-md mx-auto">
           <div className="bg-black/40 backdrop-blur-lg border border-white/20 rounded-lg p-3 shadow-2xl">
