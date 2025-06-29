@@ -93,10 +93,6 @@ const ChatPage: React.FC<ChatPageProps> = ({
   const handleClearChat = async () => {
     if (window.confirm('确定要清空所有聊天记录吗？')) {
       await clearMessages();
-      // Add welcome message after clearing
-      setTimeout(() => {
-        addWelcomeMessage();
-      }, 500);
     }
   };
 
