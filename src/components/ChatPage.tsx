@@ -47,32 +47,50 @@ const ChatPage: React.FC<ChatPageProps> = ({
   }, [loading, messages.length, addWelcomeMessage]);
 
   const callAI = async (userMessage: string) => {
-    console.log('直接调用后端API');
-    console.log('请求参数:', { user_id: user.id, send_message: userMessage });
+    console.log('调用SiliconFlow API');
+    console.log('请求参数:', { message: userMessage });
     
     try {
-      const response = await fetch('http://47.96.231.221:5001/AgentChat', {
+      const response = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Authorization': 'Bearer sk-ywiqoiuhlfyfsknsjsdmyvdllhwxsajvvafmszzbarckwzdv',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          user_id: user.id,
-          send_message: userMessage
+          model: "Qwen/Qwen2.5-32B-Instruct",
+          stream: false,
+          max_tokens: 512,
+          temperature: 0.7,
+          top_p: 0.7,
+          top_k: 50,
+          frequency_penalty: 0.5,
+          n: 1,
+          stop: [],
+          messages: [
+            {
+              role: "system",
+              content: "你是一个友善的AI助手，会用中文回复用户。请保持回复简洁有趣。"
+            },
+            {
+              role: "user",
+              content: userMessage
+            }
+          ]
         })
       });
       
-      console.log('后端API响应状态:', response.status);
+      console.log('API响应状态:', response.status);
       
       if (!response.ok) {
-        throw new Error(`后端API错误: ${response.status} ${response.statusText}`);
+        throw new Error(`API错误: ${response.status} ${response.statusText}`);
       }
       
       const data = await response.json();
-      console.log('后端API响应数据:', data);
+      console.log('API响应数据:', data);
       
-      // 根据你的后端API响应格式返回文本
-      return data.receive_message || data.text || '我理解你的想法，让我们继续探讨吧。';
+      // 从API响应中提取回复内容
+      return data.choices?.[0]?.message?.content || '我理解你的想法，让我们继续探讨吧。';
     } catch (error) {
       console.error('AI调用详细错误:', error);
       throw error;
