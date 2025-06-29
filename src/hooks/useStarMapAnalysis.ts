@@ -59,7 +59,7 @@ export const useStarMapAnalysis = () => {
         const talentScores = [
           latestTest.leadership_score,
           latestTest.innovation_score,
-          latentTest.harmony_score,
+          latestTest.harmony_score,
           latestTest.execution_score
         ];
         testScore = Math.max(...talentScores);
