@@ -14,17 +14,13 @@ interface Message {
 
 export const useChatMessages = (userId: string | undefined) => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(false); // 改为false，不加载历史消息
-
-  // 不再自动加载历史消息
-  // useEffect(() => {
-  //   if (userId) {
-  //     loadMessages();
-  //   }
-  // }, [userId]);
+  const [loading, setLoading] = useState(false);
 
   const loadMessages = async () => {
+    if (!userId) return;
+    
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('chat_messages')
         .select('*')
@@ -37,11 +33,11 @@ export const useChatMessages = (userId: string | undefined) => {
         return;
       }
 
-      const formattedMessages = data.map(msg => ({
+      const formattedMessages = (data || []).map(msg => ({
         id: msg.id,
         text: msg.message_text,
         isUser: msg.is_user_message,
-        timestamp: new Date(msg.created_at)
+        timestamp: new Date(msg.created_at || Date.now())
       }));
 
       setMessages(formattedMessages);

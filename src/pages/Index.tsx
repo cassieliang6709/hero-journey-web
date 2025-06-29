@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { useAppState } from '@/hooks/useAppState';
-import LoginPage from '@/components/LoginPage';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import AuthPage from '@/components/AuthPage';
 import OnboardingStep1 from '@/components/OnboardingStep1';
 import OnboardingStep2 from '@/components/OnboardingStep2';
 import OnboardingStep3 from '@/components/OnboardingStep3';
@@ -9,17 +9,16 @@ import MainApp from '@/components/MainApp';
 
 const Index = () => {
   const {
-    state,
-    loading,
     user,
+    loading,
+    state,
     nextOnboardingStep,
     selectIdea,
     changeAvatar,
     completeOnboarding,
     resetOnboarding,
-    handleLogin,
-    logout
-  } = useAppState();
+    signOut
+  } = useSupabaseAuth();
 
   console.log('Current app state:', state);
 
@@ -31,9 +30,9 @@ const Index = () => {
     );
   }
 
-  // 未登录显示登录页面
+  // 未登录显示认证页面
   if (state.currentStep === 'login' || !user) {
-    return <LoginPage onLogin={handleLogin} />;
+    return <AuthPage onAuthSuccess={() => {}} />;
   }
 
   // 引导流程
@@ -75,7 +74,7 @@ const Index = () => {
           username: state.profile.username
         }}
         selectedAvatar={state.selectedAvatar}
-        onLogout={logout}
+        onLogout={signOut}
         onResetOnboarding={resetOnboarding}
       />
     );
