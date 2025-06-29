@@ -1,21 +1,11 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Globe } from 'lucide-react';
 import TodoStats from './todo/TodoStats';
 import TodoList from './todo/TodoList';
 import SuccessMessage from './todo/SuccessMessage';
-
-interface TodoItem {
-  id: number;
-  text: string;
-  completed: boolean;
-  category: string;
-  progress?: {
-    completed: number;
-    total: number;
-  };
-}
+import { useTodos } from '@/hooks/useTodos';
 
 interface TodoPageProps {
   user: { username: string };
@@ -25,38 +15,8 @@ interface TodoPageProps {
   onGoToTalentTest?: () => void;
 }
 
-const initialTodos: TodoItem[] = [
-  { 
-    id: 1, 
-    text: '早上运动', 
-    completed: false, 
-    category: '身体',
-    progress: { completed: 2, total: 5 }
-  },
-  { 
-    id: 2, 
-    text: '冥想练习', 
-    completed: false, 
-    category: '情绪',
-    progress: { completed: 1, total: 3 }
-  },
-  { 
-    id: 3, 
-    text: '学习新技能', 
-    completed: false, 
-    category: '技能',
-    progress: { completed: 4, total: 6 }
-  },
-];
-
 const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
-  const [todos, setTodos] = useState<TodoItem[]>(initialTodos);
-
-  const toggleTodo = (id: number) => {
-    setTodos(prev => prev.map(todo => 
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    ));
-  };
+  const { todos, toggleTodo } = useTodos();
 
   const completedCount = todos.filter(todo => todo.completed).length;
   const completionRate = todos.length > 0 ? Math.round((completedCount / todos.length) * 100) : 0;

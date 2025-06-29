@@ -5,13 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ListTodo, Plus, Check } from 'lucide-react';
 import { toast } from 'sonner';
-
-interface TodoItem {
-  id: number;
-  text: string;
-  completed: boolean;
-  category: string;
-}
+import { useTodos } from '@/hooks/useTodos';
 
 interface TodoCardProps {
   onClose: () => void;
@@ -19,30 +13,13 @@ interface TodoCardProps {
 }
 
 const TodoCard: React.FC<TodoCardProps> = ({ onClose, onGoToTodoList }) => {
-  const [todos, setTodos] = useState<TodoItem[]>([
-    { id: 1, text: '早上运动', completed: false, category: '身体' },
-    { id: 2, text: '冥想练习', completed: false, category: '情绪' },
-    { id: 3, text: '学习新技能', completed: false, category: '技能' },
-  ]);
+  const { todos, toggleTodo, addTodo } = useTodos();
   const [newTodoText, setNewTodoText] = useState('');
 
-  const toggleTodo = (id: number) => {
-    setTodos(prev => prev.map(todo => 
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    ));
-  };
-
-  const addNewTodo = () => {
+  const handleAddTodo = () => {
     if (!newTodoText.trim()) return;
     
-    const newTodo: TodoItem = {
-      id: Date.now(),
-      text: newTodoText.trim(),
-      completed: false,
-      category: '新增'
-    };
-    
-    setTodos(prev => [...prev, newTodo]);
+    addTodo(newTodoText, '新增');
     setNewTodoText('');
     toast.success('待办事项已添加', { duration: 2000 });
   };
@@ -99,10 +76,10 @@ const TodoCard: React.FC<TodoCardProps> = ({ onClose, onGoToTodoList }) => {
             onChange={(e) => setNewTodoText(e.target.value)}
             placeholder="添加新任务..."
             className="flex-1 text-sm"
-            onKeyPress={(e) => e.key === 'Enter' && addNewTodo()}
+            onKeyPress={(e) => e.key === 'Enter' && handleAddTodo()}
           />
           <Button
-            onClick={addNewTodo}
+            onClick={handleAddTodo}
             size="sm"
             className="bg-gray-900 hover:bg-gray-800 text-white px-3"
           >

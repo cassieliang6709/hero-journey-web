@@ -1,20 +1,10 @@
 
 import React from 'react';
 import TodoItem from './TodoItem';
-
-interface TodoItem {
-  id: number;
-  text: string;
-  completed: boolean;
-  category: string;
-  progress?: {
-    completed: number;
-    total: number;
-  };
-}
+import { TodoItem as TodoItemType } from '@/hooks/useTodos';
 
 interface TodoListProps {
-  todos: TodoItem[];
+  todos: TodoItemType[];
   onToggleTodo: (id: number) => void;
 }
 
