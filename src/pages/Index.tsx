@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAppState } from '@/hooks/useAppState';
 import AuthPage from '@/components/AuthPage';
@@ -56,8 +55,6 @@ const Index = () => {
       case 2:
         return (
           <OnboardingStep3
-            selectedAvatar={state.selectedAvatar}
-            onChangeAvatar={changeAvatar}
             onComplete={completeOnboarding}
             username={state.profile.username}
           />
