@@ -514,10 +514,14 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
         </div>
       </div>
 
-      {/* 星图容器 */}
+      {/* 星图容器 - 调整高度以适配大容器 */}
       <div 
         ref={containerRef}
-        className="relative h-96 overflow-hidden cursor-move"
+        className="relative overflow-hidden cursor-move"
+        style={{ 
+          height: 'calc(100vh - 80px - 180px)', // 减去顶部导航和底部评估面板的高度
+          minHeight: '500px' // 设置最小高度确保可用性
+        }}
         onMouseDown={(e) => {
           setIsDragging(true);
           setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
@@ -600,47 +604,47 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
         </div>
       )}
 
-      {/* 能力评估 - 固定在底部 */}
-      <div className="fixed bottom-0 left-0 right-0 z-10 px-4 pb-4">
+      {/* 能力评估 - 固定在底部，调整位置确保不遮挡星图 */}
+      <div className="fixed bottom-0 left-0 right-0 z-10 px-4 pb-2">
         <div className="max-w-md mx-auto">
-          <div className="bg-black/40 backdrop-blur-lg border border-white/20 rounded-lg p-4 shadow-2xl">
-            <h3 className="text-white font-semibold mb-3">能力评估</h3>
-            <div className="space-y-3">
+          <div className="bg-black/40 backdrop-blur-lg border border-white/20 rounded-lg p-3 shadow-2xl">
+            <h3 className="text-white font-semibold mb-2 text-sm">能力评估</h3>
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg">
-                    <div className="w-4 h-4 bg-white rounded-full"></div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-6 h-6 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg">
+                    <div className="w-3 h-3 bg-white rounded-full"></div>
                   </div>
                   <div>
-                    <div className="text-white font-medium">体能测试</div>
-                    <div className="text-white/70 text-sm">评估身体素质</div>
+                    <div className="text-white font-medium text-sm">体能测试</div>
+                    <div className="text-white/70 text-xs">评估身体素质</div>
                   </div>
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={onGoToPhysicalTest}
-                  className="text-white border-white/30 hover:bg-white/10 bg-white/10"
+                  className="text-white border-white/30 hover:bg-white/10 bg-white/10 text-xs px-2 py-1 h-7"
                 >
                   开始测试
                 </Button>
               </div>
               
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
-                    <div className="w-4 h-4 bg-white rounded-sm"></div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-6 h-6 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
+                    <div className="w-3 h-3 bg-white rounded-sm"></div>
                   </div>
                   <div>
-                    <div className="text-white font-medium">优势天赋测试</div>
-                    <div className="text-white/70 text-sm">发现个人天赋优势</div>
+                    <div className="text-white font-medium text-sm">优势天赋测试</div>
+                    <div className="text-white/70 text-xs">发现个人天赋优势</div>
                   </div>
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={onGoToTalentTest}
-                  className="text-white border-white/30 hover:bg-white/10 bg-white/10"
+                  className="text-white border-white/30 hover:bg-white/10 bg-white/10 text-xs px-2 py-1 h-7"
                 >
                   开始测试
                 </Button>
