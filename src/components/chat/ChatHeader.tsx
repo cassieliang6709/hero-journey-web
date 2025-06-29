@@ -29,12 +29,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         >
           <span className="text-xl">{avatars[selectedAvatar]}</span>
         </button>
-        <div className="flex items-center space-x-2">
-          <img
-            src="https://s21.ax1x.com/2025/06/29/pVnDj1I.jpg"
-            alt="小精灵头像"
-            className="w-8 h-8 rounded-full object-cover"
-          />
+        <div>
           <h1 className="text-gray-900 font-semibold">小精灵</h1>
         </div>
       </div>
