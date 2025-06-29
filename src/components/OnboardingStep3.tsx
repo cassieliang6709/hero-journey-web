@@ -13,15 +13,7 @@ const OnboardingStep3: React.FC<OnboardingStep3Props> = ({
 }) => {
   return (
     <div className="mobile-container gradient-bg flex flex-col items-center justify-center p-8 text-center">
-      <div className="animate-slide-in-left z-10 relative">
-        <div className="space-y-6 mb-12">
-          <h1 className="text-2xl font-bold text-white drop-shadow-lg">
-            此刻你拥有哪些想象的部分
-          </h1>
-          <p className="text-gray-200 text-lg leading-relaxed drop-shadow-md">
-            下面可以选择4个想象切换
-          </p>
-          
+      <div className="animate-slide-in-left z-10 relative">          
           <div className="space-y-4 mt-8">
             <h2 className="text-xl font-semibold text-orange-300 drop-shadow-lg">
               你听说过"星图"吗？

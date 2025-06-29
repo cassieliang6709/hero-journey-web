@@ -135,7 +135,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
             <span className="text-xl">{avatars[selectedAvatar]}</span>
           </button>
           <div>
-            <h1 className="text-gray-900 font-semibold">引导者</h1>
+            <h1 className="text-gray-900 font-semibold">小精灵</h1>
           </div>
         </div>
         <div className="flex items-center space-x-2">
