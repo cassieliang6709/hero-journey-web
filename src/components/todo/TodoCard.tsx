@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ListTodo, Plus, Check, Loader2 } from 'lucide-react';
+import { ListTodo, Plus, Check, Loader2, Brain } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTodos } from '@/hooks/useTodos';
 
@@ -21,6 +21,10 @@ const TodoCard: React.FC<TodoCardProps> = ({ onClose, onGoToTodoList }) => {
     if (!newTodoText.trim() || isAdding) return;
     
     setIsAdding(true);
+    
+    // 显示AI分类提示
+    toast.info('🧠 AI正在智能分类任务...', { duration: 2000 });
+    
     const result = await addTodo(newTodoText, '新增');
     if (result) {
       setNewTodoText('');
@@ -52,6 +56,7 @@ const TodoCard: React.FC<TodoCardProps> = ({ onClose, onGoToTodoList }) => {
           <h3 className="text-gray-900 font-medium flex items-center">
             <ListTodo className="w-4 h-4 mr-2" />
             待办事项
+            <Brain className="w-4 h-4 ml-1 text-purple-500" title="AI智能分类" />
           </h3>
           <button
             onClick={onClose}
@@ -117,6 +122,12 @@ const TodoCard: React.FC<TodoCardProps> = ({ onClose, onGoToTodoList }) => {
               <Plus className="w-4 h-4" />
             )}
           </Button>
+        </div>
+        
+        {/* AI分类提示 */}
+        <div className="text-xs text-gray-500 mt-2 flex items-center justify-center">
+          <Brain className="w-3 h-3 mr-1" />
+          AI会自动将任务分类到对应星图节点
         </div>
         
         {/* 查看完整待办页面按钮 */}

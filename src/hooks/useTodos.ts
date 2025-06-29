@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { classifyTodoToNode } from '@/services/todoClassificationService';
 
 export interface TodoItem {
   id: string;
@@ -132,11 +132,31 @@ export const useTodos = () => {
         return null;
       }
 
+      // 如果没有指定节点ID，使用AI分类
+      let finalNodeId = starMapNodeId;
+      let finalCategory = category;
+      
+      if (!starMapNodeId) {
+        console.log('开始AI分类任务:', text);
+        try {
+          const classification = await classifyTodoToNode(text);
+          finalNodeId = classification.nodeId;
+          finalCategory = classification.nodeName;
+          console.log('AI分类结果:', classification);
+          
+          // 显示分类结果给用户
+          toast.success(`任务已分类到: ${classification.nodeName}`);
+        } catch (error) {
+          console.error('AI分类失败，使用默认分类:', error);
+          toast.info('使用默认分类');
+        }
+      }
+
       const newTodoData = {
         text: text.trim(),
         completed: false,
-        category,
-        star_map_node_id: starMapNodeId,
+        category: finalCategory,
+        star_map_node_id: finalNodeId,
         user_id: user.id
       };
 
@@ -164,7 +184,6 @@ export const useTodos = () => {
       };
 
       setTodos(prevTodos => [newTodo, ...prevTodos]);
-      toast.success('待办事项已添加');
       return newTodo;
     } catch (error) {
       console.error('Error adding todo:', error);
