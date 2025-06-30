@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -111,13 +110,10 @@ export const useSupabaseAuth = () => {
 
   const signUp = async (email: string, password: string, username?: string) => {
     try {
-      const redirectUrl = `${window.location.origin}/`;
-      
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: redirectUrl,
           data: {
             username: username || email.split('@')[0]
           }
@@ -130,7 +126,7 @@ export const useSupabaseAuth = () => {
         return { error };
       }
 
-      toast.success('注册成功！请检查邮箱并点击验证链接。');
+      toast.success('注册成功！正在为您登录...');
       return { error: null };
     } catch (error) {
       console.error('Sign up error:', error);
