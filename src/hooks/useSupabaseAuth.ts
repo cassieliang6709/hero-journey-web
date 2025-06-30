@@ -1,35 +1,20 @@
+
 import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-
-export interface Profile {
-  id: string;
-  username: string;
-  completed_onboarding: boolean;
-  selected_ideas: string[];
-  selected_avatar: number;
-}
-
-export interface AppState {
-  currentStep: 'login' | 'onboarding' | 'main';
-  onboardingStep: number;
-  selectedIdeas: string[];
-  selectedAvatar: number;
-  profile: Profile | null;
-}
+import { useAuth } from './useAuth';
+import { useProfile } from './useProfile';
+import { useAppState } from './useAppState';
 
 export const useSupabaseAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [state, setState] = useState<AppState>({
-    currentStep: 'login',
-    onboardingStep: 0,
-    selectedIdeas: [],
-    selectedAvatar: 0,
-    profile: null,
-  });
+
+  const { signUp, signIn, signOut } = useAuth();
+  const { fetchUserProfile, updateProfile } = useProfile();
+  const { state, nextOnboardingStep, selectIdea, changeAvatar, updateAppState } = useAppState();
 
   useEffect(() => {
     // Set up auth state listener
@@ -42,17 +27,25 @@ export const useSupabaseAuth = () => {
         if (session?.user) {
           // Fetch user profile
           setTimeout(async () => {
-            await fetchUserProfile(session.user.id);
+            const profile = await fetchUserProfile(session.user.id);
+            if (profile) {
+              updateAppState({
+                profile,
+                selectedIdeas: profile.selected_ideas,
+                selectedAvatar: profile.selected_avatar,
+                currentStep: profile.completed_onboarding ? 'main' : 'onboarding',
+                onboardingStep: profile.completed_onboarding ? 0 : 0,
+              });
+            }
           }, 0);
         } else {
-          setState(prevState => ({
-            ...prevState,
+          updateAppState({
             currentStep: 'login',
             profile: null,
             selectedIdeas: [],
             selectedAvatar: 0,
             onboardingStep: 0,
-          }));
+          });
         }
         setLoading(false);
       }
@@ -63,7 +56,17 @@ export const useSupabaseAuth = () => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchUserProfile(session.user.id);
+        fetchUserProfile(session.user.id).then(profile => {
+          if (profile) {
+            updateAppState({
+              profile,
+              selectedIdeas: profile.selected_ideas,
+              selectedAvatar: profile.selected_avatar,
+              currentStep: profile.completed_onboarding ? 'main' : 'onboarding',
+              onboardingStep: profile.completed_onboarding ? 0 : 0,
+            });
+          }
+        });
       } else {
         setLoading(false);
       }
@@ -72,209 +75,61 @@ export const useSupabaseAuth = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchUserProfile = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        console.error('Error fetching profile:', error);
-        return;
-      }
-
-      if (data) {
-        const profile: Profile = {
-          id: data.id,
-          username: data.username,
-          completed_onboarding: data.completed_onboarding,
-          selected_ideas: data.selected_ideas || [],
-          selected_avatar: data.selected_avatar || 0,
-        };
-
-        setState(prevState => ({
-          ...prevState,
-          profile,
-          selectedIdeas: profile.selected_ideas,
-          selectedAvatar: profile.selected_avatar,
-          currentStep: profile.completed_onboarding ? 'main' : 'onboarding',
-          onboardingStep: profile.completed_onboarding ? 0 : 0,
-        }));
-      }
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    }
-  };
-
-  const signUp = async (email: string, password: string, username?: string) => {
-    try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            username: username || email.split('@')[0]
-          }
-        }
-      });
-
-      if (error) {
-        console.error('Sign up error:', error);
-        toast.error(error.message);
-        return { error };
-      }
-
-      toast.success('注册成功！正在为您登录...');
-      return { error: null };
-    } catch (error) {
-      console.error('Sign up error:', error);
-      toast.error('注册失败，请重试');
-      return { error };
-    }
-  };
-
-  const signIn = async (email: string, password: string) => {
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        console.error('Sign in error:', error);
-        toast.error(error.message);
-        return { error };
-      }
-
-      toast.success('登录成功！');
-      return { error: null };
-    } catch (error) {
-      console.error('Sign in error:', error);
-      toast.error('登录失败，请重试');
-      return { error };
-    }
-  };
-
-  const signOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error('Sign out error:', error);
-        toast.error('登出失败');
-        return;
-      }
-      toast.success('已成功登出');
-    } catch (error) {
-      console.error('Sign out error:', error);
-      toast.error('登出失败');      
-    }
-  };
-
-  const nextOnboardingStep = () => {
-    setState(prevState => ({
-      ...prevState,
-      onboardingStep: prevState.onboardingStep + 1,
-    }));
-  };
-
-  const selectIdea = (idea: string) => {
-    setState(prevState => {
-      const isSelected = prevState.selectedIdeas.includes(idea);
-      const newSelectedIdeas = isSelected
-        ? prevState.selectedIdeas.filter(i => i !== idea)
-        : [...prevState.selectedIdeas, idea];
-      
-      return {
-        ...prevState,
-        selectedIdeas: newSelectedIdeas,
-      };
-    });
-  };
-
-  const changeAvatar = (avatarIndex: number) => {
-    setState(prevState => ({
-      ...prevState,
-      selectedAvatar: avatarIndex,
-    }));
-  };
-
   const completeOnboarding = async () => {
     if (!state.profile || !user) return;
 
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          completed_onboarding: true,
-          selected_ideas: state.selectedIdeas,
-          selected_avatar: state.selectedAvatar,
-        })
-        .eq('id', user.id);
+    const result = await updateProfile(user.id, {
+      completed_onboarding: true,
+      selected_ideas: state.selectedIdeas,
+      selected_avatar: state.selectedAvatar,
+    });
 
-      if (error) {
-        console.error('Error completing onboarding:', error);
-        toast.error('完成引导流程失败');
-        return;
-      }
-
-      setState(prevState => ({
-        ...prevState,
-        currentStep: 'main',
-        profile: {
-          ...prevState.profile!,
-          completed_onboarding: true,
-          selected_ideas: prevState.selectedIdeas,
-          selected_avatar: prevState.selectedAvatar,
-        },
-      }));
-
-      toast.success('欢迎开始你的英雄之旅！');
-    } catch (error) {
-      console.error('Error completing onboarding:', error);
+    if (result.error) {
       toast.error('完成引导流程失败');
+      return;
     }
+
+    updateAppState({
+      currentStep: 'main',
+      profile: {
+        ...state.profile,
+        completed_onboarding: true,
+        selected_ideas: state.selectedIdeas,
+        selected_avatar: state.selectedAvatar,
+      },
+    });
+
+    toast.success('欢迎开始你的英雄之旅！');
   };
 
   const resetOnboarding = async () => {
     if (!state.profile || !user) return;
 
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          completed_onboarding: false,
-          selected_ideas: [],
-          selected_avatar: 0,
-        })
-        .eq('id', user.id);
+    const result = await updateProfile(user.id, {
+      completed_onboarding: false,
+      selected_ideas: [],
+      selected_avatar: 0,
+    });
 
-      if (error) {
-        console.error('Error resetting onboarding:', error);
-        toast.error('重置引导流程失败');
-        return;
-      }
-
-      setState(prevState => ({
-        ...prevState,
-        currentStep: 'onboarding',
-        onboardingStep: 0,
-        selectedIdeas: [],
-        selectedAvatar: 0,
-        profile: {
-          ...prevState.profile!,
-          completed_onboarding: false,
-          selected_ideas: [],
-          selected_avatar: 0,
-        },
-      }));
-
-      toast.success('已重置引导流程');
-    } catch (error) {
-      console.error('Error resetting onboarding:', error);
+    if (result.error) {
       toast.error('重置引导流程失败');
+      return;
     }
+
+    updateAppState({
+      currentStep: 'onboarding',
+      onboardingStep: 0,
+      selectedIdeas: [],
+      selectedAvatar: 0,
+      profile: {
+        ...state.profile,
+        completed_onboarding: false,
+        selected_ideas: [],
+        selected_avatar: 0,
+      },
+    });
+
+    toast.success('已重置引导流程');
   };
 
   return {
