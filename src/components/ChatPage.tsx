@@ -146,6 +146,18 @@ const ChatPage: React.FC<ChatPageProps> = ({
     }
   };
 
+  const handleTaskComplete = async (taskTitle: string) => {
+    const rewards = [
+      `🎉 太棒了！你刚刚完成了「${taskTitle}」，我能感受到你的努力！我们又向前迈进了一步！`,
+      `✨ 干得漂亮！完成「${taskTitle}」让我们都变得更强大了！每一个小行动都在积累力量！`,
+      `🌟 完成得很好！「${taskTitle}」的成功让我也为你感到骄傲，继续保持这份坚持！`,
+      `💪 真是太棒了！「${taskTitle}」的完成充满了你的决心，你的坚持也让我充满了力量！`,
+      `🎯 任务完成！通过「${taskTitle}」我们正在一步步成为更好的自己！这就是我们的英雄之路！`
+    ];
+    const randomReward = rewards[Math.floor(Math.random() * rewards.length)];
+    await addMessage(randomReward, false);
+  };
+
   const handleClearChat = async () => {
     if (window.confirm('确定要清空所有聊天记录吗？')) {
       await clearMessages();
@@ -202,6 +214,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
         onGoToTodoList={onSwipeLeft}
         onGoToStarMap={onGoToStarMap}
         onCloseTaskSuggestions={() => setShowTaskSuggestions(false)}
+        onTaskComplete={handleTaskComplete}
       />
 
       <ChatInput

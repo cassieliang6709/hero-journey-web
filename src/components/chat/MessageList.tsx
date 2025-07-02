@@ -26,6 +26,7 @@ interface MessageListProps {
   onGoToTodoList: () => void;
   onGoToStarMap: () => void;
   onCloseTaskSuggestions: () => void;
+  onTaskComplete?: (taskTitle: string) => void;
 }
 
 const MessageList: React.FC<MessageListProps> = ({
@@ -38,7 +39,8 @@ const MessageList: React.FC<MessageListProps> = ({
   onCloseTodoCard,
   onGoToTodoList,
   onGoToStarMap,
-  onCloseTaskSuggestions
+  onCloseTaskSuggestions,
+  onTaskComplete
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -92,6 +94,7 @@ const MessageList: React.FC<MessageListProps> = ({
         <TaskSuggestionCard
           suggestions={taskSuggestions}
           onClose={onCloseTaskSuggestions}
+          onTaskComplete={onTaskComplete}
         />
       )}
       

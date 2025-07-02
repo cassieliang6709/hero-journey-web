@@ -11,9 +11,10 @@ import { toast } from 'sonner';
 interface TaskSuggestionCardProps {
   suggestions: TaskSuggestion[];
   onClose: () => void;
+  onTaskComplete?: (taskTitle: string) => void;
 }
 
-const TaskSuggestionCard: React.FC<TaskSuggestionCardProps> = ({ suggestions, onClose }) => {
+const TaskSuggestionCard: React.FC<TaskSuggestionCardProps> = ({ suggestions, onClose, onTaskComplete }) => {
   const { addTodo } = useTodos();
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
   const [addedTasks, setAddedTasks] = useState<Set<string>>(new Set());
@@ -38,21 +39,16 @@ const TaskSuggestionCard: React.FC<TaskSuggestionCardProps> = ({ suggestions, on
 
   const handleCompleteTask = (taskId: string) => {
     const newCompleted = new Set(completedTasks);
+    const suggestion = suggestions.find(s => s.id === taskId);
     
     if (completedTasks.has(taskId)) {
       newCompleted.delete(taskId);
     } else {
       newCompleted.add(taskId);
-      // 完成任务时给予奖励语句
-      const rewards = [
-        '🎉 太棒了！你刚刚完成了一个挑战，我们又向前迈进了一步！',
-        '✨ 干得漂亮！每一个小行动都在让我们变得更强大！',
-        '🌟 完成得很好！我能感受到你的努力，继续保持！',
-        '💪 真是太棒了！你的坚持让我也充满了力量！',
-        '🎯 任务完成！我们正在一步步成为更好的自己！'
-      ];
-      const randomReward = rewards[Math.floor(Math.random() * rewards.length)];
-      toast.success(randomReward, { duration: 3000 });
+      // 触发AI奖励反馈
+      if (suggestion && onTaskComplete) {
+        onTaskComplete(suggestion.title);
+      }
     }
     
     setCompletedTasks(newCompleted);
