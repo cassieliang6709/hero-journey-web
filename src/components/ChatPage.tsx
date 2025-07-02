@@ -4,6 +4,8 @@ import { toast } from 'sonner';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { useStarMap } from '@/hooks/useStarMap';
 import { callAI } from '@/services/aiService';
+import { parseAIResponseForTasks } from '@/services/taskParsingService';
+import { TaskSuggestion } from '@/types/taskSuggestion';
 import ChatHeader from '@/components/chat/ChatHeader';
 import MessageList from '@/components/chat/MessageList';
 import ChatInput from '@/components/chat/ChatInput';
@@ -28,6 +30,8 @@ const ChatPage: React.FC<ChatPageProps> = ({
   const [inputText, setInputText] = useState('');
   const [aiTyping, setAiTyping] = useState(false);
   const [showTodoCard, setShowTodoCard] = useState(false);
+  const [taskSuggestions, setTaskSuggestions] = useState<TaskSuggestion[]>([]);
+  const [showTaskSuggestions, setShowTaskSuggestions] = useState(false);
   const touchStartX = React.useRef<number>(0);
   
   const { messages, loading, addMessage, clearMessages, addWelcomeMessage } = useChatMessages(user.id);
@@ -100,17 +104,30 @@ const ChatPage: React.FC<ChatPageProps> = ({
     try {
       let aiResponse = await callAI(userMessage);
       
+      // 解析AI回复中的任务建议
+      const messageId = Date.now().toString();
+      const parsedMessage = parseAIResponseForTasks(aiResponse, messageId);
+      
+      // 如果有任务建议，显示任务建议卡片
+      if (parsedMessage.taskSuggestions.length > 0) {
+        setTaskSuggestions(parsedMessage.taskSuggestions);
+        setShowTaskSuggestions(true);
+      }
+      
+      // 使用清理后的文本作为AI回复
+      let finalResponse = parsedMessage.text;
+      
       // 如果用户提到待办事项，AI回复中也提示可以查看待办卡片
       if (shouldShowTodo) {
-        aiResponse += '\n\n📝 我为你显示了待办事项卡片，你可以直接在这里查看和管理任务。';
+        finalResponse += '\n\n📝 我为你显示了待办事项卡片，你可以直接在这里查看和管理任务。';
       }
 
       // 如果有节点被点亮，AI会祝贺
       if (completedNode) {
-        aiResponse += `\n\n🎉 太棒了！你刚刚点亮了「${completedNode.name}」节点，我们的星图又亮了一颗星！继续加油，我们会越来越强大的！`;
+        finalResponse += `\n\n🎉 太棒了！你刚刚点亮了「${completedNode.name}」节点，我们的星图又亮了一颗星！继续加油，我们会越来越强大的！`;
       }
       
-      await addMessage(aiResponse, false);
+      await addMessage(finalResponse, false);
     } catch (error) {
       console.error('AI调用失败:', error);
       
@@ -179,9 +196,12 @@ const ChatPage: React.FC<ChatPageProps> = ({
         aiTyping={aiTyping}
         showTodoCard={showTodoCard}
         starMapLevel={level}
+        taskSuggestions={taskSuggestions}
+        showTaskSuggestions={showTaskSuggestions}
         onCloseTodoCard={() => setShowTodoCard(false)}
         onGoToTodoList={onSwipeLeft}
         onGoToStarMap={onGoToStarMap}
+        onCloseTaskSuggestions={() => setShowTaskSuggestions(false)}
       />
 
       <ChatInput

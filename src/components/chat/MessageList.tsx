@@ -2,7 +2,9 @@
 import React, { useRef, useEffect } from 'react';
 import TodoCard from '@/components/todo/TodoCard';
 import StarMapNodeComplete from './StarMapNodeComplete';
+import TaskSuggestionCard from './TaskSuggestionCard';
 import { SkillNode } from '@/hooks/useStarMap';
+import { TaskSuggestion } from '@/types/taskSuggestion';
 
 interface Message {
   id: string;
@@ -10,6 +12,7 @@ interface Message {
   isUser: boolean;
   timestamp: Date;
   completedNode?: SkillNode;
+  taskSuggestions?: TaskSuggestion[];
 }
 
 interface MessageListProps {
@@ -17,9 +20,12 @@ interface MessageListProps {
   aiTyping: boolean;
   showTodoCard: boolean;
   starMapLevel: number;
+  taskSuggestions: TaskSuggestion[];
+  showTaskSuggestions: boolean;
   onCloseTodoCard: () => void;
   onGoToTodoList: () => void;
   onGoToStarMap: () => void;
+  onCloseTaskSuggestions: () => void;
 }
 
 const MessageList: React.FC<MessageListProps> = ({
@@ -27,9 +33,12 @@ const MessageList: React.FC<MessageListProps> = ({
   aiTyping,
   showTodoCard,
   starMapLevel,
+  taskSuggestions,
+  showTaskSuggestions,
   onCloseTodoCard,
   onGoToTodoList,
-  onGoToStarMap
+  onGoToStarMap,
+  onCloseTaskSuggestions
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -75,6 +84,14 @@ const MessageList: React.FC<MessageListProps> = ({
         <TodoCard
           onClose={onCloseTodoCard}
           onGoToTodoList={onGoToTodoList}
+        />
+      )}
+      
+      {/* 任务建议卡片 */}
+      {showTaskSuggestions && taskSuggestions.length > 0 && (
+        <TaskSuggestionCard
+          suggestions={taskSuggestions}
+          onClose={onCloseTaskSuggestions}
         />
       )}
       
