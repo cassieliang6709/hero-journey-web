@@ -3,7 +3,7 @@ import backgroundImage from '@/assets/background1.jpg';  // 导入图片
 import { toast } from 'sonner';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { useStarMap } from '@/hooks/useStarMap';
-import { callAI } from '@/services/aiService';
+import { callAI, generateQuestions } from '@/services/aiService';
 import { parseAIResponseForTasks } from '@/services/taskParsingService';
 import { TaskSuggestion } from '@/types/taskSuggestion';
 import ChatHeader from '@/components/chat/ChatHeader';
@@ -32,6 +32,8 @@ const ChatPage: React.FC<ChatPageProps> = ({
   const [showTodoCard, setShowTodoCard] = useState(false);
   const [taskSuggestions, setTaskSuggestions] = useState<TaskSuggestion[]>([]);
   const [showTaskSuggestions, setShowTaskSuggestions] = useState(false);
+  const [questionSuggestions, setQuestionSuggestions] = useState<string[]>([]);
+  const [showQuestionSuggestions, setShowQuestionSuggestions] = useState(false);
   const touchStartX = React.useRef<number>(0);
   
   const { messages, loading, addMessage, clearMessages, addWelcomeMessage } = useChatMessages(user.id);
@@ -128,6 +130,17 @@ const ChatPage: React.FC<ChatPageProps> = ({
       }
       
       await addMessage(finalResponse, false);
+      
+      // 生成问题建议
+      try {
+        const questions = await generateQuestions(userMessage, finalResponse);
+        if (questions.length > 0) {
+          setQuestionSuggestions(questions);
+          setShowQuestionSuggestions(true);
+        }
+      } catch (error) {
+        console.error('生成问题建议失败:', error);
+      }
     } catch (error) {
       console.error('AI调用失败:', error);
       
@@ -210,10 +223,17 @@ const ChatPage: React.FC<ChatPageProps> = ({
         starMapLevel={level}
         taskSuggestions={taskSuggestions}
         showTaskSuggestions={showTaskSuggestions}
+        questionSuggestions={questionSuggestions}
+        showQuestionSuggestions={showQuestionSuggestions}
         onCloseTodoCard={() => setShowTodoCard(false)}
         onGoToTodoList={onSwipeLeft}
         onGoToStarMap={onGoToStarMap}
         onCloseTaskSuggestions={() => setShowTaskSuggestions(false)}
+        onCloseQuestionSuggestions={() => setShowQuestionSuggestions(false)}
+        onQuestionClick={(question) => {
+          setInputText(question);
+          setShowQuestionSuggestions(false);
+        }}
         onTaskComplete={handleTaskComplete}
       />
 

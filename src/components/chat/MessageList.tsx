@@ -3,6 +3,7 @@ import React, { useRef, useEffect } from 'react';
 import TodoCard from '@/components/todo/TodoCard';
 import StarMapNodeComplete from './StarMapNodeComplete';
 import TaskSuggestionCard from './TaskSuggestionCard';
+import QuestionSuggestions from './QuestionSuggestions';
 import { SkillNode } from '@/hooks/useStarMap';
 import { TaskSuggestion } from '@/types/taskSuggestion';
 
@@ -22,10 +23,14 @@ interface MessageListProps {
   starMapLevel: number;
   taskSuggestions: TaskSuggestion[];
   showTaskSuggestions: boolean;
+  questionSuggestions: string[];
+  showQuestionSuggestions: boolean;
   onCloseTodoCard: () => void;
   onGoToTodoList: () => void;
   onGoToStarMap: () => void;
   onCloseTaskSuggestions: () => void;
+  onCloseQuestionSuggestions: () => void;
+  onQuestionClick: (question: string) => void;
   onTaskComplete?: (taskTitle: string) => void;
 }
 
@@ -36,10 +41,14 @@ const MessageList: React.FC<MessageListProps> = ({
   starMapLevel,
   taskSuggestions,
   showTaskSuggestions,
+  questionSuggestions,
+  showQuestionSuggestions,
   onCloseTodoCard,
   onGoToTodoList,
   onGoToStarMap,
   onCloseTaskSuggestions,
+  onCloseQuestionSuggestions,
+  onQuestionClick,
   onTaskComplete
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -95,6 +104,15 @@ const MessageList: React.FC<MessageListProps> = ({
           suggestions={taskSuggestions}
           onClose={onCloseTaskSuggestions}
           onTaskComplete={onTaskComplete}
+        />
+      )}
+      
+      {/* 问题建议 */}
+      {showQuestionSuggestions && questionSuggestions.length > 0 && (
+        <QuestionSuggestions
+          questions={questionSuggestions}
+          onQuestionClick={onQuestionClick}
+          onClose={onCloseQuestionSuggestions}
         />
       )}
       

@@ -120,3 +120,61 @@ Becoming——成长，值得重新想象
     throw error;
   }
 };
+
+export const generateQuestions = async (userMessage: string, aiResponse: string): Promise<string[]> => {
+  console.log('生成问题建议');
+  
+  try {
+    const response = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer sk-ywiqoiuhlfyfsknsjsdmyvdllhwxsajvvafmszzbarckwzdv',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: "Qwen/Qwen2.5-32B-Instruct",
+        stream: false,
+        max_tokens: 256,
+        temperature: 0.8,
+        top_p: 0.9,
+        frequency_penalty: 0.5,
+        n: 1,
+        messages: [
+          {
+            role: "system",
+            content: `基于用户的问题和AI的回答，生成3个相关的后续问题，这些问题应该：
+1. 自然地延续当前对话话题
+2. 帮助用户深入探索或获得更多指导
+3. 符合英雄成长和自我提升的主题
+4. 问题要简洁明了，每个问题不超过20个字
+
+请直接返回3个问题，每个问题一行，不要编号，不要其他解释。`
+          },
+          {
+            role: "user",
+            content: `用户说：${userMessage}\n\nAI回答：${aiResponse}\n\n请生成3个相关的后续问题：`
+          }
+        ]
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API错误: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    const questionsText = data.choices?.[0]?.message?.content || '';
+    
+    // 解析问题，过滤空行
+    const questions = questionsText
+      .split('\n')
+      .map((q: string) => q.trim())
+      .filter((q: string) => q.length > 0)
+      .slice(0, 3); // 确保只返回3个问题
+    
+    return questions;
+  } catch (error) {
+    console.error('生成问题失败:', error);
+    return [];
+  }
+};
