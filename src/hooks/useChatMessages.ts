@@ -15,6 +15,7 @@ interface Message {
 export const useChatMessages = (userId: string | undefined) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
+  const [hasLoadedInitialMessages, setHasLoadedInitialMessages] = useState(false);
 
   const loadMessages = async () => {
     if (!userId) return;
@@ -41,12 +42,20 @@ export const useChatMessages = (userId: string | undefined) => {
       }));
 
       setMessages(formattedMessages);
+      setHasLoadedInitialMessages(true);
     } catch (error) {
       console.error('加载聊天记录错误:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  // 自动加载历史记录
+  useEffect(() => {
+    if (userId && !hasLoadedInitialMessages) {
+      loadMessages();
+    }
+  }, [userId, hasLoadedInitialMessages]);
 
   const saveMessage = async (text: string, isUser: boolean) => {
     if (!userId) return;
@@ -100,6 +109,7 @@ export const useChatMessages = (userId: string | undefined) => {
       }
 
       setMessages([]);
+      setHasLoadedInitialMessages(false);
       toast.success('聊天记录已清空');
     } catch (error) {
       console.error('清空聊天记录错误:', error);
@@ -108,7 +118,10 @@ export const useChatMessages = (userId: string | undefined) => {
   };
 
   const addWelcomeMessage = async () => {
-    await addMessage(`你好呀！我会陪着你一起通过微小的行动解码这个世界`, false);
+    // 只在没有消息且已加载初始消息后添加欢迎消息
+    if (messages.length === 0 && hasLoadedInitialMessages) {
+      await addMessage(`你好呀！我会陪着你一起通过微小的行动解码这个世界`, false);
+    }
   };
 
   return {

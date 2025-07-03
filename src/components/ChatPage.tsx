@@ -39,12 +39,12 @@ const ChatPage: React.FC<ChatPageProps> = ({
   const { messages, loading, addMessage, clearMessages, addWelcomeMessage } = useChatMessages(user.id);
   const { nodes, level, completeNode, getNodeByKeywords } = useStarMap(user.id);
 
-  // Add welcome message if no messages exist
+  // 修改欢迎消息逻辑
   useEffect(() => {
-    if (!loading && messages.length === 0) {
+    if (!loading) {
       addWelcomeMessage();
     }
-  }, [loading, messages.length, addWelcomeMessage]);
+  }, [loading, addWelcomeMessage]);
 
   // 检测完成关键词并点亮节点
   const checkForTaskCompletion = (userMessage: string) => {
@@ -77,11 +77,13 @@ const ChatPage: React.FC<ChatPageProps> = ({
     return null;
   };
 
-  const handleSend = async (e: React.FormEvent) => {
+  const handleSend = async (e: React.FormEvent, messageText?: string) => {
     e.preventDefault();
-    if (!inputText.trim() || aiTyping) return;
+    
+    // 使用传入的消息文本或输入框文本
+    const userMessage = messageText || inputText.trim();
+    if (!userMessage || aiTyping) return;
 
-    const userMessage = inputText.trim();
     setInputText('');
     
     // 检查任务完成
@@ -159,6 +161,14 @@ const ChatPage: React.FC<ChatPageProps> = ({
     }
   };
 
+  // 新增：处理问题点击，直接发送而不是复制到输入框
+  const handleQuestionClick = async (question: string) => {
+    setShowQuestionSuggestions(false);
+    // 直接发送问题，不需要用户再次点击发送
+    const mockEvent = { preventDefault: () => {} } as React.FormEvent;
+    await handleSend(mockEvent, question);
+  };
+
   const handleTaskComplete = async (taskTitle: string) => {
     const rewards = [
       `🎉 太棒了！你刚刚完成了「${taskTitle}」，我能感受到你的努力！我们又向前迈进了一步！`,
@@ -204,9 +214,11 @@ const ChatPage: React.FC<ChatPageProps> = ({
       className="mobile-container bg-white flex flex-col h-screen"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      style=    {{backgroundImage: `url(${backgroundImage})`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center'}}
+      style={{
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}
     >
       <ChatHeader
         selectedAvatar={selectedAvatar}
@@ -230,10 +242,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
         onGoToStarMap={onGoToStarMap}
         onCloseTaskSuggestions={() => setShowTaskSuggestions(false)}
         onCloseQuestionSuggestions={() => setShowQuestionSuggestions(false)}
-        onQuestionClick={(question) => {
-          setInputText(question);
-          setShowQuestionSuggestions(false);
-        }}
+        onQuestionClick={handleQuestionClick}
         onTaskComplete={handleTaskComplete}
       />
 
