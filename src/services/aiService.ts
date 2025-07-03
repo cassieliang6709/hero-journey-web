@@ -142,17 +142,24 @@ export const generateQuestions = async (userMessage: string, aiResponse: string)
         messages: [
           {
             role: "system",
-            content: `基于用户的问题和AI的回答，生成3个相关的后续问题，这些问题应该：
-1. 自然地延续当前对话话题
-2. 帮助用户深入探索或获得更多指导
-3. 符合英雄成长和自我提升的主题
-4. 问题要简洁明了，每个问题不超过20个字
+            content: `你需要判断当前对话是否需要生成后续问题建议。
 
-请直接返回3个问题，每个问题一行，不要编号，不要其他解释。`
+判断标准：
+1. 如果用户的问题或AI的回复比较宽泛、开放性强，有多个可以深入探讨的角度，则生成3个相关问题
+2. 如果对话内容很具体、明确，或者用户已经在执行具体任务，则不生成问题（返回空）
+
+如果需要生成问题建议，这些问题应该：
+- 自然地延续当前对话话题
+- 帮助用户深入探索或获得更多指导
+- 符合英雄成长和自我提升的主题
+- 问题要简洁明了，每个问题不超过20个字
+
+如果不需要生成问题建议，直接返回"NO_QUESTIONS"
+如果需要生成问题建议，请直接返回3个问题，每个问题一行，不要编号，不要其他解释。`
           },
           {
             role: "user",
-            content: `用户说：${userMessage}\n\nAI回答：${aiResponse}\n\n请生成3个相关的后续问题：`
+            content: `用户说：${userMessage}\n\nAI回答：${aiResponse}\n\n请判断是否需要生成问题建议，如果需要请生成3个相关问题：`
           }
         ]
       })
@@ -165,11 +172,16 @@ export const generateQuestions = async (userMessage: string, aiResponse: string)
     const data = await response.json();
     const questionsText = data.choices?.[0]?.message?.content || '';
     
+    // 如果AI判断不需要生成问题，返回空数组
+    if (questionsText.includes('NO_QUESTIONS')) {
+      return [];
+    }
+    
     // 解析问题，过滤空行
     const questions = questionsText
       .split('\n')
       .map((q: string) => q.trim())
-      .filter((q: string) => q.length > 0)
+      .filter((q: string) => q.length > 0 && !q.includes('NO_QUESTIONS'))
       .slice(0, 3); // 确保只返回3个问题
     
     return questions;
