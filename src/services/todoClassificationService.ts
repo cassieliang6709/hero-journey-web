@@ -121,7 +121,7 @@ export const classifyTodoToNode = async (todoText: string): Promise<NodeClassifi
 - skill-resume (简历优化)
 - skill-etiquette (职场礼仪)
 
-请只返回最匹配的节点ID，如skill-interview。特别注意：任何包含"面试"、"准备面试"、"面试技巧"、"Pre"、"pre"等词汇的任务都应该分类为skill-interview。`
+请只返回最匹配的节点ID，`
           },
           {
             role: 'user',

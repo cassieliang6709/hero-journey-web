@@ -86,9 +86,6 @@ const ChatPage: React.FC<ChatPageProps> = ({
 
     setInputText('');
     
-    // 检查任务完成
-    const completedNode = checkForTaskCompletion(userMessage);
-    
     // 检查是否包含待办事项相关关键词
     const todoKeywords = ['待办', '任务', 'todo', '计划', '安排', '提醒'];
     const shouldShowTodo = todoKeywords.some(keyword => 
@@ -100,7 +97,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
     }
     
     // Add user message with completed node info
-    await addMessage(userMessage, true, completedNode);
+    await addMessage(userMessage, true, null);
     
     // Show AI typing indicator
     setAiTyping(true);
@@ -127,6 +124,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
       }
 
       // 如果有节点被点亮，AI会祝贺
+      const completedNode = checkForTaskCompletion(userMessage);
       if (completedNode) {
         finalResponse += `\n\n🎉 太棒了！你刚刚点亮了「${completedNode.name}」节点，我们的星图又亮了一颗星！继续加油，我们会越来越强大的！`;
       }
@@ -179,6 +177,16 @@ const ChatPage: React.FC<ChatPageProps> = ({
     ];
     const randomReward = rewards[Math.floor(Math.random() * rewards.length)];
     await addMessage(randomReward, false);
+
+    // 检查是否点亮星图节点
+    const completedNode = checkForTaskCompletion(taskTitle);
+    if (completedNode) {
+      await addMessage(
+        `🎉 太棒了！你刚刚点亮了「${completedNode.name}」节点，我们的星图又亮了一颗星！继续加油，我们会越来越强大的！`,
+        false,
+        completedNode
+      );
+    }
   };
 
   const handleClearChat = async () => {
