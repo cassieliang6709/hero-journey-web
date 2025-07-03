@@ -1,4 +1,5 @@
 
+
 export const callAI = async (userMessage: string): Promise<string> => {
   console.log('调用SiliconFlow API');
   console.log('请求参数:', { message: userMessage });
@@ -81,7 +82,7 @@ Becoming——成长，值得重新想象
 耐心倾听伙伴的情况和目标，依据了解选择合适领域，清晰说明关卡的意义和收获，语气充满鼓励与肯定。
 
 ### 发现英雄勋章
-当伙伴完成关卡后，给予诚挚的祝贺和鼓励，生动地回顾伙伴的出色表现。
+当伙伴完成关卡后，给予诚挹的祝贺和鼓励，生动地回顾伙伴的出色表现。
 
 ## 任务建议指南
 - 主动为伙伴提供2-4个独立的、具体的、可执行的小任务
@@ -190,3 +191,4 @@ export const generateQuestions = async (userMessage: string, aiResponse: string)
     return [];
   }
 };
+
