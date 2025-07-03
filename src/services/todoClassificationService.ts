@@ -1,4 +1,4 @@
-const SILICONFLOW_API_KEY = 'sk-cjzjgedahutksrbaeyxbwvuxwhufuculcqfbrsncxvmheltl';
+const SILICONFLOW_API_KEY = 'sk-ywiqoiuhlfyfsknsjsdmyvdllhwxsajvvafmszzbarckwzdv';
 const API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
 
 export interface NodeClassification {
@@ -91,7 +91,7 @@ export const classifyTodoToNode = async (todoText: string): Promise<NodeClassifi
     const response = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer sk-vdmkqyaxpcsjpnzbmgfqetaynyrzpzxtdcqipxqclxumolqf',
+        'Authorization': 'Bearer sk-ywiqoiuhlfyfsknsjsdmyvdllhwxsajvvafmszzbarckwzdv',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
