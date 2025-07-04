@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import backgroundImage from '@/assets/background1.jpg';  // 导入图片
 import { toast } from 'sonner';
@@ -46,21 +47,34 @@ const ChatPage: React.FC<ChatPageProps> = ({
     }
   }, [loading, addWelcomeMessage]);
 
-  // 检测完成关键词并点亮节点 - 只用于实际任务完成检查，不在聊天中触发
-  const checkForTaskCompletion = (userMessage: string) => {
+  // 检测完成关键词并点亮节点 - 用于任务完成后的检查
+  const checkForTaskCompletion = (taskTitle: string) => {
     const completionKeywords = [
-      ['完成', '做完', '结束', '搞定'],
-      ['运动', '锻炼', '跑步', '健身'],
-      ['学习', '看书', '阅读', '练习'],
-      ['沟通', '交流', '说话', '聊天'],
-      ['情绪', '心情', '感受', '冥想'],
-      ['面试', '工作', '求职', '简历']
+      // 心理优势相关
+      ['反思', '思考', '总结', '梳理', '分析'],
+      ['情绪', '心情', '感受', '调节'],
+      ['自信', '信心', '价值', '肯定'],
+      ['压力', '放松', '减压', '缓解'],
+      
+      // 身体健康相关
+      ['运动', '锻炼', '跑步', '健身', '瑜伽'],
+      ['饮食', '营养', '吃', '食物'],
+      ['睡眠', '休息', '作息'],
+      ['体重', '减肥', '称重'],
+      ['体能', '体力', '耐力'],
+      
+      // 技能发展相关
+      ['面试', '求职', '应聘', '准备'],
+      ['沟通', '交流', '表达', '谈话'],
+      ['职业', '规划', '发展'],
+      ['简历', '履历', 'CV'],
+      ['礼仪', '职场', '商务']
     ];
 
     const foundKeywords: string[] = [];
     completionKeywords.forEach(keywordGroup => {
       keywordGroup.forEach(keyword => {
-        if (userMessage.includes(keyword)) {
+        if (taskTitle.includes(keyword)) {
           foundKeywords.push(keyword);
         }
       });
@@ -161,8 +175,15 @@ const ChatPage: React.FC<ChatPageProps> = ({
     await handleSend(mockEvent, question);
   };
 
-  // 修改任务完成处理逻辑 - 这里才是真正的任务完成时机
+  // 处理任务完成 - 这里是真正的任务完成时机，会触发庆祝和星图点亮
   const handleTaskComplete = async (taskTitle: string) => {
+    // 先关闭任务建议卡片，让庆祝消息显示在下方
+    setShowTaskSuggestions(false);
+    
+    // 检查是否点亮星图节点
+    const completedNode = checkForTaskCompletion(taskTitle);
+    
+    // 发送庆祝消息
     const rewards = [
       `🎉 太棒了！你刚刚完成了「${taskTitle}」，我能感受到你的努力！我们又向前迈进了一步！`,
       `✨ 干得漂亮！完成「${taskTitle}」让我们都变得更强大了！每一个小行动都在积累力量！`,
@@ -173,10 +194,8 @@ const ChatPage: React.FC<ChatPageProps> = ({
     const randomReward = rewards[Math.floor(Math.random() * rewards.length)];
     await addMessage(randomReward, false);
 
-    // 现在在任务实际完成时检查并点亮星图节点
-    const completedNode = checkForTaskCompletion(taskTitle);
+    // 如果有节点被点亮，显示星图节点完成卡片
     if (completedNode) {
-      // 先发送庆祝消息
       await addMessage(
         `🎉 太棒了！你刚刚点亮了「${completedNode.name}」节点，我们的星图又亮了一颗星！继续加油，我们会越来越强大的！`,
         false,
