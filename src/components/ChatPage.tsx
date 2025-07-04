@@ -46,7 +46,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
     }
   }, [loading, addWelcomeMessage]);
 
-  // 检测完成关键词并点亮节点
+  // 检测完成关键词并点亮节点 - 只用于实际任务完成检查，不在聊天中触发
   const checkForTaskCompletion = (userMessage: string) => {
     const completionKeywords = [
       ['完成', '做完', '结束', '搞定'],
@@ -96,7 +96,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
       setShowTodoCard(true);
     }
     
-    // Add user message with completed node info
+    // Add user message without any star map completion logic
     await addMessage(userMessage, true, null);
     
     // Show AI typing indicator
@@ -123,12 +123,6 @@ const ChatPage: React.FC<ChatPageProps> = ({
         finalResponse += '\n\n📝 我为你显示了待办事项卡片，你可以直接在这里查看和管理任务。';
       }
 
-      // 如果有节点被点亮，AI会祝贺
-      const completedNode = checkForTaskCompletion(userMessage);
-      if (completedNode) {
-        finalResponse += `\n\n🎉 太棒了！你刚刚点亮了「${completedNode.name}」节点，我们的星图又亮了一颗星！继续加油，我们会越来越强大的！`;
-      }
-      
       await addMessage(finalResponse, false);
       
       // 生成问题建议
@@ -167,6 +161,7 @@ const ChatPage: React.FC<ChatPageProps> = ({
     await handleSend(mockEvent, question);
   };
 
+  // 修改任务完成处理逻辑 - 这里才是真正的任务完成时机
   const handleTaskComplete = async (taskTitle: string) => {
     const rewards = [
       `🎉 太棒了！你刚刚完成了「${taskTitle}」，我能感受到你的努力！我们又向前迈进了一步！`,
@@ -178,9 +173,10 @@ const ChatPage: React.FC<ChatPageProps> = ({
     const randomReward = rewards[Math.floor(Math.random() * rewards.length)];
     await addMessage(randomReward, false);
 
-    // 检查是否点亮星图节点
+    // 现在在任务实际完成时检查并点亮星图节点
     const completedNode = checkForTaskCompletion(taskTitle);
     if (completedNode) {
+      // 先发送庆祝消息
       await addMessage(
         `🎉 太棒了！你刚刚点亮了「${completedNode.name}」节点，我们的星图又亮了一颗星！继续加油，我们会越来越强大的！`,
         false,
