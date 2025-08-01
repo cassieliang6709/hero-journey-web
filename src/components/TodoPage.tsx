@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Globe, Loader2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { ArrowLeft, Globe, Loader2, Plus, Brain } from 'lucide-react';
 import TodoStats from './todo/TodoStats';
 import TodoList from './todo/TodoList';
 import SuccessMessage from './todo/SuccessMessage';
@@ -16,10 +17,23 @@ interface TodoPageProps {
 }
 
 const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
-  const { todos, loading, toggleTodo } = useTodos();
+  const { todos, loading, toggleTodo, addTodo } = useTodos();
+  const [newTodoText, setNewTodoText] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
 
   const completedCount = todos.filter(todo => todo.completed).length;
   const completionRate = todos.length > 0 ? Math.round((completedCount / todos.length) * 100) : 0;
+
+  const handleAddTodo = async () => {
+    if (!newTodoText.trim() || isAdding) return;
+    
+    setIsAdding(true);
+    const result = await addTodo(newTodoText, '新增');
+    if (result) {
+      setNewTodoText('');
+    }
+    setIsAdding(false);
+  };
 
   if (loading) {
     return (
@@ -93,6 +107,42 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
           totalCount={todos.length}
           completionRate={completionRate}
         />
+
+        {/* 添加新待办事项 */}
+        <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+          <div className="flex items-center space-x-2">
+            <Brain className="w-4 h-4 text-purple-500" />
+            <h3 className="text-gray-900 font-medium">创建新任务</h3>
+          </div>
+          
+          <div className="flex space-x-2">
+            <Input
+              value={newTodoText}
+              onChange={(e) => setNewTodoText(e.target.value)}
+              placeholder="输入新任务..."
+              className="flex-1"
+              onKeyPress={(e) => e.key === 'Enter' && handleAddTodo()}
+              disabled={isAdding}
+            />
+            <Button
+              onClick={handleAddTodo}
+              size="sm"
+              className="bg-gray-900 hover:bg-gray-800 text-white px-3"
+              disabled={isAdding || !newTodoText.trim()}
+            >
+              {isAdding ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Plus className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
+          
+          <div className="text-xs text-gray-500 flex items-center">
+            <Brain className="w-3 h-3 mr-1" />
+            AI会自动将任务分类到对应星图节点
+          </div>
+        </div>
 
         {/* 任务列表 */}
         <TodoList 
