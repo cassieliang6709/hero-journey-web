@@ -6,9 +6,8 @@ import { ArrowLeft, Globe, Loader2, Plus, Brain, Sparkles, Calendar } from 'luci
 import TodoStats from './todo/TodoStats';
 import TodoList from './todo/TodoList';
 import SuccessMessage from './todo/SuccessMessage';
-import VoiceInput from '@/components/VoiceInput';
 import WeekCalendar from '@/components/WeekCalendar';
-import { parseVoiceInputForTasks } from '@/services/taskParsingService';
+import { callAI } from '@/services/aiService';
 import { useTodos } from '@/hooks/useTodos';
 import { toast } from 'sonner';
 
@@ -24,7 +23,7 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
   const { todos, loading, toggleTodo, addTodo } = useTodos();
   const [newTodoText, setNewTodoText] = useState('');
   const [isAdding, setIsAdding] = useState(false);
-  const [isProcessingVoice, setIsProcessingVoice] = useState(false);
+  const [isProcessingAI, setIsProcessingAI] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -42,50 +41,49 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
     setIsAdding(false);
   };
 
-  const handleVoiceTranscription = async (voiceText: string) => {
-    if (!voiceText.trim()) return;
-    
-    setIsProcessingVoice(true);
-    try {
-      const taskSuggestions = await parseVoiceInputForTasks(voiceText);
-      
-      if (taskSuggestions.length === 1) {
-        // 单个任务直接添加
-        await addTodo(taskSuggestions[0].title, taskSuggestions[0].category);
-        toast.success('已添加1个任务');
-      } else if (taskSuggestions.length > 1) {
-        // 多个任务批量添加
-        for (const task of taskSuggestions) {
-          await addTodo(task.title, task.category);
-        }
-        toast.success(`已分拆并添加${taskSuggestions.length}个任务`);
-      }
-    } catch (error) {
-      console.error('语音任务处理失败:', error);
-      toast.error('语音任务处理失败');
-    } finally {
-      setIsProcessingVoice(false);
-    }
-  };
 
   const handleAIPriority = async () => {
-    if (todos.length < 3) {
+    if (todos.filter(todo => !todo.completed).length < 3) {
       toast.info('任务较少，暂不需要AI排序');
       return;
     }
 
+    setIsProcessingAI(true);
     try {
       const uncompletedTodos = todos.filter(todo => !todo.completed);
-      const todoTexts = uncompletedTodos.map(todo => `- ${todo.text} (${todo.category})`).join('\n');
+      const todoTexts = uncompletedTodos.map((todo, index) => `${index + 1}. ${todo.text} (分类: ${todo.category})`).join('\n');
       
-      toast.success('AI正在分析任务优先级...');
+      const prompt = `请帮我分析这些待办事项的优先级，并提供优化建议：
+
+${todoTexts}
+
+请按照以下格式返回：
+1. 优先级排序（按重要性和紧急性）
+2. 建议删除或延后的任务
+3. 简短的理由
+
+要求：
+- 考虑任务的重要性、紧急性和执行难度
+- 建议删除不必要或可延后的任务
+- 保持回复简洁实用`;
+
+      const aiResponse = await callAI(prompt);
       
-      // 这里可以调用AI API进行优先级分析
-      // 暂时先显示提示
-      toast.info('AI优先级排序功能开发中，建议先完成紧急重要的任务');
+      // 显示AI分析结果
+      toast.success('AI优先级分析完成');
+      
+      // 这里可以进一步处理AI返回的结果
+      // 比如解析出具体的排序建议并应用到任务列表
+      console.log('AI优先级分析结果:', aiResponse);
+      
+      // 临时显示结果（实际项目中可以用modal显示）
+      alert(`AI分析建议：\n\n${aiResponse}`);
+      
     } catch (error) {
       console.error('AI优先级分析失败:', error);
-      toast.error('AI分析失败');
+      toast.error('AI分析失败，请稍后重试');
+    } finally {
+      setIsProcessingAI(false);
     }
   };
 
@@ -192,10 +190,15 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
               variant="outline"
               size="sm"
               onClick={handleAIPriority}
+              disabled={isProcessingAI}
               className="flex items-center gap-2"
             >
-              <Sparkles className="h-4 w-4" />
-              AI优先级排序
+              {isProcessingAI ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+              {isProcessingAI ? 'AI分析中...' : 'AI优先级排序'}
             </Button>
           </div>
         )}
@@ -230,16 +233,6 @@ const TodoPage: React.FC<TodoPageProps> = ({ user, onGoToStarMap, onBack }) => {
             </Button>
           </div>
           
-          {/* 语音输入 */}
-          <div className="flex items-center gap-2">
-            <VoiceInput 
-              onTranscription={handleVoiceTranscription}
-              isProcessing={isProcessingVoice}
-            />
-            <span className="text-xs text-gray-500">
-              说出任务，AI自动分拆成多个子任务
-            </span>
-          </div>
           
           <div className="text-xs text-gray-500 flex items-center">
             <Brain className="w-3 h-3 mr-1" />
