@@ -40,6 +40,56 @@ export const parseAIResponseForTasks = (aiResponse: string, messageId: string): 
   };
 };
 
+// 智能任务分拆功能
+export const parseVoiceInputForTasks = async (voiceText: string): Promise<TaskSuggestion[]> => {
+  try {
+    // 调用AI分析语音输入，判断是否需要分拆成多个任务
+    const analysisPrompt = `
+分析以下用户的语音输入，判断是否需要分拆成多个待办任务：
+
+用户输入："${voiceText}"
+
+请按以下规则处理：
+1. 如果是一个简单、具体的任务（预计5-15分钟可完成），直接生成1个任务
+2. 如果是复杂任务或包含多个步骤，分拆成2-5个子任务
+3. 每个任务应该是可执行的具体行动
+
+请用以下格式回复：
+[TASK]任务标题|任务描述|难度(1-5)|预计时长[/TASK]
+
+任务标题要简洁明了，任务描述要具体可执行。
+`;
+
+    const response = await fetch('/api/ai-analysis', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: analysisPrompt })
+    });
+
+    if (!response.ok) {
+      throw new Error('AI分析失败');
+    }
+
+    const aiResponse = await response.text();
+    const parsed = parseAIResponseForTasks(aiResponse, `voice_${Date.now()}`);
+    
+    return parsed.taskSuggestions;
+  } catch (error) {
+    console.error('语音任务分拆失败:', error);
+    
+    // 降级处理：直接创建一个简单任务
+    return [{
+      id: `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      title: voiceText.length > 20 ? voiceText.slice(0, 20) + '...' : voiceText,
+      description: voiceText,
+      difficulty: 2,
+      estimatedTime: '15分钟',
+      category: predictTaskCategory(voiceText),
+      messageId: `voice_${Date.now()}`
+    }];
+  }
+};
+
 const predictTaskCategory = (text: string): string => {
   const lowerText = text.toLowerCase();
   
