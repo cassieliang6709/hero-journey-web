@@ -1,0 +1,26 @@
+{
+  "title": "Star Map",
+  "subtitle": "Explore your growth path",
+  "categories": {
+    "body": "Body",
+    "mind": "Mind",
+    "emotion": "Emotion",
+    "relationship": "Relationship",
+    "career": "Career",
+    "creativity": "Creativity"
+  },
+  "nodeStatus": {
+    "locked": "Locked",
+    "unlocked": "Unlocked",
+    "inProgress": "In Progress",
+    "mastered": "Mastered"
+  },
+  "progress": "Progress",
+  "startJourney": "Start Journey",
+  "continueJourney": "Continue Journey",
+  "viewDetails": "View Details",
+  "relatedTasks": "Related Tasks",
+  "prerequisites": "Prerequisites",
+  "rewards": "Rewards",
+  "completionHistory": "Completion History"
+}

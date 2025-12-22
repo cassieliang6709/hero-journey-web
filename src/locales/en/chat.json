@@ -1,0 +1,14 @@
+{
+  "title": "AI Chat",
+  "placeholder": "Enter your question...",
+  "send": "Send",
+  "thinking": "Thinking...",
+  "welcomeMessage": "Hello! I'm your AI assistant. How can I help you?",
+  "errorMessage": "Sorry, something went wrong. Please try again later.",
+  "clearHistory": "Clear History",
+  "suggestions": "You might want to ask",
+  "taskSuggestion": "Task Suggestion",
+  "addToTodo": "Add to Todo",
+  "nodeComplete": "Node Complete",
+  "congratulations": "Congratulations on completing this node!"
+}

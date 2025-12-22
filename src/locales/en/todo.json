@@ -1,0 +1,46 @@
+{
+  "title": "Todo List",
+  "addTask": "Add Task",
+  "addTaskPlaceholder": "Enter new task...",
+  "completed": "Completed",
+  "incomplete": "Incomplete",
+  "all": "All",
+  "today": "Today",
+  "thisWeek": "This Week",
+  "noTasks": "No tasks",
+  "taskCompleted": "Task completed",
+  "taskDeleted": "Task deleted",
+  "priority": "Priority",
+  "high": "High",
+  "medium": "Medium",
+  "low": "Low",
+  "category": "Category",
+  "dueDate": "Due Date",
+  "progress": "Progress",
+  "stats": {
+    "total": "Total Tasks",
+    "completed": "Completed",
+    "remaining": "Remaining"
+  },
+  "aiPriority": {
+    "title": "AI Priority Suggestions",
+    "analyzing": "AI is analyzing task priorities...",
+    "suggestion": "Suggested adjustment",
+    "reason": "Reason",
+    "apply": "Apply Suggestions",
+    "noSuggestions": "Current task order is optimal"
+  },
+  "calendar": {
+    "title": "Calendar View",
+    "weekView": "Week View",
+    "monthView": "Month View"
+  },
+  "focusTools": {
+    "title": "Focus Tools",
+    "pomodoro": "Pomodoro",
+    "timer": "Timer",
+    "start": "Start",
+    "pause": "Pause",
+    "reset": "Reset"
+  }
+}

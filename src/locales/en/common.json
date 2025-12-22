@@ -1,0 +1,22 @@
+{
+  "appName": "Become Yourself",
+  "loading": "Loading...",
+  "save": "Save",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "delete": "Delete",
+  "edit": "Edit",
+  "back": "Back",
+  "next": "Next",
+  "previous": "Previous",
+  "complete": "Complete",
+  "submit": "Submit",
+  "search": "Search",
+  "noData": "No data",
+  "error": "Error",
+  "success": "Success",
+  "retry": "Retry",
+  "close": "Close",
+  "language": "Language",
+  "switchLanguage": "Switch Language"
+}
