@@ -1,0 +1,41 @@
+{
+  "physical": {
+    "title": "体能测试",
+    "subtitle": "评估你的身体状况",
+    "age": "年龄",
+    "height": "身高",
+    "weight": "体重",
+    "pushups": "俯卧撑数量",
+    "situps": "仰卧起坐数量",
+    "runningTime": "跑步时间(秒)",
+    "flexibility": "柔韧性评分",
+    "startTest": "开始测试",
+    "viewResults": "查看结果",
+    "overallScore": "综合评分",
+    "level": "等级",
+    "recommendations": "建议",
+    "units": {
+      "years": "岁",
+      "cm": "厘米",
+      "kg": "公斤",
+      "times": "次",
+      "seconds": "秒"
+    }
+  },
+  "talent": {
+    "title": "天赋测试",
+    "subtitle": "发现你的独特优势",
+    "startTest": "开始测试",
+    "viewResults": "查看结果",
+    "primaryTalent": "主要天赋",
+    "description": "描述",
+    "strengths": "优势",
+    "recommendations": "发展建议",
+    "scores": {
+      "leadership": "领导力",
+      "innovation": "创新力",
+      "execution": "执行力",
+      "harmony": "和谐力"
+    }
+  }
+}

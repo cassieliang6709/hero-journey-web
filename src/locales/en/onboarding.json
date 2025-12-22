@@ -1,0 +1,19 @@
+{
+  "welcome": "Welcome",
+  "step1": {
+    "title": "Choose Your Avatar",
+    "subtitle": "Select an image that represents you"
+  },
+  "step2": {
+    "title": "Who do you want to become?",
+    "subtitle": "Choose areas you're interested in"
+  },
+  "step3": {
+    "title": "Set Your Username",
+    "subtitle": "Let us know what to call you"
+  },
+  "continue": "Continue",
+  "skip": "Skip",
+  "finish": "Finish Setup",
+  "usernamePlaceholder": "Enter username..."
+}

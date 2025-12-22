@@ -1,0 +1,14 @@
+{
+  "title": "AI 对话",
+  "placeholder": "输入你的问题...",
+  "send": "发送",
+  "thinking": "思考中...",
+  "welcomeMessage": "你好！我是你的AI助手，有什么可以帮助你的吗？",
+  "errorMessage": "抱歉，出了点问题，请稍后重试。",
+  "clearHistory": "清空对话",
+  "suggestions": "你可能想问",
+  "taskSuggestion": "任务建议",
+  "addToTodo": "添加到待办",
+  "nodeComplete": "节点完成",
+  "congratulations": "恭喜你完成了这个节点！"
+}

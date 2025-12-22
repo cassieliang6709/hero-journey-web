@@ -1,0 +1,41 @@
+{
+  "physical": {
+    "title": "Physical Test",
+    "subtitle": "Assess your physical condition",
+    "age": "Age",
+    "height": "Height",
+    "weight": "Weight",
+    "pushups": "Push-ups",
+    "situps": "Sit-ups",
+    "runningTime": "Running Time (seconds)",
+    "flexibility": "Flexibility Score",
+    "startTest": "Start Test",
+    "viewResults": "View Results",
+    "overallScore": "Overall Score",
+    "level": "Level",
+    "recommendations": "Recommendations",
+    "units": {
+      "years": "years",
+      "cm": "cm",
+      "kg": "kg",
+      "times": "times",
+      "seconds": "seconds"
+    }
+  },
+  "talent": {
+    "title": "Talent Test",
+    "subtitle": "Discover your unique strengths",
+    "startTest": "Start Test",
+    "viewResults": "View Results",
+    "primaryTalent": "Primary Talent",
+    "description": "Description",
+    "strengths": "Strengths",
+    "recommendations": "Development Suggestions",
+    "scores": {
+      "leadership": "Leadership",
+      "innovation": "Innovation",
+      "execution": "Execution",
+      "harmony": "Harmony"
+    }
+  }
+}

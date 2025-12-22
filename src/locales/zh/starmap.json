@@ -1,0 +1,26 @@
+{
+  "title": "星图",
+  "subtitle": "探索你的成长之路",
+  "categories": {
+    "body": "身体",
+    "mind": "思维",
+    "emotion": "情绪",
+    "relationship": "关系",
+    "career": "事业",
+    "creativity": "创造力"
+  },
+  "nodeStatus": {
+    "locked": "未解锁",
+    "unlocked": "已解锁",
+    "inProgress": "进行中",
+    "mastered": "已掌握"
+  },
+  "progress": "进度",
+  "startJourney": "开始旅程",
+  "continueJourney": "继续旅程",
+  "viewDetails": "查看详情",
+  "relatedTasks": "相关任务",
+  "prerequisites": "前置条件",
+  "rewards": "奖励",
+  "completionHistory": "完成历史"
+}
