@@ -44,9 +44,9 @@ const ChatPage: React.FC<ChatPageProps> = ({
 
   useEffect(() => {
     if (!loading) {
-      addWelcomeMessage();
+      addWelcomeMessage(t('welcomeMessage'));
     }
-  }, [loading, addWelcomeMessage]);
+  }, [loading, addWelcomeMessage, t]);
 
   const checkForTaskCompletion = (taskTitle: string) => {
     const completionKeywords = [
