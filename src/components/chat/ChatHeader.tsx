@@ -1,9 +1,9 @@
-
 import React from 'react';
-import headImage from '../../assets/headimage1.png';  // 导入图片
-
+import { useTranslation } from 'react-i18next';
+import headImage from '../../assets/headimage1.png';
 import { Button } from '@/components/ui/button';
 import { Globe, Settings, Trash2 } from 'lucide-react';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 interface ChatHeaderProps {
   selectedAvatar: number;
@@ -13,8 +13,6 @@ interface ChatHeaderProps {
   onGoToStarMap: () => void;
 }
 
-const avatars = ['🦸‍♂️', '🦸‍♀️', '🧙‍♂️', '🧙‍♀️', '👑', '⚡', '🔥', '🌟'];
-
 const ChatHeader: React.FC<ChatHeaderProps> = ({
   selectedAvatar,
   onAvatarClick,
@@ -22,6 +20,8 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
   onOnboardingClick,
   onGoToStarMap
 }) => {
+  const { t } = useTranslation('chat');
+
   return (
     <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
       <div className="flex items-center space-x-3">
@@ -31,21 +31,22 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
         >
           <img
               src={headImage}
-              alt="用户头像"
+              alt={t('header.avatarAlt')}
               className="w-full h-full object-cover"
           />
         </button>
         <div>
-          <h1 className="text-gray-900 font-semibold">小精灵</h1>
+          <h1 className="text-gray-900 font-semibold">{t('header.assistantName')}</h1>
         </div>
       </div>
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-1">
+        <LanguageSwitcher />
         <Button
             variant="ghost"
             size="sm"
             onClick={onClearChat}
             className="text-gray-900 p-2 hover:bg-gray-100 hover:scale-105 transition-all"
-            title="清空聊天记录"
+            title={t('header.clearChat')}
         >
           <Trash2 className="w-5 h-5"/>
         </Button>
@@ -54,7 +55,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
           size="sm"
           onClick={onOnboardingClick}
           className="text-gray-900 p-2 hover:bg-gray-100 hover:scale-105 transition-all"
-          title="重新设置目标"
+          title={t('header.resetGoals')}
         >
           <Settings className="w-5 h-5" />
         </Button>
