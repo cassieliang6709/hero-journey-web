@@ -18,5 +18,14 @@
   "retry": "Retry",
   "close": "Close",
   "language": "Language",
-  "switchLanguage": "Switch Language"
+  "switchLanguage": "Switch Language",
+  "processing": "Processing...",
+  "completionRate": "Completion Rate",
+  "loadingTodos": "Loading todos...",
+  "loadingChat": "Loading chat history...",
+  "onboardingError": "Onboarding error",
+  "aiServiceUnavailable": "AI service is temporarily unavailable, please try again later",
+  "clearChatConfirm": "Are you sure you want to clear all chat history?",
+  "chatCleared": "Chat history cleared",
+  "taskMoveInProgress": "Task move feature is in development"
 }

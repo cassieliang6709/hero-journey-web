@@ -1,5 +1,5 @@
-
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import AuthPage from '@/components/AuthPage';
 import OnboardingStep1 from '@/components/OnboardingStep1';
@@ -8,6 +8,7 @@ import OnboardingStep3 from '@/components/OnboardingStep3';
 import MainApp from '@/components/MainApp';
 
 const Index = () => {
+  const { t } = useTranslation('common');
   const {
     user,
     loading,
@@ -20,12 +21,10 @@ const Index = () => {
     signOut
   } = useSupabaseAuth();
 
-  console.log('Current app state:', state);
-
   if (loading) {
     return (
       <div className="mobile-container bg-white flex items-center justify-center">
-        <div className="text-gray-600">加载中...</div>
+        <div className="text-gray-600">{t('loading')}</div>
       </div>
     );
   }
@@ -61,7 +60,7 @@ const Index = () => {
           />
         );
       default:
-        return <div>引导流程错误</div>;
+        return <div>{t('onboardingError')}</div>;
     }
   }
 
@@ -80,7 +79,7 @@ const Index = () => {
     );
   }
 
-  return <div>加载中...</div>;
+  return <div>{t('loading')}</div>;
 };
 
 export default Index;

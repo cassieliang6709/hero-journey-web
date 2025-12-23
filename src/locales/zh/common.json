@@ -18,5 +18,14 @@
   "retry": "重试",
   "close": "关闭",
   "language": "语言",
-  "switchLanguage": "切换语言"
+  "switchLanguage": "切换语言",
+  "processing": "处理中...",
+  "completionRate": "完成率",
+  "loadingTodos": "加载待办事项...",
+  "loadingChat": "加载聊天记录中...",
+  "onboardingError": "引导流程错误",
+  "aiServiceUnavailable": "AI服务暂时不可用，请稍后重试",
+  "clearChatConfirm": "确定要清空所有聊天记录吗？",
+  "chatCleared": "聊天记录已清空",
+  "taskMoveInProgress": "任务移动功能开发中"
 }
