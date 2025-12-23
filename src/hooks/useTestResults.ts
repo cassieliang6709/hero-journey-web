@@ -1,6 +1,6 @@
-
-import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useCallback } from 'react';
 
 interface PhysicalTestResult {
   id: string;
@@ -30,59 +30,70 @@ interface TalentTestResult {
   created_at: string;
 }
 
+// Query keys
+export const testResultsKeys = {
+  all: ['testResults'] as const,
+  physical: () => [...testResultsKeys.all, 'physical'] as const,
+  talent: () => [...testResultsKeys.all, 'talent'] as const,
+};
+
+// Fetch functions
+const fetchPhysicalResults = async (): Promise<PhysicalTestResult[]> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from('physical_test_results')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+};
+
+const fetchTalentResults = async (): Promise<TalentTestResult[]> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from('talent_test_results')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+};
+
 export const useTestResults = () => {
-  const [physicalTestResults, setPhysicalTestResults] = useState<PhysicalTestResult[]>([]);
-  const [talentTestResults, setTalentTestResults] = useState<TalentTestResult[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  const loadTestResults = async () => {
-    try {
+  // Query for physical test results
+  const { 
+    data: physicalTestResults = [], 
+    isLoading: physicalLoading 
+  } = useQuery({
+    queryKey: testResultsKeys.physical(),
+    queryFn: fetchPhysicalResults,
+    staleTime: 1000 * 60 * 10, // 10 minutes
+  });
+
+  // Query for talent test results
+  const { 
+    data: talentTestResults = [], 
+    isLoading: talentLoading 
+  } = useQuery({
+    queryKey: testResultsKeys.talent(),
+    queryFn: fetchTalentResults,
+    staleTime: 1000 * 60 * 10, // 10 minutes
+  });
+
+  // Mutation for saving physical test result
+  const savePhysicalMutation = useMutation({
+    mutationFn: async (result: Omit<PhysicalTestResult, 'id' | 'created_at'>) => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
-      // 加载体能测试结果
-      const { data: physicalData, error: physicalError } = await supabase
-        .from('physical_test_results')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (physicalError) {
-        console.error('Error loading physical test results:', physicalError);
-      } else {
-        setPhysicalTestResults(physicalData || []);
-      }
-
-      // 加载天赋测试结果
-      const { data: talentData, error: talentError } = await supabase
-        .from('talent_test_results')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (talentError) {
-        console.error('Error loading talent test results:', talentError);
-      } else {
-        setTalentTestResults(talentData || []);
-      }
-    } catch (error) {
-      console.error('Error loading test results:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadTestResults();
-  }, []);
-
-  const savePhysicalTestResult = async (result: Omit<PhysicalTestResult, 'id' | 'created_at'>) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+      if (!user) throw new Error('Not authenticated');
 
       const { data, error } = await supabase
         .from('physical_test_results')
@@ -90,23 +101,21 @@ export const useTestResults = () => {
         .select()
         .single();
 
-      if (error) {
-        console.error('Error saving physical test result:', error);
-        return null;
-      }
-
-      setPhysicalTestResults(prev => [data, ...prev]);
+      if (error) throw error;
       return data;
-    } catch (error) {
-      console.error('Error saving physical test result:', error);
-      return null;
-    }
-  };
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData<PhysicalTestResult[]>(testResultsKeys.physical(), (old) => 
+        [data, ...(old || [])]
+      );
+    },
+  });
 
-  const saveTalentTestResult = async (result: Omit<TalentTestResult, 'id' | 'created_at'>) => {
-    try {
+  // Mutation for saving talent test result
+  const saveTalentMutation = useMutation({
+    mutationFn: async (result: Omit<TalentTestResult, 'id' | 'created_at'>) => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+      if (!user) throw new Error('Not authenticated');
 
       const { data, error } = await supabase
         .from('talent_test_results')
@@ -114,25 +123,42 @@ export const useTestResults = () => {
         .select()
         .single();
 
-      if (error) {
-        console.error('Error saving talent test result:', error);
-        return null;
-      }
-
-      setTalentTestResults(prev => [data, ...prev]);
+      if (error) throw error;
       return data;
-    } catch (error) {
-      console.error('Error saving talent test result:', error);
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData<TalentTestResult[]>(testResultsKeys.talent(), (old) => 
+        [data, ...(old || [])]
+      );
+    },
+  });
+
+  const savePhysicalTestResult = useCallback(async (result: Omit<PhysicalTestResult, 'id' | 'created_at'>) => {
+    try {
+      return await savePhysicalMutation.mutateAsync(result);
+    } catch {
       return null;
     }
-  };
+  }, [savePhysicalMutation]);
+
+  const saveTalentTestResult = useCallback(async (result: Omit<TalentTestResult, 'id' | 'created_at'>) => {
+    try {
+      return await saveTalentMutation.mutateAsync(result);
+    } catch {
+      return null;
+    }
+  }, [saveTalentMutation]);
+
+  const refreshTestResults = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: testResultsKeys.all });
+  }, [queryClient]);
 
   return {
     physicalTestResults,
     talentTestResults,
-    loading,
+    loading: physicalLoading || talentLoading,
     savePhysicalTestResult,
     saveTalentTestResult,
-    refreshTestResults: loadTestResults
+    refreshTestResults
   };
 };

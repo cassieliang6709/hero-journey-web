@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 import { SkillNode } from './useStarMap';
 
 interface Message {
@@ -11,71 +11,82 @@ interface Message {
   completedNode?: SkillNode;
 }
 
-export const useChatMessages = (userId: string | undefined) => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [hasLoadedInitialMessages, setHasLoadedInitialMessages] = useState(false);
+// Query keys
+export const chatKeys = {
+  all: ['chat'] as const,
+  messages: (userId: string) => [...chatKeys.all, 'messages', userId] as const,
+};
 
-  const loadMessages = useCallback(async () => {
-    if (!userId) return;
-    
-    try {
-      setLoading(true);
+// Fetch messages
+const fetchMessages = async (userId: string): Promise<Message[]> => {
+  const { data, error } = await supabase
+    .from('chat_messages')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: true });
+
+  if (error) throw error;
+
+  return (data || []).map(msg => ({
+    id: msg.id,
+    text: msg.message_text,
+    isUser: msg.is_user_message,
+    timestamp: new Date(msg.created_at || Date.now())
+  }));
+};
+
+export const useChatMessages = (userId: string | undefined) => {
+  const queryClient = useQueryClient();
+
+  // Query for messages
+  const { 
+    data: messages = [], 
+    isLoading: loading,
+    isFetched: hasLoadedInitialMessages,
+    refetch 
+  } = useQuery({
+    queryKey: chatKeys.messages(userId || ''),
+    queryFn: () => fetchMessages(userId!),
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  // Mutation for saving message
+  const saveMutation = useMutation({
+    mutationFn: async ({ text, isUser }: { text: string; isUser: boolean }) => {
+      if (!userId) throw new Error('No user ID');
+
       const { data, error } = await supabase
         .from('chat_messages')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: true });
+        .insert([{
+          user_id: userId,
+          message_text: text,
+          is_user_message: isUser
+        }])
+        .select()
+        .single();
 
-      if (error) {
-        console.error('Failed to load chat messages:', error);
-        return;
-      }
+      if (error) throw error;
+      return data;
+    },
+  });
 
-      const formattedMessages = (data || []).map(msg => ({
-        id: msg.id,
-        text: msg.message_text,
-        isUser: msg.is_user_message,
-        timestamp: new Date(msg.created_at || Date.now())
-      }));
+  // Mutation for clearing messages
+  const clearMutation = useMutation({
+    mutationFn: async () => {
+      if (!userId) throw new Error('No user ID');
 
-      setMessages(formattedMessages);
-      setHasLoadedInitialMessages(true);
-    } catch (error) {
-      console.error('Chat messages load error:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [userId]);
-
-  // 自动加载历史记录
-  useEffect(() => {
-    if (userId && !hasLoadedInitialMessages) {
-      loadMessages();
-    }
-  }, [userId, hasLoadedInitialMessages, loadMessages]);
-
-  const saveMessage = useCallback(async (text: string, isUser: boolean) => {
-    if (!userId) return;
-
-    try {
       const { error } = await supabase
         .from('chat_messages')
-        .insert([
-          {
-            user_id: userId,
-            message_text: text,
-            is_user_message: isUser
-          }
-        ]);
+        .delete()
+        .eq('user_id', userId);
 
-      if (error) {
-        console.error('Failed to save message:', error);
-      }
-    } catch (error) {
-      console.error('Save message error:', error);
-    }
-  }, [userId]);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.setQueryData<Message[]>(chatKeys.messages(userId || ''), []);
+    },
+  });
 
   const addMessage = useCallback(async (text: string, isUser: boolean, completedNode?: SkillNode) => {
     const newMessage: Message = {
@@ -86,35 +97,33 @@ export const useChatMessages = (userId: string | undefined) => {
       completedNode
     };
 
-    setMessages(prev => [...prev, newMessage]);
-    await saveMessage(text, isUser);
-  }, [saveMessage]);
+    // Optimistically update cache
+    queryClient.setQueryData<Message[]>(chatKeys.messages(userId || ''), (old) => 
+      [...(old || []), newMessage]
+    );
+
+    // Save to database
+    try {
+      await saveMutation.mutateAsync({ text, isUser });
+    } catch (error) {
+      console.error('Failed to save message:', error);
+    }
+  }, [userId, queryClient, saveMutation]);
 
   const clearMessages = useCallback(async () => {
     if (!userId) return false;
 
     try {
-      const { error } = await supabase
-        .from('chat_messages')
-        .delete()
-        .eq('user_id', userId);
-
-      if (error) {
-        console.error('Failed to clear chat messages:', error);
-        return false;
-      }
-
-      setMessages([]);
-      setHasLoadedInitialMessages(false);
+      await clearMutation.mutateAsync();
       return true;
     } catch (error) {
       console.error('Clear chat messages error:', error);
       return false;
     }
-  }, [userId]);
+  }, [userId, clearMutation]);
 
   const addWelcomeMessage = useCallback(async (welcomeText?: string) => {
-    // 只在没有消息且已加载初始消息后添加欢迎消息
+    // Only add welcome message if no messages and initial load complete
     if (messages.length === 0 && hasLoadedInitialMessages && welcomeText) {
       await addMessage(welcomeText, false);
     }
@@ -126,6 +135,6 @@ export const useChatMessages = (userId: string | undefined) => {
     addMessage,
     clearMessages,
     addWelcomeMessage,
-    refreshMessages: loadMessages
+    refreshMessages: refetch
   };
 };

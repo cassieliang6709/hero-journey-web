@@ -1,4 +1,5 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useTranslation } from 'react-i18next';
 
@@ -34,101 +35,105 @@ interface UserProgress {
   progress_score: number;
 }
 
+// Query keys
+export const starMapKeys = {
+  all: ['starMap'] as const,
+  nodes: (userId: string) => [...starMapKeys.all, 'nodes', userId] as const,
+  progress: (userId: string) => [...starMapKeys.all, 'progress', userId] as const,
+};
+
+// Fetch nodes from database
+const fetchNodes = async (isEnglish: boolean): Promise<DbNode[]> => {
+  const { data, error } = await supabase
+    .from('star_map_nodes')
+    .select('*')
+    .eq('is_active', true)
+    .order('display_order');
+
+  if (error) throw error;
+  return data || [];
+};
+
+// Fetch user progress
+const fetchProgress = async (userId: string): Promise<UserProgress[]> => {
+  const { data, error } = await supabase
+    .from('star_map_progress')
+    .select('node_id, status, progress_score')
+    .eq('user_id', userId);
+
+  if (error) throw error;
+  return data || [];
+};
+
 export const useStarMap = (userId: string) => {
   const { i18n } = useTranslation();
-  const [nodes, setNodes] = useState<SkillNode[]>([]);
-  const [level, setLevel] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
+  const queryClient = useQueryClient();
   const isEnglish = i18n.language === 'en';
 
-  // Fetch nodes from database and merge with user progress
-  const loadNodes = useCallback(async () => {
-    if (!userId) return;
+  // Query for nodes
+  const { data: dbNodes = [], isLoading: nodesLoading } = useQuery({
+    queryKey: ['starMapNodes', isEnglish],
+    queryFn: () => fetchNodes(isEnglish),
+    staleTime: 1000 * 60 * 30, // 30 minutes (node config rarely changes)
+    enabled: !!userId,
+  });
 
-    setIsLoading(true);
-    setError(null);
+  // Query for user progress
+  const { data: progressData = [], isLoading: progressLoading, refetch } = useQuery({
+    queryKey: starMapKeys.progress(userId),
+    queryFn: () => fetchProgress(userId),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: !!userId,
+  });
 
-    try {
-      // Fetch node configurations
-      const { data: dbNodes, error: nodesError } = await supabase
-        .from('star_map_nodes')
-        .select('*')
-        .eq('is_active', true)
-        .order('display_order');
+  // Merge nodes with progress
+  const nodes = useMemo<SkillNode[]>(() => {
+    const progressMap = new Map<string, UserProgress>();
+    progressData.forEach((p) => {
+      progressMap.set(p.node_id, p);
+    });
 
-      if (nodesError) throw nodesError;
+    return dbNodes.map((dbNode) => {
+      const progress = progressMap.get(dbNode.id);
 
-      // Fetch user progress
-      const { data: progressData, error: progressError } = await supabase
-        .from('star_map_progress')
-        .select('node_id, status, progress_score')
-        .eq('user_id', userId);
+      let status: SkillNode['status'] = 'locked';
+      if (progress) {
+        status = progress.status as SkillNode['status'];
+      } else {
+        const isRootNode = dbNode.id === 'center' || dbNode.id.endsWith('-root');
+        status = isRootNode ? 'active' : (dbNode.requirements?.length ? 'locked' : 'available');
+      }
 
-      if (progressError) throw progressError;
+      return {
+        id: dbNode.id,
+        name: isEnglish ? dbNode.name_en : dbNode.name,
+        description: isEnglish ? dbNode.description_en : dbNode.description,
+        category: dbNode.category as SkillNode['category'],
+        position: { x: dbNode.position_x, y: dbNode.position_y },
+        status,
+        connections: dbNode.connections || [],
+        requirements: dbNode.requirements || undefined,
+      };
+    });
+  }, [dbNodes, progressData, isEnglish]);
 
-      // Create progress map
-      const progressMap = new Map<string, UserProgress>();
-      (progressData || []).forEach((p) => {
-        progressMap.set(p.node_id, p);
-      });
+  // Calculate level
+  const level = useMemo(() => {
+    const masteredCount = nodes.filter(n => n.status === 'mastered').length;
+    return Math.floor(masteredCount / 3) + 1;
+  }, [nodes]);
 
-      // Merge nodes with progress
-      const mergedNodes: SkillNode[] = (dbNodes as DbNode[] || []).map((dbNode) => {
-        const progress = progressMap.get(dbNode.id);
-        
-        // Determine status
-        let status: SkillNode['status'] = 'locked';
-        if (progress) {
-          status = progress.status as SkillNode['status'];
-        } else {
-          // Default status based on node type
-          const isRootNode = dbNode.id === 'center' || dbNode.id.endsWith('-root');
-          status = isRootNode ? 'active' : (dbNode.requirements?.length ? 'locked' : 'available');
-        }
-
-        return {
-          id: dbNode.id,
-          name: isEnglish ? dbNode.name_en : dbNode.name,
-          description: isEnglish ? dbNode.description_en : dbNode.description,
-          category: dbNode.category as SkillNode['category'],
-          position: { x: dbNode.position_x, y: dbNode.position_y },
-          status,
-          connections: dbNode.connections || [],
-          requirements: dbNode.requirements || undefined,
-        };
-      });
-
-      setNodes(mergedNodes);
-
-      // Calculate level based on mastered nodes
-      const masteredCount = mergedNodes.filter(n => n.status === 'mastered').length;
-      setLevel(Math.floor(masteredCount / 3) + 1);
-    } catch (err) {
-      console.error('Failed to load star map nodes:', err);
-      setError('Failed to load star map');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [userId, isEnglish]);
-
-  // Load nodes on mount and when userId changes
-  useEffect(() => {
-    loadNodes();
-  }, [loadNodes]);
-
-  const updateNodeProgress = useCallback(async (nodeId: string, status: SkillNode['status']) => {
-    if (!userId) return;
-
-    try {
+  // Mutation for updating progress
+  const updateProgressMutation = useMutation({
+    mutationFn: async ({ nodeId, status }: { nodeId: string; status: SkillNode['status'] }) => {
+      const node = nodes.find(n => n.id === nodeId);
       const { error } = await supabase
         .from('star_map_progress')
         .upsert({
           user_id: userId,
           node_id: nodeId,
           status,
-          category: nodes.find(n => n.id === nodeId)?.category || 'skill',
+          category: node?.category || 'skill',
           unlocked_at: status === 'available' ? new Date().toISOString() : undefined,
           mastered_at: status === 'mastered' ? new Date().toISOString() : undefined,
         }, {
@@ -136,54 +141,41 @@ export const useStarMap = (userId: string) => {
         });
 
       if (error) throw error;
-    } catch (err) {
-      console.error('Failed to update node progress:', err);
-    }
-  }, [userId, nodes]);
+      return { nodeId, status };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: starMapKeys.progress(userId) });
+    },
+  });
 
   const unlockNode = useCallback(async (nodeId: string) => {
-    await updateNodeProgress(nodeId, 'active');
-    setNodes(prev => prev.map(node => 
-      node.id === nodeId ? { ...node, status: 'active' as const } : node
-    ));
-  }, [updateNodeProgress]);
+    await updateProgressMutation.mutateAsync({ nodeId, status: 'active' });
+  }, [updateProgressMutation]);
 
   const completeNode = useCallback(async (nodeId: string) => {
-    await updateNodeProgress(nodeId, 'mastered');
-    
-    setNodes(prev => {
-      const updatedNodes = prev.map(node => 
-        node.id === nodeId ? { ...node, status: 'mastered' as const } : node
-      );
-      
-      // Check if new nodes can be unlocked
-      updatedNodes.forEach(async (node) => {
-        if (node.status === 'locked' && node.requirements) {
-          const allRequirementsMet = node.requirements.every(reqId => 
-            updatedNodes.find(n => n.id === reqId)?.status === 'mastered'
-          );
-          if (allRequirementsMet) {
-            node.status = 'available';
-            await updateNodeProgress(node.id, 'available');
-          }
-        }
-      });
-      
-      return updatedNodes;
-    });
+    await updateProgressMutation.mutateAsync({ nodeId, status: 'mastered' });
 
-    // Update level
-    const masteredCount = nodes.filter(n => n.status === 'mastered').length + 1;
-    const newLevel = Math.floor(masteredCount / 3) + 1;
-    if (newLevel > level) {
-      setLevel(newLevel);
+    // Check if new nodes can be unlocked
+    const updatedNodes = nodes.map(node =>
+      node.id === nodeId ? { ...node, status: 'mastered' as const } : node
+    );
+
+    for (const node of updatedNodes) {
+      if (node.status === 'locked' && node.requirements) {
+        const allRequirementsMet = node.requirements.every(reqId =>
+          updatedNodes.find(n => n.id === reqId)?.status === 'mastered'
+        );
+        if (allRequirementsMet) {
+          await updateProgressMutation.mutateAsync({ nodeId: node.id, status: 'available' });
+        }
+      }
     }
-  }, [nodes, level, updateNodeProgress]);
+  }, [nodes, updateProgressMutation]);
 
   const getNodeByKeywords = useCallback((keywords: string[]) => {
-    return nodes.find(node => 
-      keywords.some(keyword => 
-        node.name.includes(keyword) || 
+    return nodes.find(node =>
+      keywords.some(keyword =>
+        node.name.includes(keyword) ||
         node.description.includes(keyword)
       )
     );
@@ -192,11 +184,11 @@ export const useStarMap = (userId: string) => {
   return {
     nodes,
     level,
-    isLoading,
-    error,
+    isLoading: nodesLoading || progressLoading,
+    error: null,
     unlockNode,
     completeNode,
     getNodeByKeywords,
-    refetch: loadNodes,
+    refetch,
   };
 };
