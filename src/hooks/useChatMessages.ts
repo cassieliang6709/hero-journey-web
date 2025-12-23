@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { SkillNode } from './useStarMap';
@@ -17,7 +16,7 @@ export const useChatMessages = (userId: string | undefined) => {
   const [loading, setLoading] = useState(false);
   const [hasLoadedInitialMessages, setHasLoadedInitialMessages] = useState(false);
 
-  const loadMessages = async () => {
+  const loadMessages = useCallback(async () => {
     if (!userId) return;
     
     try {
@@ -29,8 +28,7 @@ export const useChatMessages = (userId: string | undefined) => {
         .order('created_at', { ascending: true });
 
       if (error) {
-        console.error('加载聊天记录失败:', error);
-        toast.error('加载聊天记录失败');
+        console.error('Failed to load chat messages:', error);
         return;
       }
 
@@ -44,18 +42,18 @@ export const useChatMessages = (userId: string | undefined) => {
       setMessages(formattedMessages);
       setHasLoadedInitialMessages(true);
     } catch (error) {
-      console.error('加载聊天记录错误:', error);
+      console.error('Chat messages load error:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
 
   // 自动加载历史记录
   useEffect(() => {
     if (userId && !hasLoadedInitialMessages) {
       loadMessages();
     }
-  }, [userId, hasLoadedInitialMessages]);
+  }, [userId, hasLoadedInitialMessages, loadMessages]);
 
   const saveMessage = async (text: string, isUser: boolean) => {
     if (!userId) return;
@@ -72,11 +70,10 @@ export const useChatMessages = (userId: string | undefined) => {
         ]);
 
       if (error) {
-        console.error('保存消息失败:', error);
-        toast.error('保存消息失败');
+        console.error('Failed to save message:', error);
       }
     } catch (error) {
-      console.error('保存消息错误:', error);
+      console.error('Save message error:', error);
     }
   };
 
@@ -103,26 +100,25 @@ export const useChatMessages = (userId: string | undefined) => {
         .eq('user_id', userId);
 
       if (error) {
-        console.error('清空聊天记录失败:', error);
-        toast.error('清空聊天记录失败');
-        return;
+        console.error('Failed to clear chat messages:', error);
+        return false;
       }
 
       setMessages([]);
       setHasLoadedInitialMessages(false);
-      toast.success('聊天记录已清空');
+      return true;
     } catch (error) {
-      console.error('清空聊天记录错误:', error);
-      toast.error('清空聊天记录失败');
+      console.error('Clear chat messages error:', error);
+      return false;
     }
   };
 
-  const addWelcomeMessage = async () => {
+  const addWelcomeMessage = useCallback(async (welcomeText?: string) => {
     // 只在没有消息且已加载初始消息后添加欢迎消息
-    if (messages.length === 0 && hasLoadedInitialMessages) {
-      await addMessage(`你好呀！我会陪着你一起通过微小的行动解码这个世界`, false);
+    if (messages.length === 0 && hasLoadedInitialMessages && welcomeText) {
+      await addMessage(welcomeText, false);
     }
-  };
+  }, [messages.length, hasLoadedInitialMessages]);
 
   return {
     messages,
