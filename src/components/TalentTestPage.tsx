@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Brain, Lightbulb, Users, Target, Zap } from 'lucide-react';
-import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { Brain, Lightbulb, Users, Target, Zap } from 'lucide-react';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface TalentTestPageProps {
   user: { username: string };
@@ -21,13 +21,14 @@ interface TalentResult {
   name: string;
   description: string;
   score: number;
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
   color: string;
   strengths: string[];
   recommendations: string[];
 }
 
 const TalentTestPage: React.FC<TalentTestPageProps> = ({ user, onBack }) => {
+  const { t } = useTranslation('tests');
   const [currentStep, setCurrentStep] = useState<'intro' | 'test' | 'results'>('intro');
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
@@ -358,20 +359,10 @@ const TalentTestPage: React.FC<TalentTestPageProps> = ({ user, onBack }) => {
 
   return (
     <div className="mobile-container min-h-screen bg-gray-50">
-      <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
-        <div className="flex items-center space-x-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBack}
-            className="text-gray-900 p-0 hover:bg-gray-100"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="text-gray-900 font-bold text-lg">优势天赋测试</h1>
-        </div>
-        <LanguageSwitcher />
-      </div>
+      <PageHeader 
+        title={t('talent.title')} 
+        onBack={onBack} 
+      />
 
       <div className="p-4">
         {currentStep === 'intro' && renderIntro()}
