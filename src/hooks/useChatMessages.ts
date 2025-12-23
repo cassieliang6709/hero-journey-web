@@ -55,7 +55,7 @@ export const useChatMessages = (userId: string | undefined) => {
     }
   }, [userId, hasLoadedInitialMessages, loadMessages]);
 
-  const saveMessage = async (text: string, isUser: boolean) => {
+  const saveMessage = useCallback(async (text: string, isUser: boolean) => {
     if (!userId) return;
 
     try {
@@ -75,9 +75,9 @@ export const useChatMessages = (userId: string | undefined) => {
     } catch (error) {
       console.error('Save message error:', error);
     }
-  };
+  }, [userId]);
 
-  const addMessage = async (text: string, isUser: boolean, completedNode?: SkillNode) => {
+  const addMessage = useCallback(async (text: string, isUser: boolean, completedNode?: SkillNode) => {
     const newMessage: Message = {
       id: Date.now().toString(),
       text,
@@ -88,10 +88,10 @@ export const useChatMessages = (userId: string | undefined) => {
 
     setMessages(prev => [...prev, newMessage]);
     await saveMessage(text, isUser);
-  };
+  }, [saveMessage]);
 
-  const clearMessages = async () => {
-    if (!userId) return;
+  const clearMessages = useCallback(async () => {
+    if (!userId) return false;
 
     try {
       const { error } = await supabase
@@ -111,14 +111,14 @@ export const useChatMessages = (userId: string | undefined) => {
       console.error('Clear chat messages error:', error);
       return false;
     }
-  };
+  }, [userId]);
 
   const addWelcomeMessage = useCallback(async (welcomeText?: string) => {
     // 只在没有消息且已加载初始消息后添加欢迎消息
     if (messages.length === 0 && hasLoadedInitialMessages && welcomeText) {
       await addMessage(welcomeText, false);
     }
-  }, [messages.length, hasLoadedInitialMessages]);
+  }, [messages.length, hasLoadedInitialMessages, addMessage]);
 
   return {
     messages,
