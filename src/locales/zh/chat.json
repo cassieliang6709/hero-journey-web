@@ -1,4 +1,10 @@
 {
+  "header": {
+    "assistantName": "小精灵",
+    "avatarAlt": "用户头像",
+    "clearChat": "清空聊天记录",
+    "resetGoals": "重新设置目标"
+  },
   "title": "AI 对话",
   "placeholder": "输入你的问题...",
   "send": "发送",

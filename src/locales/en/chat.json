@@ -1,4 +1,10 @@
 {
+  "header": {
+    "assistantName": "Little Spirit",
+    "avatarAlt": "User avatar",
+    "clearChat": "Clear chat history",
+    "resetGoals": "Reset goals"
+  },
   "title": "AI Chat",
   "placeholder": "Enter your question...",
   "send": "Send",
