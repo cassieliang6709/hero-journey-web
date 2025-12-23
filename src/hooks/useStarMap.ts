@@ -1,5 +1,6 @@
-
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from 'react-i18next';
 
 export interface SkillNode {
   id: string;
@@ -12,216 +13,158 @@ export interface SkillNode {
   requirements?: string[];
 }
 
-const initialNodes: SkillNode[] = [
-  // 中心节点
-  {
-    id: 'center',
-    name: '成长中心',
-    description: '你的成长中心',
-    category: 'psychology',
-    position: { x: 500, y: 400 },
-    status: 'active',
-    connections: []
-  },
+interface DbNode {
+  id: string;
+  name: string;
+  name_en: string;
+  description: string;
+  description_en: string;
+  category: string;
+  position_x: number;
+  position_y: number;
+  connections: string[];
+  requirements: string[] | null;
+  display_order: number;
+  is_active: boolean;
+}
 
-  // 心理优势分支
-  {
-    id: 'psychology-root',
-    name: '心理优势',
-    description: '心理优势能力发展',
-    category: 'psychology',
-    position: { x: 500, y: 150 },
-    status: 'active',
-    connections: ['psychology-emotion', 'psychology-thinking', 'psychology-confidence', 'psychology-stress']
-  },
-  {
-    id: 'psychology-emotion',
-    name: '情绪管理',
-    description: '提升情绪识别和调节能力',
-    category: 'psychology',
-    position: { x: 350, y: 80 },
-    status: 'available',
-    connections: [],
-    requirements: ['psychology-root']
-  },
-  {
-    id: 'psychology-thinking',
-    name: '思维模式',
-    description: '培养积极思维和成长心态',
-    category: 'psychology',
-    position: { x: 650, y: 80 },
-    status: 'available',
-    connections: [],
-    requirements: ['psychology-root']
-  },
-  {
-    id: 'psychology-confidence',
-    name: '自信建立',
-    description: '增强自信心和自我价值感',
-    category: 'psychology',
-    position: { x: 400, y: 50 },
-    status: 'available',
-    connections: [],
-    requirements: ['psychology-root']
-  },
-  {
-    id: 'psychology-stress',
-    name: '压力管理',
-    description: '有效应对和管理压力',
-    category: 'psychology',
-    position: { x: 600, y: 50 },
-    status: 'available',
-    connections: [],
-    requirements: ['psychology-root']
-  },
-
-  // 身体健康分支
-  {
-    id: 'health-root',
-    name: '身体健康',
-    description: '全面的身体健康管理',
-    category: 'health',
-    position: { x: 200, y: 550 },
-    status: 'active',
-    connections: ['health-exercise', 'health-diet', 'health-sleep', 'health-weight', 'health-fitness']
-  },
-  {
-    id: 'health-exercise',
-    name: '运动锻炼',
-    description: '制定并执行运动计划',
-    category: 'health',
-    position: { x: 80, y: 650 },
-    status: 'available',
-    connections: [],
-    requirements: ['health-root']
-  },
-  {
-    id: 'health-diet',
-    name: '饮食管理',
-    description: '建立健康的饮食习惯',
-    category: 'health',
-    position: { x: 180, y: 680 },
-    status: 'available',
-    connections: [],
-    requirements: ['health-root']
-  },
-  {
-    id: 'health-sleep',
-    name: '睡眠优化',
-    description: '优化睡眠质量和作息规律',
-    category: 'health',
-    position: { x: 280, y: 650 },
-    status: 'available',
-    connections: [],
-    requirements: ['health-root']
-  },
-  {
-    id: 'health-weight',
-    name: '体重管理',
-    description: '科学的体重控制方法',
-    category: 'health',
-    position: { x: 120, y: 750 },
-    status: 'available',
-    connections: [],
-    requirements: ['health-root']
-  },
-  {
-    id: 'health-fitness',
-    name: '体能提升',
-    description: '全面提升身体素质',
-    category: 'health',
-    position: { x: 240, y: 780 },
-    status: 'locked',
-    connections: [],
-    requirements: ['health-root']
-  },
-
-  // 技能发展分支
-  {
-    id: 'skill-root',
-    name: '技能发展',
-    description: '职场与生活技能全面提升',
-    category: 'skill',
-    position: { x: 800, y: 550 },
-    status: 'active',
-    connections: ['skill-interview', 'skill-communication', 'skill-career', 'skill-resume', 'skill-etiquette']
-  },
-  {
-    id: 'skill-interview',
-    name: '面试技巧',
-    description: '掌握面试表达和技巧',
-    category: 'skill',
-    position: { x: 680, y: 650 },
-    status: 'available',
-    connections: [],
-    requirements: ['skill-root']
-  },
-  {
-    id: 'skill-communication',
-    name: '沟通能力',
-    description: '提升人际沟通技能',
-    category: 'skill',
-    position: { x: 780, y: 680 },
-    status: 'available',
-    connections: [],
-    requirements: ['skill-root']
-  },
-  {
-    id: 'skill-career',
-    name: '职业规划',
-    description: '制定清晰的职业发展路径',
-    category: 'skill',
-    position: { x: 880, y: 650 },
-    status: 'available',
-    connections: [],
-    requirements: ['skill-root']
-  },
-  {
-    id: 'skill-resume',
-    name: '简历优化',
-    description: '制作吸引人的简历',
-    category: 'skill',
-    position: { x: 720, y: 750 },
-    status: 'available',
-    connections: [],
-    requirements: ['skill-root']
-  },
-  {
-    id: 'skill-etiquette',
-    name: '职场礼仪',
-    description: '掌握职场基本礼仪',
-    category: 'skill',
-    position: { x: 840, y: 780 },
-    status: 'locked',
-    connections: [],
-    requirements: ['skill-root']
-  }
-];
+interface UserProgress {
+  node_id: string;
+  status: string;
+  progress_score: number;
+}
 
 export const useStarMap = (userId: string) => {
-  const [nodes, setNodes] = useState<SkillNode[]>(initialNodes);
+  const { i18n } = useTranslation();
+  const [nodes, setNodes] = useState<SkillNode[]>([]);
   const [level, setLevel] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const unlockNode = useCallback((nodeId: string) => {
+  const isEnglish = i18n.language === 'en';
+
+  // Fetch nodes from database and merge with user progress
+  const loadNodes = useCallback(async () => {
+    if (!userId) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Fetch node configurations
+      const { data: dbNodes, error: nodesError } = await supabase
+        .from('star_map_nodes')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order');
+
+      if (nodesError) throw nodesError;
+
+      // Fetch user progress
+      const { data: progressData, error: progressError } = await supabase
+        .from('star_map_progress')
+        .select('node_id, status, progress_score')
+        .eq('user_id', userId);
+
+      if (progressError) throw progressError;
+
+      // Create progress map
+      const progressMap = new Map<string, UserProgress>();
+      (progressData || []).forEach((p) => {
+        progressMap.set(p.node_id, p);
+      });
+
+      // Merge nodes with progress
+      const mergedNodes: SkillNode[] = (dbNodes as DbNode[] || []).map((dbNode) => {
+        const progress = progressMap.get(dbNode.id);
+        
+        // Determine status
+        let status: SkillNode['status'] = 'locked';
+        if (progress) {
+          status = progress.status as SkillNode['status'];
+        } else {
+          // Default status based on node type
+          const isRootNode = dbNode.id === 'center' || dbNode.id.endsWith('-root');
+          status = isRootNode ? 'active' : (dbNode.requirements?.length ? 'locked' : 'available');
+        }
+
+        return {
+          id: dbNode.id,
+          name: isEnglish ? dbNode.name_en : dbNode.name,
+          description: isEnglish ? dbNode.description_en : dbNode.description,
+          category: dbNode.category as SkillNode['category'],
+          position: { x: dbNode.position_x, y: dbNode.position_y },
+          status,
+          connections: dbNode.connections || [],
+          requirements: dbNode.requirements || undefined,
+        };
+      });
+
+      setNodes(mergedNodes);
+
+      // Calculate level based on mastered nodes
+      const masteredCount = mergedNodes.filter(n => n.status === 'mastered').length;
+      setLevel(Math.floor(masteredCount / 3) + 1);
+    } catch (err) {
+      console.error('Failed to load star map nodes:', err);
+      setError('Failed to load star map');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userId, isEnglish]);
+
+  // Load nodes on mount and when userId changes
+  useEffect(() => {
+    loadNodes();
+  }, [loadNodes]);
+
+  const updateNodeProgress = useCallback(async (nodeId: string, status: SkillNode['status']) => {
+    if (!userId) return;
+
+    try {
+      const { error } = await supabase
+        .from('star_map_progress')
+        .upsert({
+          user_id: userId,
+          node_id: nodeId,
+          status,
+          category: nodes.find(n => n.id === nodeId)?.category || 'skill',
+          unlocked_at: status === 'available' ? new Date().toISOString() : undefined,
+          mastered_at: status === 'mastered' ? new Date().toISOString() : undefined,
+        }, {
+          onConflict: 'user_id,node_id'
+        });
+
+      if (error) throw error;
+    } catch (err) {
+      console.error('Failed to update node progress:', err);
+    }
+  }, [userId, nodes]);
+
+  const unlockNode = useCallback(async (nodeId: string) => {
+    await updateNodeProgress(nodeId, 'active');
     setNodes(prev => prev.map(node => 
       node.id === nodeId ? { ...node, status: 'active' as const } : node
     ));
-  }, []);
+  }, [updateNodeProgress]);
 
-  const completeNode = useCallback((nodeId: string) => {
+  const completeNode = useCallback(async (nodeId: string) => {
+    await updateNodeProgress(nodeId, 'mastered');
+    
     setNodes(prev => {
       const updatedNodes = prev.map(node => 
         node.id === nodeId ? { ...node, status: 'mastered' as const } : node
       );
       
-      // 检查是否有新节点可以解锁
-      updatedNodes.forEach(node => {
+      // Check if new nodes can be unlocked
+      updatedNodes.forEach(async (node) => {
         if (node.status === 'locked' && node.requirements) {
           const allRequirementsMet = node.requirements.every(reqId => 
             updatedNodes.find(n => n.id === reqId)?.status === 'mastered'
           );
           if (allRequirementsMet) {
             node.status = 'available';
+            await updateNodeProgress(node.id, 'available');
           }
         }
       });
@@ -229,13 +172,13 @@ export const useStarMap = (userId: string) => {
       return updatedNodes;
     });
 
-    // 增加经验值，可能升级
-    const masteredCount = nodes.filter(n => n.status === 'mastered').length;
+    // Update level
+    const masteredCount = nodes.filter(n => n.status === 'mastered').length + 1;
     const newLevel = Math.floor(masteredCount / 3) + 1;
     if (newLevel > level) {
       setLevel(newLevel);
     }
-  }, [nodes, level]);
+  }, [nodes, level, updateNodeProgress]);
 
   const getNodeByKeywords = useCallback((keywords: string[]) => {
     return nodes.find(node => 
@@ -249,8 +192,11 @@ export const useStarMap = (userId: string) => {
   return {
     nodes,
     level,
+    isLoading,
+    error,
     unlockNode,
     completeNode,
-    getNodeByKeywords
+    getNodeByKeywords,
+    refetch: loadNodes,
   };
 };
