@@ -17,6 +17,8 @@
   "category": "分类",
   "dueDate": "截止日期",
   "progress": "进度",
+  "createNewTask": "创建新任务",
+  "aiClassifyHint": "AI会自动将任务分类到对应星图节点",
   "stats": {
     "total": "总任务",
     "completed": "已完成",
@@ -25,10 +27,14 @@
   "aiPriority": {
     "title": "AI 优先级建议",
     "analyzing": "AI正在分析任务优先级...",
+    "button": "AI优先级排序",
     "suggestion": "建议调整",
     "reason": "原因",
     "apply": "应用建议",
-    "noSuggestions": "当前任务排序已是最优"
+    "noSuggestions": "当前任务排序已是最优",
+    "complete": "AI优先级分析完成",
+    "failed": "AI分析失败，请稍后重试",
+    "tooFewTasks": "任务较少，暂不需要AI排序"
   },
   "calendar": {
     "title": "日历视图",

@@ -1,15 +1,18 @@
-
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 interface AuthPageProps {
   onAuthSuccess: () => void;
 }
 
 const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
+  const { t } = useTranslation('auth');
+  const { t: tCommon } = useTranslation('common');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
@@ -42,21 +45,24 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
 
   return (
     <div className="mobile-container gradient-bg flex items-center justify-center p-6">
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
       <Card className="w-full max-w-sm glass-effect p-8 animate-fade-in">
         <div className="text-center mb-8">
           <div className="w-20 h-20 mx-auto mb-4 hero-gradient rounded-full flex items-center justify-center animate-pulse-glow">
             <span className="text-3xl">🦸</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">Becoming</h1>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">{tCommon('appName')}</h1>
           <p className="text-gray-600 text-sm">
-            {isSignUp ? '创建账户开始你的旅程' : '登录继续你的成长之路'}
+            {isSignUp ? t('signUpWelcome') : t('signInWelcome')}
           </p>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             type="email"
-            placeholder="请输入邮箱"
+            placeholder={t('emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="bg-white border-gray-300 text-gray-800 placeholder:text-gray-500 text-center text-lg h-12"
@@ -65,7 +71,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
           
           <Input
             type="password"
-            placeholder="请输入密码"
+            placeholder={t('passwordPlaceholder')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="bg-white border-gray-300 text-gray-800 placeholder:text-gray-500 text-center text-lg h-12"
@@ -75,7 +81,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
           {isSignUp && (
             <Input
               type="text"
-              placeholder="请输入用户名（可选）"
+              placeholder={t('usernamePlaceholder')}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="bg-white border-gray-300 text-gray-800 placeholder:text-gray-500 text-center text-lg h-12"
@@ -87,7 +93,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
             className="w-full hero-gradient text-white font-semibold h-12 text-lg hover:scale-105 transition-transform"
             disabled={loading || !email.trim() || !password.trim()}
           >
-            {loading ? '处理中...' : (isSignUp ? '注册账户' : '登录')}
+            {loading ? tCommon('processing') : (isSignUp ? t('registerButton') : t('login'))}
           </Button>
 
           <div className="text-center mt-4">
@@ -96,7 +102,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
               onClick={() => setIsSignUp(!isSignUp)}
               className="text-gray-600 hover:text-gray-800 text-sm"
             >
-              {isSignUp ? '已有账户？点击登录' : '没有账户？点击注册'}
+              {isSignUp ? t('alreadyHaveAccount') : t('noAccount')}
             </button>
           </div>
         </form>

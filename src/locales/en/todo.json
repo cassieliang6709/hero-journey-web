@@ -17,6 +17,8 @@
   "category": "Category",
   "dueDate": "Due Date",
   "progress": "Progress",
+  "createNewTask": "Create New Task",
+  "aiClassifyHint": "AI will automatically classify tasks to star map nodes",
   "stats": {
     "total": "Total Tasks",
     "completed": "Completed",
@@ -25,10 +27,14 @@
   "aiPriority": {
     "title": "AI Priority Suggestions",
     "analyzing": "AI is analyzing task priorities...",
+    "button": "AI Priority Sort",
     "suggestion": "Suggested adjustment",
     "reason": "Reason",
     "apply": "Apply Suggestions",
-    "noSuggestions": "Current task order is optimal"
+    "noSuggestions": "Current task order is optimal",
+    "complete": "AI priority analysis complete",
+    "failed": "AI analysis failed, please try again later",
+    "tooFewTasks": "Too few tasks, AI sorting not needed"
   },
   "calendar": {
     "title": "Calendar View",
