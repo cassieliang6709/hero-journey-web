@@ -27,5 +27,21 @@
   "aiServiceUnavailable": "AI服务暂时不可用，请稍后重试",
   "clearChatConfirm": "确定要清空所有聊天记录吗？",
   "chatCleared": "聊天记录已清空",
-  "taskMoveInProgress": "任务移动功能开发中"
+  "taskMoveInProgress": "任务移动功能开发中",
+  "categoryDetail": {
+    "overallAssessment": "综合评估",
+    "overallLevel": "整体水平",
+    "testScore": "测试得分",
+    "taskCompletionRate": "任务完成率",
+    "abilityNodes": "能力节点",
+    "completedTasks": "已完成",
+    "tasksUnit": "个任务",
+    "developmentAdvice": "发展建议",
+    "levels": {
+      "excellent": "优秀",
+      "good": "良好",
+      "needsImprovement": "需提升",
+      "unknown": "未知"
+    }
+  }
 }

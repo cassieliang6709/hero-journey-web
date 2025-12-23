@@ -27,5 +27,21 @@
   "aiServiceUnavailable": "AI service is temporarily unavailable, please try again later",
   "clearChatConfirm": "Are you sure you want to clear all chat history?",
   "chatCleared": "Chat history cleared",
-  "taskMoveInProgress": "Task move feature is in development"
+  "taskMoveInProgress": "Task move feature is in development",
+  "categoryDetail": {
+    "overallAssessment": "Overall Assessment",
+    "overallLevel": "Overall Level",
+    "testScore": "Test Score",
+    "taskCompletionRate": "Task Completion Rate",
+    "abilityNodes": "Ability Nodes",
+    "completedTasks": "Completed",
+    "tasksUnit": "tasks",
+    "developmentAdvice": "Development Advice",
+    "levels": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "needsImprovement": "Needs Improvement",
+      "unknown": "Unknown"
+    }
+  }
 }
