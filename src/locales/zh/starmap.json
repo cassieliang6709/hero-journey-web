@@ -77,5 +77,7 @@
   "relatedTasks": "相关任务",
   "prerequisites": "前置条件",
   "rewards": "奖励",
-  "completionHistory": "完成历史"
+  "completionHistory": "完成历史",
+  "loading": "加载中...",
+  "back": "返回"
 }

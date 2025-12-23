@@ -2,25 +2,15 @@ import React, { useState, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Plus, Minus } from 'lucide-react';
+import { ArrowLeft, Plus, Minus, Loader2 } from 'lucide-react';
 import { useTodos } from '@/hooks/useTodos';
+import { useStarMap, SkillNode } from '@/hooks/useStarMap';
 import NodeCompletionHistory from '@/components/todo/NodeCompletionHistory';
 import CategoryDetailPage from '@/components/CategoryDetailPage';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
-interface SkillNode {
-  id: string;
-  name: string;
-  description: string;
-  category: 'psychology' | 'health' | 'skill';
-  position: { x: number; y: number };
-  status: 'locked' | 'available' | 'active' | 'mastered';
-  connections: string[];
-  requirements?: string[];
-}
-
 interface StarMapPageProps {
-  user: { username: string };
+  user: { id: string; username: string };
   selectedAvatar: number;
   onBack: () => void;
   onGoToPhysicalTest?: () => void;
@@ -45,193 +35,12 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   
   const { getNodeCompletionStats, getCategoryCompletionStats } = useTodos();
+  const { nodes: skillNodes, level, isLoading, error } = useStarMap(user.id);
 
-  // 重新设计的技能节点数据 - 三个独立分支，每个分支内部有连线
-  const skillNodes: SkillNode[] = [
-    // 中心节点
-    {
-      id: 'center',
-      name: user.username,
-      description: '你的成长中心',
-      category: 'psychology',
-      position: { x: 500, y: 400 },
-      status: 'active',
-      connections: [] // 中心节点不再连接其他节点
-    },
-
-    // 心理优势分支 - 上方区域
-    {
-      id: 'psychology-root',
-      name: '心理优势',
-      description: '心理优势能力发展',
-      category: 'psychology',
-      position: { x: 500, y: 150 },
-      status: 'active',
-      connections: ['psychology-emotion', 'psychology-thinking', 'psychology-confidence', 'psychology-stress']
-    },
-    {
-      id: 'psychology-emotion',
-      name: '情绪管理',
-      description: '提升情绪识别和调节能力',
-      category: 'psychology',
-      position: { x: 350, y: 80 },
-      status: 'active',
-      connections: [],
-      requirements: ['psychology-root']
-    },
-    {
-      id: 'psychology-thinking',
-      name: '思维模式',
-      description: '培养积极思维和成长心态',
-      category: 'psychology',
-      position: { x: 650, y: 80 },
-      status: 'available',
-      connections: [],
-      requirements: ['psychology-root']
-    },
-    {
-      id: 'psychology-confidence',
-      name: '自信建立',
-      description: '增强自信心和自我价值感',
-      category: 'psychology',
-      position: { x: 400, y: 50 },
-      status: 'available',
-      connections: [],
-      requirements: ['psychology-root']
-    },
-    {
-      id: 'psychology-stress',
-      name: '压力管理',
-      description: '有效应对和管理压力',
-      category: 'psychology',
-      position: { x: 600, y: 50 },
-      status: 'available',
-      connections: [],
-      requirements: ['psychology-root']
-    },
-
-    // 身体健康分支 - 左下方区域
-    {
-      id: 'health-root',
-      name: '身体健康',
-      description: '全面的身体健康管理',
-      category: 'health',
-      position: { x: 200, y: 550 },
-      status: 'active',
-      connections: ['health-exercise', 'health-diet', 'health-sleep', 'health-weight', 'health-fitness']
-    },
-    {
-      id: 'health-exercise',
-      name: '运动锻炼',
-      description: '制定并执行运动计划',
-      category: 'health',
-      position: { x: 80, y: 650 },
-      status: 'active',
-      connections: [],
-      requirements: ['health-root']
-    },
-    {
-      id: 'health-diet',
-      name: '饮食管理',
-      description: '建立健康的饮食习惯',
-      category: 'health',
-      position: { x: 180, y: 680 },
-      status: 'mastered',
-      connections: [],
-      requirements: ['health-root']
-    },
-    {
-      id: 'health-sleep',
-      name: '睡眠优化',
-      description: '优化睡眠质量和作息规律',
-      category: 'health',
-      position: { x: 280, y: 650 },
-      status: 'available',
-      connections: [],
-      requirements: ['health-root']
-    },
-    {
-      id: 'health-weight',
-      name: '体重管理',
-      description: '科学的体重控制方法',
-      category: 'health',
-      position: { x: 120, y: 750 },
-      status: 'available',
-      connections: [],
-      requirements: ['health-root']
-    },
-    {
-      id: 'health-fitness',
-      name: '体能提升',
-      description: '全面提升身体素质',
-      category: 'health',
-      position: { x: 240, y: 780 },
-      status: 'locked',
-      connections: [],
-      requirements: ['health-root']
-    },
-
-    // 技能发展分支 - 右下方区域
-    {
-      id: 'skill-root',
-      name: '技能发展',
-      description: '职场与生活技能全面提升',
-      category: 'skill',
-      position: { x: 800, y: 550 },
-      status: 'active',
-      connections: ['skill-interview', 'skill-communication', 'skill-career', 'skill-resume', 'skill-etiquette']
-    },
-    {
-      id: 'skill-interview',
-      name: '面试技巧',
-      description: '掌握面试表达和技巧',
-      category: 'skill',
-      position: { x: 680, y: 650 },
-      status: 'active',
-      connections: [],
-      requirements: ['skill-root']
-    },
-    {
-      id: 'skill-communication',
-      name: '沟通能力',
-      description: '提升人际沟通技能',
-      category: 'skill',
-      position: { x: 780, y: 680 },
-      status: 'available',
-      connections: [],
-      requirements: ['skill-root']
-    },
-    {
-      id: 'skill-career',
-      name: '职业规划',
-      description: '制定清晰的职业发展路径',
-      category: 'skill',
-      position: { x: 880, y: 650 },
-      status: 'available',
-      connections: [],
-      requirements: ['skill-root']
-    },
-    {
-      id: 'skill-resume',
-      name: '简历优化',
-      description: '制作吸引人的简历',
-      category: 'skill',
-      position: { x: 720, y: 750 },
-      status: 'available',
-      connections: [],
-      requirements: ['skill-root']
-    },
-    {
-      id: 'skill-etiquette',
-      name: '职场礼仪',
-      description: '掌握职场基本礼仪',
-      category: 'skill',
-      position: { x: 840, y: 780 },
-      status: 'locked',
-      connections: [],
-      requirements: ['skill-root']
-    }
-  ];
+  // Update center node name to use username
+  const nodesWithUser = skillNodes.map(node => 
+    node.id === 'center' ? { ...node, name: user.username } : node
+  );
 
   // 统一的开始拖拽处理函数
   const handleDragStart = useCallback((clientX: number, clientY: number) => {
@@ -394,10 +203,10 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   const renderConnections = (): JSX.Element[] => {
     const connections: JSX.Element[] = [];
     
-    skillNodes.forEach((node) => {
+    nodesWithUser.forEach((node) => {
       // 只渲染同类别内的连接
       node.connections.forEach((connectionId) => {
-        const targetNode = skillNodes.find(n => n.id === connectionId);
+        const targetNode = nodesWithUser.find(n => n.id === connectionId);
         if (targetNode && targetNode.category === node.category) {
           const getNodeCenter = (n: SkillNode) => {
             const size = n.id === 'center' ? 32 : n.id.includes('root') ? 24 : 20;
@@ -441,7 +250,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   };
 
   const renderNodes = (): JSX.Element[] => {
-    return skillNodes.map((node) => {
+    return nodesWithUser.map((node) => {
       const stats = getNodeCompletionStats(node.id);
       const actualStatus = getNodeStatusWithTodos(node);
       
@@ -506,7 +315,33 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
     setPanOffset({ x: -300, y: -250 });
   };
 
-  const selectedNodeData = selectedNode ? skillNodes.find(n => n.id === selectedNode) : null;
+  const selectedNodeData = selectedNode ? nodesWithUser.find(n => n.id === selectedNode) : null;
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="mobile-container min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 text-white animate-spin mx-auto mb-4" />
+          <p className="text-white/70">{t('loading', 'Loading...')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="mobile-container min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-400 mb-4">{error}</p>
+          <Button onClick={onBack} variant="outline" className="text-white border-white/30">
+            {t('back', 'Go Back')}
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mobile-container min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative overflow-hidden">
@@ -531,7 +366,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
           <div className="flex items-center space-x-2">
             <h1 className="text-white font-bold text-lg">{t('title')}</h1>
             <Badge variant="secondary" className="text-xs px-2 py-1 bg-white/20 text-white border-white/30">
-              {t('level')}1
+              {t('level')}{level}
             </Badge>
           </div>
         </div>
@@ -640,7 +475,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
               {selectedNodeData.requirements && selectedNodeData.requirements.length > 0 && (
                 <div className="text-xs text-white/60 bg-white/10 p-2 rounded-lg border border-white/20">
                   {t('prerequisite')}: {selectedNodeData.requirements.map(req => 
-                    skillNodes.find(n => n.id === req)?.name || req
+                    nodesWithUser.find(n => n.id === req)?.name || req
                   ).join(', ')}
                 </div>
               )}
@@ -706,7 +541,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       {showNodeHistory && (
         <NodeCompletionHistory
           nodeId={showNodeHistory}
-          nodeName={skillNodes.find(n => n.id === showNodeHistory)?.name || ''}
+          nodeName={nodesWithUser.find(n => n.id === showNodeHistory)?.name || ''}
           completionStats={getNodeCompletionStats(showNodeHistory)}
           onClose={() => setShowNodeHistory(null)}
         />
