@@ -7,6 +7,7 @@ import TodoStats from './todo/TodoStats';
 import TodoList from './todo/TodoList';
 import SuccessMessage from './todo/SuccessMessage';
 import WeekCalendar from '@/components/WeekCalendar';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { callAI } from '@/services/aiService';
 import { useTodos } from '@/hooks/useTodos';
 import { toast } from 'sonner';
@@ -135,7 +136,8 @@ ${todoTexts}
             <p className="text-gray-600 text-sm">{tCommon('completionRate')}: {completionRate}%</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
+          <LanguageSwitcher />
           <Button
             variant="ghost"
             size="sm"
