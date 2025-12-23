@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Activity, Heart, Zap, Target } from 'lucide-react';
-import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { Activity, Heart, Zap, Target } from 'lucide-react';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 interface PhysicalTestPageProps {
   user: { username: string };
@@ -20,6 +20,7 @@ interface TestResult {
 }
 
 const PhysicalTestPage: React.FC<PhysicalTestPageProps> = ({ user, onBack }) => {
+  const { t } = useTranslation('tests');
   const [currentStep, setCurrentStep] = useState<'intro' | 'test' | 'results'>('intro');
   const [testData, setTestData] = useState({
     age: '',
@@ -295,20 +296,10 @@ const PhysicalTestPage: React.FC<PhysicalTestPageProps> = ({ user, onBack }) => 
 
   return (
     <div className="mobile-container min-h-screen bg-gray-50">
-      <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
-        <div className="flex items-center space-x-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBack}
-            className="text-gray-900 p-0 hover:bg-gray-100"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="text-gray-900 font-bold text-lg">体能测试</h1>
-        </div>
-        <LanguageSwitcher />
-      </div>
+      <PageHeader 
+        title={t('physical.title')} 
+        onBack={onBack} 
+      />
 
       <div className="p-4">
         {currentStep === 'intro' && renderIntro()}
