@@ -119,6 +119,57 @@ export type Database = {
         }
         Relationships: []
       }
+      star_map_nodes: {
+        Row: {
+          category: string
+          connections: string[]
+          created_at: string
+          description: string
+          description_en: string
+          display_order: number
+          id: string
+          is_active: boolean
+          name: string
+          name_en: string
+          position_x: number
+          position_y: number
+          requirements: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          connections?: string[]
+          created_at?: string
+          description: string
+          description_en: string
+          display_order?: number
+          id: string
+          is_active?: boolean
+          name: string
+          name_en: string
+          position_x: number
+          position_y: number
+          requirements?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          connections?: string[]
+          created_at?: string
+          description?: string
+          description_en?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          name_en?: string
+          position_x?: number
+          position_y?: number
+          requirements?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       star_map_progress: {
         Row: {
           category: string
