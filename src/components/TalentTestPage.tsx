@@ -1,8 +1,9 @@
-
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Brain, Lightbulb, Users, Target, Zap } from 'lucide-react';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 interface TalentTestPageProps {
   user: { username: string };
@@ -369,6 +370,7 @@ const TalentTestPage: React.FC<TalentTestPageProps> = ({ user, onBack }) => {
           </Button>
           <h1 className="text-gray-900 font-bold text-lg">优势天赋测试</h1>
         </div>
+        <LanguageSwitcher />
       </div>
 
       <div className="p-4">

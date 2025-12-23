@@ -1,11 +1,12 @@
-
 import React, { useState, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Plus, Minus } from 'lucide-react';
 import { useTodos } from '@/hooks/useTodos';
 import NodeCompletionHistory from '@/components/todo/NodeCompletionHistory';
 import CategoryDetailPage from '@/components/CategoryDetailPage';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 interface SkillNode {
   id: string;
@@ -33,6 +34,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
   onGoToPhysicalTest, 
   onGoToTalentTest 
 }) => {
+  const { t } = useTranslation('starmap');
   const [zoomLevel, setZoomLevel] = useState(0.6);
   const [panOffset, setPanOffset] = useState({ x: -300, y: -250 });
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
@@ -483,7 +485,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
             {node.name}
             {/* 为根节点添加点击提示 */}
             {node.id.includes('root') && (
-              <div className="text-xs text-white/60 mt-1">点击查看详情</div>
+              <div className="text-xs text-white/60 mt-1">{t('clickToViewDetails')}</div>
             )}
           </div>
         </div>
@@ -527,14 +529,15 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex items-center space-x-2">
-            <h1 className="text-white font-bold text-lg">星图</h1>
+            <h1 className="text-white font-bold text-lg">{t('title')}</h1>
             <Badge variant="secondary" className="text-xs px-2 py-1 bg-white/20 text-white border-white/30">
-              lv1
+              {t('level')}1
             </Badge>
           </div>
         </div>
         
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1">
+          <LanguageSwitcher />
           <Button
             variant="outline"
             size="sm"
@@ -557,7 +560,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
             onClick={resetView}
             className="text-white border-white/30 hover:bg-white/10 bg-white/10 text-xs px-2"
           >
-            重置
+            {t('reset')}
           </Button>
         </div>
       </div>
@@ -620,14 +623,14 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
                   selectedNodeData.status === 'available' ? 'bg-white/20 text-white border-white/30' :
                   'bg-gray-500/20 text-gray-300 border-gray-400/30'
                 }`}>
-                  {getNodeStatusWithTodos(selectedNodeData) === 'mastered' ? '已掌握' :
-                   getNodeStatusWithTodos(selectedNodeData) === 'active' ? '进行中' :
-                   selectedNodeData.status === 'available' ? '可开始' : '未解锁'}
+                  {getNodeStatusWithTodos(selectedNodeData) === 'mastered' ? t('nodeStatus.mastered') :
+                   getNodeStatusWithTodos(selectedNodeData) === 'active' ? t('nodeStatus.inProgress') :
+                   selectedNodeData.status === 'available' ? t('nodeStatus.available') : t('nodeStatus.locked')}
                 </span>
               </div>
               <p className="text-white/80 text-sm mb-3">{selectedNodeData.description}</p>
               <div className="text-xs text-white/60 bg-white/10 p-2 rounded-lg border border-white/20 mb-2">
-                完成任务: {getNodeCompletionStats(selectedNodeData.id).completed}/{getNodeCompletionStats(selectedNodeData.id).total}
+                {t('taskCompletion')}: {getNodeCompletionStats(selectedNodeData.id).completed}/{getNodeCompletionStats(selectedNodeData.id).total}
                 {getNodeCompletionStats(selectedNodeData.id).total > 0 && (
                   <span className="ml-2">
                     ({Math.round((getNodeCompletionStats(selectedNodeData.id).completed / getNodeCompletionStats(selectedNodeData.id).total) * 100)}%)
@@ -636,13 +639,13 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
               </div>
               {selectedNodeData.requirements && selectedNodeData.requirements.length > 0 && (
                 <div className="text-xs text-white/60 bg-white/10 p-2 rounded-lg border border-white/20">
-                  前置条件: {selectedNodeData.requirements.map(req => 
+                  {t('prerequisite')}: {selectedNodeData.requirements.map(req => 
                     skillNodes.find(n => n.id === req)?.name || req
                   ).join(', ')}
                 </div>
               )}
               <div className="mt-2 text-xs text-white/60">
-                💡 双击节点查看完成历史
+                💡 {t('doubleClickHint')}
               </div>
             </div>
           </div>
@@ -653,7 +656,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
       <div className="fixed bottom-0 left-0 right-0 z-10 px-4 pb-2">
         <div className="max-w-md mx-auto">
           <div className="bg-black/40 backdrop-blur-lg border border-white/20 rounded-lg p-3 shadow-2xl">
-            <h3 className="text-white font-semibold mb-2 text-sm">能力评估</h3>
+            <h3 className="text-white font-semibold mb-2 text-sm">{t('abilityAssessment')}</h3>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
@@ -661,8 +664,8 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
                     <div className="w-3 h-3 bg-white rounded-full"></div>
                   </div>
                   <div>
-                    <div className="text-white font-medium text-sm">体能测试</div>
-                    <div className="text-white/70 text-xs">评估身体素质</div>
+                    <div className="text-white font-medium text-sm">{t('physicalTest')}</div>
+                    <div className="text-white/70 text-xs">{t('assessPhysical')}</div>
                   </div>
                 </div>
                 <Button
@@ -671,7 +674,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
                   onClick={onGoToPhysicalTest}
                   className="text-white border-white/30 hover:bg-white/10 bg-white/10 text-xs px-2 py-1 h-7"
                 >
-                  开始测试
+                  {t('startTest')}
                 </Button>
               </div>
               
@@ -681,8 +684,8 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
                     <div className="w-3 h-3 bg-white rounded-sm"></div>
                   </div>
                   <div>
-                    <div className="text-white font-medium text-sm">优势天赋测试</div>
-                    <div className="text-white/70 text-xs">发现个人天赋优势</div>
+                    <div className="text-white font-medium text-sm">{t('talentTest')}</div>
+                    <div className="text-white/70 text-xs">{t('discoverTalent')}</div>
                   </div>
                 </div>
                 <Button
@@ -691,7 +694,7 @@ const StarMapPage: React.FC<StarMapPageProps> = ({
                   onClick={onGoToTalentTest}
                   className="text-white border-white/30 hover:bg-white/10 bg-white/10 text-xs px-2 py-1 h-7"
                 >
-                  开始测试
+                  {t('startTest')}
                 </Button>
               </div>
             </div>
