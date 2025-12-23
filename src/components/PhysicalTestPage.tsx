@@ -13,9 +13,12 @@ interface PhysicalTestPageProps {
 
 interface TestResult {
   category: string;
+  categoryKey: string;
   score: number;
   level: string;
+  levelKey: string;
   recommendation: string;
+  recommendationKey: string;
   color: string;
 }
 
@@ -38,7 +41,6 @@ const PhysicalTestPage: React.FC<PhysicalTestPageProps> = ({ user, onBack }) => 
   };
 
   const calculateResults = () => {
-    // 模拟计算体能测试结果
     const age = parseInt(testData.age);
     const pushups = parseInt(testData.pushups);
     const situps = parseInt(testData.situps);
@@ -46,24 +48,33 @@ const PhysicalTestPage: React.FC<PhysicalTestPageProps> = ({ user, onBack }) => 
     
     const results: TestResult[] = [
       {
-        category: '上肢力量',
+        category: t('physical.categories.upperStrength'),
+        categoryKey: 'upperStrength',
         score: Math.min(100, Math.max(0, (pushups / (age < 30 ? 30 : 25)) * 100)),
-        level: pushups > 20 ? '优秀' : pushups > 15 ? '良好' : pushups > 10 ? '一般' : '需提升',
-        recommendation: pushups > 20 ? '保持现有水平' : '建议增加俯卧撑训练',
+        level: pushups > 20 ? t('physical.levels.excellent') : pushups > 15 ? t('physical.levels.good') : pushups > 10 ? t('physical.levels.average') : t('physical.levels.needsImprovement'),
+        levelKey: pushups > 20 ? 'excellent' : pushups > 15 ? 'good' : pushups > 10 ? 'average' : 'needsImprovement',
+        recommendation: pushups > 20 ? t('physical.recommendations.maintain') : t('physical.recommendations.morePushups'),
+        recommendationKey: pushups > 20 ? 'maintain' : 'morePushups',
         color: pushups > 20 ? 'text-gray-800' : pushups > 15 ? 'text-gray-700' : 'text-gray-600'
       },
       {
-        category: '核心力量',
+        category: t('physical.categories.coreStrength'),
+        categoryKey: 'coreStrength',
         score: Math.min(100, Math.max(0, (situps / (age < 30 ? 40 : 35)) * 100)),
-        level: situps > 30 ? '优秀' : situps > 20 ? '良好' : situps > 15 ? '一般' : '需提升',
-        recommendation: situps > 30 ? '保持现有水平' : '建议增加腹肌训练',
+        level: situps > 30 ? t('physical.levels.excellent') : situps > 20 ? t('physical.levels.good') : situps > 15 ? t('physical.levels.average') : t('physical.levels.needsImprovement'),
+        levelKey: situps > 30 ? 'excellent' : situps > 20 ? 'good' : situps > 15 ? 'average' : 'needsImprovement',
+        recommendation: situps > 30 ? t('physical.recommendations.maintain') : t('physical.recommendations.moreAbs'),
+        recommendationKey: situps > 30 ? 'maintain' : 'moreAbs',
         color: situps > 30 ? 'text-gray-800' : situps > 20 ? 'text-gray-700' : 'text-gray-600'
       },
       {
-        category: '心肺耐力',
+        category: t('physical.categories.cardio'),
+        categoryKey: 'cardio',
         score: Math.min(100, Math.max(0, (1 / running) * 100)),
-        level: running < 6 ? '优秀' : running < 8 ? '良好' : running < 10 ? '一般' : '需提升',
-        recommendation: running < 6 ? '保持现有水平' : '建议增加有氧训练',
+        level: running < 6 ? t('physical.levels.excellent') : running < 8 ? t('physical.levels.good') : running < 10 ? t('physical.levels.average') : t('physical.levels.needsImprovement'),
+        levelKey: running < 6 ? 'excellent' : running < 8 ? 'good' : running < 10 ? 'average' : 'needsImprovement',
+        recommendation: running < 6 ? t('physical.recommendations.maintain') : t('physical.recommendations.moreCardio'),
+        recommendationKey: running < 6 ? 'maintain' : 'moreCardio',
         color: running < 6 ? 'text-gray-800' : running < 8 ? 'text-gray-700' : 'text-gray-600'
       }
     ];
@@ -78,15 +89,13 @@ const PhysicalTestPage: React.FC<PhysicalTestPageProps> = ({ user, onBack }) => 
         <div className="w-24 h-24 bg-gray-900 rounded-full flex items-center justify-center mx-auto">
           <Activity className="w-12 h-12 text-white" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900">体能测试</h2>
-        <p className="text-gray-600">
-          通过科学的体能测试，了解你的身体状况，为你制定个性化的运动计划
-        </p>
+        <h2 className="text-2xl font-bold text-gray-900">{t('physical.title')}</h2>
+        <p className="text-gray-600">{t('physical.intro')}</p>
       </div>
 
       <Card className="bg-white border border-gray-200">
         <CardHeader>
-          <CardTitle className="text-gray-900">测试包含</CardTitle>
+          <CardTitle className="text-gray-900">{t('physical.testIncludes')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center space-x-3">
@@ -94,8 +103,8 @@ const PhysicalTestPage: React.FC<PhysicalTestPageProps> = ({ user, onBack }) => 
               <Heart className="w-5 h-5 text-gray-700" />
             </div>
             <div>
-              <p className="font-medium text-gray-900">心肺耐力</p>
-              <p className="text-sm text-gray-600">1000米跑步时间</p>
+              <p className="font-medium text-gray-900">{t('physical.cardioEndurance')}</p>
+              <p className="text-sm text-gray-600">{t('physical.cardioDesc')}</p>
             </div>
           </div>
           <div className="flex items-center space-x-3">
@@ -103,8 +112,8 @@ const PhysicalTestPage: React.FC<PhysicalTestPageProps> = ({ user, onBack }) => 
               <Zap className="w-5 h-5 text-gray-700" />
             </div>
             <div>
-              <p className="font-medium text-gray-900">肌肉力量</p>
-              <p className="text-sm text-gray-600">俯卧撑、仰卧起坐</p>
+              <p className="font-medium text-gray-900">{t('physical.muscleStrength')}</p>
+              <p className="text-sm text-gray-600">{t('physical.muscleDesc')}</p>
             </div>
           </div>
           <div className="flex items-center space-x-3">
@@ -112,8 +121,8 @@ const PhysicalTestPage: React.FC<PhysicalTestPageProps> = ({ user, onBack }) => 
               <Target className="w-5 h-5 text-gray-700" />
             </div>
             <div>
-              <p className="font-medium text-gray-900">身体柔韧性</p>
-              <p className="text-sm text-gray-600">坐位体前屈</p>
+              <p className="font-medium text-gray-900">{t('physical.flexibility')}</p>
+              <p className="text-sm text-gray-600">{t('physical.flexibilityDesc')}</p>
             </div>
           </div>
         </CardContent>
@@ -123,7 +132,7 @@ const PhysicalTestPage: React.FC<PhysicalTestPageProps> = ({ user, onBack }) => 
         onClick={() => setCurrentStep('test')}
         className="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-4 rounded-lg"
       >
-        开始测试
+        {t('physical.startTest')}
       </Button>
     </div>
   );
@@ -131,19 +140,19 @@ const PhysicalTestPage: React.FC<PhysicalTestPageProps> = ({ user, onBack }) => 
   const renderTest = () => (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">填写测试数据</h2>
-        <p className="text-gray-600 text-sm">请如实填写您的基本信息和测试结果</p>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">{t('physical.fillData')}</h2>
+        <p className="text-gray-600 text-sm">{t('physical.fillDataHint')}</p>
       </div>
 
       <div className="space-y-4">
         <Card className="bg-white border border-gray-200">
           <CardHeader>
-            <CardTitle className="text-gray-900 text-lg">基本信息</CardTitle>
+            <CardTitle className="text-gray-900 text-lg">{t('physical.basicInfo')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">年龄</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('physical.age')}</label>
                 <Input
                   type="number"
                   placeholder="25"
@@ -153,7 +162,7 @@ const PhysicalTestPage: React.FC<PhysicalTestPageProps> = ({ user, onBack }) => 
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">体重(kg)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('physical.weight')}</label>
                 <Input
                   type="number"
                   placeholder="65"
@@ -164,7 +173,7 @@ const PhysicalTestPage: React.FC<PhysicalTestPageProps> = ({ user, onBack }) => 
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">身高(cm)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('physical.height')}</label>
               <Input
                 type="number"
                 placeholder="170"
@@ -178,11 +187,11 @@ const PhysicalTestPage: React.FC<PhysicalTestPageProps> = ({ user, onBack }) => 
 
         <Card className="bg-white border border-gray-200">
           <CardHeader>
-            <CardTitle className="text-gray-900 text-lg">体能测试</CardTitle>
+            <CardTitle className="text-gray-900 text-lg">{t('physical.fitnessTest')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">俯卧撑(个/分钟)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('physical.pushups')}</label>
               <Input
                 type="number"
                 placeholder="20"
@@ -192,7 +201,7 @@ const PhysicalTestPage: React.FC<PhysicalTestPageProps> = ({ user, onBack }) => 
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">仰卧起坐(个/分钟)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('physical.situps')}</label>
               <Input
                 type="number"
                 placeholder="30"
@@ -202,7 +211,7 @@ const PhysicalTestPage: React.FC<PhysicalTestPageProps> = ({ user, onBack }) => 
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">1000米跑步(分钟)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('physical.runningTime')}</label>
               <Input
                 type="number"
                 step="0.1"
@@ -222,14 +231,14 @@ const PhysicalTestPage: React.FC<PhysicalTestPageProps> = ({ user, onBack }) => 
           onClick={() => setCurrentStep('intro')}
           className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
         >
-          返回
+          {t('physical.back')}
         </Button>
         <Button 
           onClick={calculateResults}
           disabled={!testData.age || !testData.pushups || !testData.situps || !testData.running}
           className="flex-1 bg-gray-900 hover:bg-gray-800 text-white"
         >
-          查看结果
+          {t('physical.viewResults')}
         </Button>
       </div>
     </div>
@@ -238,8 +247,8 @@ const PhysicalTestPage: React.FC<PhysicalTestPageProps> = ({ user, onBack }) => 
   const renderResults = () => (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">测试结果</h2>
-        <p className="text-gray-600 text-sm">基于你的测试数据，我们为你提供以下评估</p>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">{t('physical.testResults')}</h2>
+        <p className="text-gray-600 text-sm">{t('physical.resultsIntro')}</p>
       </div>
 
       <div className="space-y-4">
@@ -252,7 +261,7 @@ const PhysicalTestPage: React.FC<PhysicalTestPageProps> = ({ user, onBack }) => 
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">得分</span>
+                  <span className="text-gray-600">{t('physical.score')}</span>
                   <span className="font-medium text-gray-900">{Math.round(result.score)}/100</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -273,14 +282,14 @@ const PhysicalTestPage: React.FC<PhysicalTestPageProps> = ({ user, onBack }) => 
 
       <Card className="bg-gray-50 border border-gray-200">
         <CardHeader>
-          <CardTitle className="text-gray-900">个性化建议</CardTitle>
+          <CardTitle className="text-gray-900">{t('physical.personalizedAdvice')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2 text-sm text-gray-700">
-            <p>• 建议每周进行3-4次有氧运动，每次30-45分钟</p>
-            <p>• 加强力量训练，重点提升核心肌群</p>
-            <p>• 保持良好的作息习惯，确保充足睡眠</p>
-            <p>• 合理膳食，多摄入蛋白质和维生素</p>
+            <p>• {t('physical.advice1')}</p>
+            <p>• {t('physical.advice2')}</p>
+            <p>• {t('physical.advice3')}</p>
+            <p>• {t('physical.advice4')}</p>
           </div>
         </CardContent>
       </Card>
@@ -289,7 +298,7 @@ const PhysicalTestPage: React.FC<PhysicalTestPageProps> = ({ user, onBack }) => 
         onClick={() => setCurrentStep('intro')}
         className="w-full bg-gray-900 hover:bg-gray-800 text-white font-medium py-3 rounded-lg"
       >
-        重新测试
+        {t('physical.retakeTest')}
       </Button>
     </div>
   );
