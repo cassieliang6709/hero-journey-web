@@ -1,0 +1,47 @@
+{
+  "welcome": "Welcome",
+  "step1": {
+    "title": "Choose Your Avatar",
+    "subtitle": "Select an image that represents you",
+    "line1": "We are like scattered stardust",
+    "line2": "Floating in the ocean of data",
+    "line3": "Everyone has a hero hidden within",
+    "line4": "But reality makes us lose direction",
+    "slogan": "Becoming—Growth, reimagined",
+    "startExplore": "Start Exploring"
+  },
+  "step2": {
+    "title": "So, unnamed hero",
+    "subtitle": "What dreams do you have right now?",
+    "shuffle": "Shuffle",
+    "ready": "I'm ready!",
+    "ideas": {
+      "energy": "I want to become more energetic",
+      "job": "I want to find a job I truly love",
+      "money": "I want to save a lot of money",
+      "health": "I want to be healthier",
+      "noAnxiety": "I want a job without anxiety",
+      "product": "I want to create my own product",
+      "partner": "I want to be someone others want to work with",
+      "control": "I want more control over work and life",
+      "newIndustry": "I want a career that makes me excited for mornings",
+      "confident": "I want to be more confident",
+      "passion": "I want to find what I truly love",
+      "stress": "I want to better handle stress",
+      "refuse": "I want to learn to say no",
+      "freedom": "I want to live a freer life"
+    }
+  },
+  "step3": {
+    "title": "Set Your Username",
+    "subtitle": "Let us know what to call you",
+    "starMapIntro": "Have you heard of the \"Star Map\"?",
+    "heroPath": "It will be your hero's journey",
+    "findAnswer": "From here, I'll find the answers with you",
+    "embark": "Embark!"
+  },
+  "continue": "Continue",
+  "skip": "Skip",
+  "finish": "Finish Setup",
+  "usernamePlaceholder": "Enter username..."
+}

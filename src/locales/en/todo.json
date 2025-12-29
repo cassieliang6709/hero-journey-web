@@ -1,0 +1,52 @@
+{
+  "title": "Todo List",
+  "addTask": "Add Task",
+  "addTaskPlaceholder": "Enter new task...",
+  "completed": "Completed",
+  "incomplete": "Incomplete",
+  "all": "All",
+  "today": "Today",
+  "thisWeek": "This Week",
+  "noTasks": "No tasks",
+  "taskCompleted": "Task completed",
+  "taskDeleted": "Task deleted",
+  "priority": "Priority",
+  "high": "High",
+  "medium": "Medium",
+  "low": "Low",
+  "category": "Category",
+  "dueDate": "Due Date",
+  "progress": "Progress",
+  "createNewTask": "Create New Task",
+  "aiClassifyHint": "AI will automatically classify tasks to star map nodes",
+  "stats": {
+    "total": "Total Tasks",
+    "completed": "Completed",
+    "remaining": "Remaining"
+  },
+  "aiPriority": {
+    "title": "AI Priority Suggestions",
+    "analyzing": "AI is analyzing task priorities...",
+    "button": "AI Priority Sort",
+    "suggestion": "Suggested adjustment",
+    "reason": "Reason",
+    "apply": "Apply Suggestions",
+    "noSuggestions": "Current task order is optimal",
+    "complete": "AI priority analysis complete",
+    "failed": "AI analysis failed, please try again later",
+    "tooFewTasks": "Too few tasks, AI sorting not needed"
+  },
+  "calendar": {
+    "title": "Calendar View",
+    "weekView": "Week View",
+    "monthView": "Month View"
+  },
+  "focusTools": {
+    "title": "Focus Tools",
+    "pomodoro": "Pomodoro",
+    "timer": "Timer",
+    "start": "Start",
+    "pause": "Pause",
+    "reset": "Reset"
+  }
+}

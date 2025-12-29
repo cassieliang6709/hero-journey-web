@@ -1,0 +1,10 @@
+project_id = "fqpdenyxmnjyioerivdt"
+
+[functions.chat-ai]
+verify_jwt = false
+
+[functions.ai-chat]
+verify_jwt = false
+
+[functions.classify-todo]
+verify_jwt = false

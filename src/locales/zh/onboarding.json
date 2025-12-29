@@ -1,0 +1,47 @@
+{
+  "welcome": "欢迎",
+  "step1": {
+    "title": "选择你的头像",
+    "subtitle": "选择一个代表你的形象",
+    "line1": "我们如同散落的星尘",
+    "line2": "漂浮在数据的海洋",
+    "line3": "每个人内心都潜藏着英雄",
+    "line4": "但现实让我们迷失方向",
+    "slogan": "Becoming——成长，值得重新想象",
+    "startExplore": "开始探索"
+  },
+  "step2": {
+    "title": "那么，无名的英雄",
+    "subtitle": "此刻的你拥有哪些想象？",
+    "shuffle": "换一换",
+    "ready": "我已准备好！",
+    "ideas": {
+      "energy": "我想变得更有活力",
+      "job": "我想找到符合心意的工作",
+      "money": "我想存下许多钱",
+      "health": "我想让身体更健康",
+      "noAnxiety": "我想拥有一份不焦虑的工作",
+      "product": "我想做出一个属于自己的产品",
+      "partner": "我想成为别人想要合作的人",
+      "control": "我想让工作和生活都更有掌控感",
+      "newIndustry": "我想换一个能让我期待早晨的行业",
+      "confident": "我想变得更自信",
+      "passion": "我想找到自己真正热爱的事情",
+      "stress": "我想更懂得如何应对压力",
+      "refuse": "我想学会拒绝别人",
+      "freedom": "我想过上更自由的生活"
+    }
+  },
+  "step3": {
+    "title": "设置你的用户名",
+    "subtitle": "让我们知道如何称呼你",
+    "starMapIntro": "你听说过\"星图\"吗？",
+    "heroPath": "它将是你的英雄之路",
+    "findAnswer": "从这里开始，我将与你一起找到答案",
+    "embark": "启程！"
+  },
+  "continue": "继续",
+  "skip": "跳过",
+  "finish": "完成设置",
+  "usernamePlaceholder": "输入用户名..."
+}

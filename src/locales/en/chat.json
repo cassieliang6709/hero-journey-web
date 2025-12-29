@@ -1,0 +1,35 @@
+{
+  "welcomeMessage": "Hello! I'll accompany you to decode this world through small actions",
+  "header": {
+    "assistantName": "Little Spirit",
+    "avatarAlt": "User avatar",
+    "clearChat": "Clear chat history",
+    "resetGoals": "Reset goals"
+  },
+  "title": "AI Chat",
+  "placeholder": "Enter your question...",
+  "send": "Send",
+  "thinking": "Thinking...",
+  "welcomeMessage": "Hello! I'm your AI assistant. How can I help you?",
+  "errorMessage": "Sorry, something went wrong. Please try again later.",
+  "clearHistory": "Clear History",
+  "suggestions": "You might want to ask",
+  "taskSuggestion": "Task Suggestion",
+  "addToTodo": "Add to Todo",
+  "nodeComplete": "Node Complete",
+  "congratulations": "Congratulations on completing this node!",
+  "todoCardHint": "📝 I've shown you the todo card where you can view and manage tasks directly.",
+  "fallbackResponses": {
+    "1": "Sorry, I can't connect to the server right now. Let's continue chatting!",
+    "2": "There seems to be a network issue, but I'm still here with you.",
+    "3": "Technical issues are temporarily blocking me, but this won't affect our conversation."
+  },
+  "taskComplete": {
+    "1": "🎉 Amazing! You just completed \"{{task}}\", I can feel your effort! We've taken another step forward!",
+    "2": "✨ Well done! Completing \"{{task}}\" makes us both stronger! Every small action builds strength!",
+    "3": "🌟 Great job! The success of \"{{task}}\" makes me proud of you, keep up the persistence!",
+    "4": "💪 Fantastic! Completing \"{{task}}\" shows your determination, your persistence fills me with strength!",
+    "5": "🎯 Task complete! Through \"{{task}}\" we're becoming better versions of ourselves! This is our hero's journey!"
+  },
+  "nodeUnlocked": "🎉 Awesome! You just lit up the \"{{node}}\" node, another star shines in our map! Keep going, we're getting stronger!"
+}

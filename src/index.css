@@ -1,0 +1,135 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 72.2% 50.6%;
+    --destructive-foreground: 60 9.1% 97.8%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 0 0% 9%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  }
+}
+
+@layer utilities {
+  .mobile-container {
+    @apply max-w-md mx-auto min-h-screen relative overflow-hidden bg-white;
+  }
+  
+  .gradient-bg {
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+    position: relative;
+  }
+  
+  .gradient-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.3), transparent),
+      radial-gradient(2px 2px at 40px 70px, rgba(255, 165, 0, 0.4), transparent),
+      radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.5), transparent),
+      radial-gradient(1px 1px at 130px 80px, rgba(255, 165, 0, 0.3), transparent),
+      radial-gradient(2px 2px at 160px 30px, rgba(255, 255, 255, 0.2), transparent);
+    background-repeat: repeat;
+    background-size: 200px 100px;
+    animation: starfield 20s linear infinite;
+    pointer-events: none;
+  }
+  
+  @keyframes starfield {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-100px); }
+  }
+  
+  .hero-gradient {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffb347 100%);
+    box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3);
+  }
+  
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  /* 星空背景动画 */
+  .stars {
+    width: 1px;
+    height: 1px;
+    background: transparent;
+    box-shadow: 
+      1541px 1346px #fff, 1759px 0564px #fff, 0684px 1582px #fff, 1608px 0443px #fff, 
+      0840px 1962px #fff, 1725px 1897px #fff, 1945px 0310px #fff, 0372px 1057px #fff,
+      1398px 1773px #fff, 1022px 0569px #fff, 0548px 1754px #fff, 1783px 1607px #fff,
+      1603px 0849px #fff, 0979px 1901px #fff, 1486px 0413px #fff, 1267px 1632px #fff,
+      0745px 0822px #fff, 1894px 1544px #fff, 0382px 0304px #fff, 1208px 1039px #fff;
+    animation: animStar 50s linear infinite;
+  }
+
+  .stars2 {
+    width: 2px;
+    height: 2px;
+    background: transparent;
+    box-shadow: 
+      0379px 1381px #fff, 1774px 0973px #fff, 0184px 0446px #fff, 1843px 1807px #fff,
+      0914px 0842px #fff, 1446px 1756px #fff, 0980px 0649px #fff, 1558px 0305px #fff,
+      0815px 1684px #fff, 1072px 1220px #fff, 1858px 0745px #fff, 0644px 0304px #fff,
+      1518px 1332px #fff, 0269px 1858px #fff, 1173px 0468px #fff, 0795px 1355px #fff,
+      1457px 0884px #fff, 0938px 1707px #fff, 1728px 0394px #fff, 0353px 1144px #fff;
+    animation: animStar 100s linear infinite;
+  }
+
+  .stars3 {
+    width: 3px;
+    height: 3px;
+    background: transparent;
+    box-shadow: 
+      0793px 1818px #fff, 1270px 0776px #fff, 1554px 1718px #fff, 0548px 0371px #fff,
+      1693px 1383px #fff, 0980px 1064px #fff, 1426px 0297px #fff, 0742px 1553px #fff,
+      1923px 0884px #fff, 0454px 1735px #fff, 1869px 0446px #fff, 0830px 0304px #fff,
+      1202px 1632px #fff, 0379px 0949px #fff, 1746px 1404px #fff, 0693px 0728px #fff,
+      1472px 1949px #fff, 0915px 0495px #fff, 1321px 1057px #fff, 1792px 1684px #fff;
+    animation: animStar 150s linear infinite;
+  }
+
+  @keyframes animStar {
+    from {
+      transform: translateY(0px);
+    }
+    to {
+      transform: translateY(-2000px);
+    }
+  }
+}
